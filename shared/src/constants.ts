@@ -15,7 +15,7 @@ import type {
 
 export const APP_NAME = "LIFE DUEL";
 export const APP_TAGLINE = "Dos vidas. Un mismo mundo. Una sola oportunidad.";
-export const APP_VERSION = "1.0.0";
+export const APP_VERSION = "2.2.0";
 
 export const MIN_ALIAS_LENGTH = 2;
 export const MAX_ALIAS_LENGTH = 18;

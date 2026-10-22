@@ -41,7 +41,7 @@ Edad, dinero, ingresos, gastos, deudas, educación, empleo, estado civil, hijos,
 ## 4. Ciclo anual
 
 1. **Sucesos compartidos:** se seleccionan con RNG de mundo según edad, país, era, grupo de ingresos, probabilidad, cooldown y control de repetición.
-2. **Crónica personal:** se generan 5–6 escenas deterministas de la vida cotidiana, sin efectos mecánicos.
+2. **Crónica personal:** se generan hasta cuatro escenas deterministas al año (una por trimestre), sin efectos mecánicos y sin repetir la misma frase dentro del año.
 3. **Decisiones:** cada personaje recibe un prompt elegible según edad, recursos, país, estado civil, empleo, salud y contenido.
 4. **Envío privado:** la opción se valida contra el prompt y el estado; se registra con idempotencia.
 5. **Resolución:** cuando todos los personajes vivos han respondido, se aplican decisiones y efectos compartidos.
@@ -55,7 +55,7 @@ Si un personaje murió, no bloquea al superviviente. En duelo, el primero en mor
 
 ## 5. Decisiones
 
-Hay **171 decisiones** en el catálogo actual, agrupadas por etapa. Cada pregunta muestra varios caminos visibles y las nuevas incorporan consecuencias presentes y futuras. Las opciones específicas se filtran por edad, dinero, educación, empleo, país, familia, religión, sexo, vivienda, migración y banderas de decisiones previas. Las decisiones de evento tienen cooldown propio y un intervalo global de tres años.
+Hay **186 decisiones** y **594 opciones** en el catálogo actual, agrupadas por etapa. Cada pregunta muestra varios caminos visibles y las nuevas incorporan consecuencias presentes y futuras. Las opciones específicas se filtran por edad, dinero, educación, empleo, país, familia, religión, sexo, vivienda, migración y banderas de decisiones previas. Las decisiones de evento tienen cooldown propio y un intervalo global de tres años.
 
 - **Infancia:** hábitos, juego, apoyo escolar, salud, recursos familiares, vivienda y primera oportunidad de aprendizaje.
 - **Adolescencia:** continuar estudios, formación profesional, primer trabajo, habilidades, amistades y responsabilidades.
@@ -80,7 +80,7 @@ Si una pregunta tiene menos de cinco opciones elegibles, `fallback-options.ts` a
 
 El catálogo v4 añade ocho decisiones: descanso digital, mascota de compañía, inversión de ahorros, mejora del hogar, voluntariado, práctica artística, testamento y límites laborales. La v4.1 incorpora tres decisiones de recuperación (`reconstruir_empleo`, `renegociar_deudas`, `recuperar_salud`) que aparecen cuando el personaje adulto sufre desempleo, deuda desproporcionada, salud baja o una combinación de infelicidad y saldo negativo. `reconstruir_empleo` exige estar desempleado o incapacitado y es repetible; `recuperar_salud` solo aparece con salud inferior a 55 y es repetible; `renegociar_deudas` es única. Una crisis severa (salud < 32, deuda impagable o desempleo) se resuelve antes que la reacción opcional al suceso del año para que la racha no deje la partida sin salida. Ninguna opción de recuperación tiene un `moneyDelta` superior a 1.000 USD; la salida es un empleo temporal, formación pública, renegociación, apoyo familiar o reducción de ritmo, no un premio.
 
-Cada año genera además una **crónica de 5–6 escenas** con `chronicleYear`. Combina la etapa vital, el contexto familiar, el trabajo, el dinero, la salud, la educación, la migración, el ocio, el lugar de residencia y la vida interior. La crónica:
+Cada año genera además hasta **cuatro escenas únicas** con `monthlyStory` (meses 1, 4, 7 y 10). Combina la etapa vital, el contexto familiar, el trabajo, el dinero, la salud, la educación, la migración, el ocio, el lugar de residencia y la vida interior. La crónica:
 
 - es determinista para la misma semilla, personaje y año;
 - no modifica estadísticas ni dinero;
@@ -112,6 +112,8 @@ Los efectos compartidos modifican el mundo (coste de vida, desempleo, fase econ�
 - **Gastos esenciales:** pesos de alimentación, vivienda, transporte, salud, educación y otros; ajustados por coste de vida, calidad de vivienda, hijos, pareja y participación en el hogar.
 - **Capacidad de gasto:** si la cesta supera lo que el hogar puede sostener (82 % de los ingresos, un suelo mínimo por país y parte del saldo disponible), se escala proporcionalmente. Evita una espiral de deuda infinita; es una aproximación de simulación, no una encuesta de pobreza.
 - **Infancia:** no genera gastos ni deuda propios; la familia cubre el hogar.
+- **Gasto visible por edad:** antes de los 18 años solo se ofrecen salud, terapia, aficiones, idiomas, tiempo en familia, cumpleaños, regalos, donaciones, animales domésticos, bicicleta, teléfono y viaje familiar. Empresa, universidad, deuda, inversión, coche y vivienda se muestran bloqueados con el motivo «Disponible al cumplir 18 años», y el servidor rechaza la acción aunque se intente fuera de la interfaz. El dinero procede del presupuesto familiar modelado, no de una autonomía legal real.
+- **Life Record:** el diario móvil muestra como máximo cuatro escenas con contenido real (decisiones, hitos, salud, dinero y migración) y descarta las líneas de continuidad.
 - **Impuestos:** modelo progresivo simplificado con tramos y cotización.
 - **Deuda:** interés anual, capacidad máxima anclada a los ingresos reales del personaje (el PIB del país solo actúa como suelo si no hay ingresos), reestructuración al superar el límite y alivio tras años de dificultad.
 - **Ahorro:** el excedente amortiza deuda y luego incrementa saldo.
@@ -318,3 +320,33 @@ Las decisiones de visa cualificada, reagrupación, retorno y apelación calculan
 ### 15.6 Cuenta corriente y extracto
 
 El servidor genera doce meses derivados del cierre anual. `LiveLedger` los presenta como cuenta corriente y anima los meses cuando la vida está en vivo; en pausa o manual queda en el último cierre. **No hay doce transacciones contables independientes**: el último saldo coincide con el saldo autoritativo y el libro mayor conserva cada movimiento real.
+
+## 16. Arco de relación, contexto y diario
+
+### 16.1 Etapas y puertas
+
+Una relación nueva empieza en `seeing` y solo avanza con escenas y decisiones concretas:
+
+`conocer → citas → relación estable → conversación sobre el futuro → compromiso → boda`.
+
+- `relationship_define` exige al menos tres meses, dos recuerdos y que la relación siga en `seeing`. Sirve para decidir si hay una relación estable, no para casarse.
+- `relationship_commit` aparece después de seis meses en `committed`. Habla de convivencia, dinero y proyectos; no celebra ninguna boda.
+- `relationship_proposal` y `relationship_proposal_received` solo aparecen si la relación lleva al menos 18 meses, hay tres hitos en la línea temporal, existe la bandera `futuro_hablado` y el vínculo es suficiente. La propuesta no une cuentas ni celebra la boda.
+- `relationship_wedding` solo aparece en `engaged`, tres meses después del compromiso. La boda es la que cambia el estado civil y comparte el hogar.
+- `acuerdo_pareja` es una decisión heredada de partidas antiguas. Ya no se selecciona en partidas nuevas.
+
+La tarjeta `RelationshipStory` muestra la línea temporal real: primera cita, conversación honesta, familia, viaje, dinero, futuro y crisis. Sin esos hitos visibles, una propuesta de matrimonio no tendría sentido narrativo.
+
+### 16.2 Contexto local
+
+Las universidades y los programas se filtran por país de residencia. Un programa extranjero exige residir en ese país o preparar una ruta de estudios en el extranjero (idioma, admisión, beca, visado y traslado). La migración se resuelve con `migrateTo` y deja un hito; no se muestran campus italianos porque sí en una vida india.
+
+### 16.3 Diario con peso
+
+`monthly-story.ts` selecciona hasta cuatro escenas al año, no una frase por mes. Cada escena tiene categoría (`amor`, `familia`, `amistad`, `trabajo`, `dinero`, `salud`, `lugar`, `chisme`, `educacion`, `vida`) y una condición de edad/contexto. Las entradas de relación tienen prioridad y se guardan también en la línea temporal de la pareja. Se descartan las frases ya vistas en las últimas 48 entradas; si una franja de edad no tiene escenas nuevas, el diario se acorta antes que repetir. El historial financiero sigue viviendo en el banco y el libro mayor; el diario no mezcla resúmenes contables con la historia.
+
+### 16.4 Límites conocidos
+
+- Los arcos todavía son una colección de escenas y decisiones; no son un grafo narrativo completo con todas las ramas posibles.
+- Los nombres y costumbres locales son aproximaciones de simulación, no una representación cultural exhaustiva.
+- La boda y la vida de casados pueden ampliarse con más escenas de conflicto, cuidado y proyectos compartidos.

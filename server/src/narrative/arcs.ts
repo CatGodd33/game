@@ -32,28 +32,6 @@ interface LifeArc {
  */
 const ARCS: LifeArc[] = [
     {
-        id: "secreto_deuda",
-        title: "El sobre bajo la cama",
-        minAge: 10,
-        maxAge: 24,
-        maxFamilyTier: 3,
-        weight: 1.1,
-        chapters: [
-            {
-                title: "Una puerta que se cierra",
-                text: "En {city}, encontraste un sobre con recibos y una palabra que no entendías. Preguntaste en la cena; la conversación se apagó antes de empezar. Alguien de tu familia sabe más de lo que cuenta.",
-            },
-            {
-                title: "La llamada de un desconocido",
-                text: "Una voz preguntó por tu {parent}. Al oír tu nombre, colgó. Esa noche descubriste que la deuda familiar no era una metáfora: había fechas, intereses y una persona que amenazaba con contar la verdad.",
-            },
-            {
-                title: "Elegir qué verdad sostener",
-                text: "Tu familia se reunió para hablar del sobre. Había culpa, orgullo y una propuesta que habría resuelto todo a cambio de silencio. No tomaste la decisión por ellos; decidiste qué clase de adulto querías ser cuando saliera a la luz.",
-            },
-        ],
-    },
-    {
         id: "herencia",
         title: "Lo que queda de la abuela",
         minAge: 24,

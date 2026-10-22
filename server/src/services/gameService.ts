@@ -1,3 +1,4 @@
+import { personalLife, syncDuelRuns } from "../simulation/duel-runs.js";
 import { EventEmitter } from "node:events";
 import { randomInt } from "node:crypto";
 import type {
@@ -87,6 +88,7 @@ export class GameService {
     async init(): Promise<void> {
         const games = this.store.loadActive ? await this.store.loadActive() : await this.store.loadAll();
         for (const game of games) {
+            if(game.independentRuns){this.schedule(game);continue;}
             if (game.status === "playing" && (game.clock.autoDecisions || game.config.storyMode) && game.pending) {
                 if (!game.pending.deadlineAt) {
                     refreshDeadline(game);
@@ -139,6 +141,12 @@ export class GameService {
             clearTimeout(existing);
             this.timers.delete(game.id);
         }
+        if(game.independentRuns){
+            const deadlines=Object.values(game.independentRuns).filter(run=>run?.status==="playing"&&run.pending&&(run.clock.autoDecisions||waitingFor(run).length===0)).map(run=>Date.parse(run!.pending!.deadlineAt??new Date(Date.now()+500).toISOString()));
+            if(!deadlines.length||game.status==="finished")return;
+            const timer=setTimeout(()=>{void this.runAutoTurn(game.id);},Math.max(0,Math.min(...deadlines)-Date.now()));
+            timer.unref?.();this.timers.set(game.id,timer);return;
+        }
         if (
             game.status !== "playing" ||
             !game.pending ||
@@ -161,6 +169,16 @@ export class GameService {
         this.timers.delete(gameId);
         await this.withLock(gameId, async () => {
             const game = await this.store.get(gameId);
+            if(game?.independentRuns){
+                for(const run of Object.values(game.independentRuns)){
+                    if(!run||run.status!=="playing"||!run.pending)continue;
+                    if(!run.clock.autoDecisions&&waitingFor(run).length)continue;
+                    if(run.pending.deadlineAt&&Date.parse(run.pending.deadlineAt)>Date.now()+2)continue;
+                    if(run.clock.autoDecisions){if(!waitingFor(run).length)automaticHousehold(run);for(const slot of waitingFor(run))autoSubmit(run,slot);}
+                    if(!waitingFor(run).length)advanceMonth(run);
+                }
+                syncDuelRuns(game);await this.store.save(game);this.emitChange(game);this.schedule(game);return;
+            }
             if (!game || game.status !== "playing" || !game.pending) return;
             if (!game.clock.autoDecisions && !(game.mode === "solo" && game.config.storyMode && waitingFor(game).length === 0)) return;
             if (game.config.monthlyMode && game.clock.autoDecisions && waitingFor(game).length === 0) automaticHousehold(game);
@@ -370,25 +388,28 @@ export class GameService {
         input: SubmitDecisionInput,
     ): Promise<DecisionSubmittedResponse> {
         return this.withLock(gameId, async () => {
-            const game = await this.loadGame(gameId);
+            const root = await this.loadGame(gameId);
+            const game = personalLife(root,playerId);
             const player = this.requireMember(game, playerId);
             const result = submitDecision(game, player.slot, input);
-            await this.store.save(game);
-            this.emitChange(game);
-            this.schedule(game);
+            syncDuelRuns(root);
+            await this.store.save(root);
+            this.emitChange(root);
+            this.schedule(root);
             return {
                 accepted: true,
                 duplicate: result.duplicate,
                 waitingFor: waitingFor(game),
                 turnResolved: result.resolved,
-                game: getGameView(game, playerId, this.connectedSlots(game.id)),
+                game: getGameView(root, playerId, this.connectedSlots(root.id)),
             };
         });
     }
 
     async advanceStory(gameId: string, playerId: string): Promise<GameView> {
         return this.withLock(gameId, async () => {
-            const game = await this.loadGame(gameId);
+            const root = await this.loadGame(gameId);
+            const game = personalLife(root,playerId);
             this.requireMember(game, playerId);
             if (!game.config.storyMode) throw Errors.conflict("Esta vida no usa el modo historia.");
             if (game.mode === "duel" && Object.keys(game.pending?.prompts ?? {}).length > 0) {
@@ -399,15 +420,17 @@ export class GameService {
             if (game.config.monthlyMode) {
                 for (let i = 0; i < 1272 && game.status === "playing" && waitingFor(game).length === 0; i++) advanceMonth(game);
             } else resolveTurn(game);
-            await this.store.save(game);
-            this.emitChange(game); this.schedule(game);
-            return getGameView(game, playerId, this.connectedSlots(game.id));
+            syncDuelRuns(root);
+            await this.store.save(root);
+            this.emitChange(root); this.schedule(root);
+            return getGameView(root, playerId, this.connectedSlots(root.id));
         });
     }
 
     async enableMonthly(gameId: string, playerId: string): Promise<GameView> {
         return this.withLock(gameId, async () => {
-            const game = await this.loadGame(gameId); const player = this.requireMember(game, playerId);
+            const root = await this.loadGame(gameId);
+            const game = personalLife(root,playerId); const player = this.requireMember(game, playerId);
             if (game.mode !== "solo" || !player.character || game.status === "finished") throw Errors.conflict("Esta vida no puede cambiar de reloj.");
             if (!game.config.monthlyMode) {
                 game.config.monthlyMode = true; game.config.storyMode = true;
@@ -415,20 +438,23 @@ export class GameService {
                 player.character.liveEconomy = { month: 0, statements: [], unpaid: player.character.unpaidBills ?? 0, interest: 0 };
                 refreshDeadline(game);
                 game.updatedAt = new Date(Math.max(Date.now(), new Date(game.updatedAt).getTime() + 1)).toISOString();
-                await this.store.save(game); this.emitChange(game); this.schedule(game);
+                syncDuelRuns(root);
+            await this.store.save(root); this.emitChange(root); this.schedule(root);
             }
-            return getGameView(game, playerId, this.connectedSlots(game.id));
+            return getGameView(root, playerId, this.connectedSlots(root.id));
         });
     }
 
     async spending(gameId: string, playerId: string) {
-        const game = await this.loadGame(gameId); const player = this.requireMember(game, playerId);
+        const root = await this.loadGame(gameId);
+            const game = personalLife(root,playerId); const player = this.requireMember(game, playerId);
         if (!player.character) throw Errors.conflict("La vida no ha comenzado.");
         return { options: spendingOptions(game, player.character) };
     }
     async purchase(gameId: string, playerId: string, input: ManualPurchase) {
         return this.withLock(gameId, async () => {
-            const game = await this.loadGame(gameId); const player = this.requireMember(game, playerId);
+            const root = await this.loadGame(gameId);
+            const game = personalLife(root,playerId); const player = this.requireMember(game, playerId);
             if (!player.character) throw Errors.conflict("La vida no ha comenzado.");
             if (game.status === "finished") throw Errors.conflict("La vida ya ha terminado; sus resultados están cerrados.");
             if (!player.character.alive) throw Errors.conflict("Este personaje ya ha muerto; su estado no puede cambiar.");
@@ -436,13 +462,15 @@ export class GameService {
             const message = applyManualAction(game, player.character, input);
             refreshAvailableDecisions(game);
             game.updatedAt = new Date(Math.max(Date.now(), new Date(game.updatedAt).getTime() + 1)).toISOString();
-            await this.store.save(game); this.emitChange(game);
-            return { game: getGameView(game, playerId, this.connectedSlots(game.id)), message };
+            syncDuelRuns(root);
+            await this.store.save(root); this.emitChange(root);
+            return { game: getGameView(root, playerId, this.connectedSlots(root.id)), message };
         });
     }
 
     async mobility(gameId: string, playerId: string) {
-        const game = await this.loadGame(gameId);
+        const root = await this.loadGame(gameId);
+            const game = personalLife(root,playerId);
         const player = this.requireMember(game, playerId);
         if (!player.character) throw Errors.conflict("La vida no ha comenzado.");
         if (!player.character.alive) throw Errors.conflict("Este personaje ya ha muerto.");
@@ -451,7 +479,8 @@ export class GameService {
 
     async move(gameId: string, playerId: string, input: MobilityRequest) {
         return this.withLock(gameId, async () => {
-            const game = await this.loadGame(gameId);
+            const root = await this.loadGame(gameId);
+            const game = personalLife(root,playerId);
             const player = this.requireMember(game, playerId);
             if (!player.character) throw Errors.conflict("La vida no ha comenzado.");
             if (game.status === "finished") throw Errors.conflict("La vida ya ha terminado.");
@@ -460,11 +489,12 @@ export class GameService {
                 const result = executeMobility(game, player.character, input);
                 refreshAvailableDecisions(game);
                 game.updatedAt = new Date(Math.max(Date.now(), new Date(game.updatedAt).getTime() + 1)).toISOString();
-                await this.store.save(game);
-                this.emitChange(game);
-                this.schedule(game);
+                syncDuelRuns(root);
+            await this.store.save(root);
+                this.emitChange(root);
+                this.schedule(root);
                 return {
-                    game: getGameView(game, playerId, this.connectedSlots(game.id)),
+                    game: getGameView(root, playerId, this.connectedSlots(root.id)),
                     message: result.text,
                     success: result.success,
                 };
@@ -481,7 +511,8 @@ export class GameService {
         input: { funeralId: string; choice: FuneralChoice; idempotencyKey: string },
     ) {
         return this.withLock(gameId, async () => {
-            const game = await this.loadGame(gameId);
+            const root = await this.loadGame(gameId);
+            const game = personalLife(root,playerId);
             const player = this.requireMember(game, playerId);
             if (!player.character) throw Errors.conflict("La vida no ha comenzado.");
             if (game.status === "finished") throw Errors.conflict("La vida ya ha terminado; sus resultados están cerrados.");
@@ -489,11 +520,12 @@ export class GameService {
             const result = resolveFuneral(player.character, input, game.currentYear);
             if (!result.duplicate) {
                 game.updatedAt = new Date(Math.max(Date.now(), new Date(game.updatedAt).getTime() + 1)).toISOString();
-                await this.store.save(game);
-                this.emitChange(game);
+                syncDuelRuns(root);
+            await this.store.save(root);
+                this.emitChange(root);
             }
             return {
-                game: getGameView(game, playerId, this.connectedSlots(game.id)),
+                game: getGameView(root, playerId, this.connectedSlots(root.id)),
                 message: result.message,
                 duplicate: result.duplicate,
             };
@@ -502,25 +534,29 @@ export class GameService {
 
     async setFocus(gameId: string, playerId: string, focus: LifeFocus): Promise<GameView> {
         return this.withLock(gameId, async () => {
-            const game = await this.loadGame(gameId);
+            const root = await this.loadGame(gameId);
+            const game = personalLife(root,playerId);
             const player = this.requireMember(game, playerId);
             if (game.mode !== "solo" || !game.config.storyMode || !player.character?.story || player.character.age < 6 || game.status === "finished") throw Errors.conflict("El enfoque no está disponible en esta vida.");
             player.character.story.focus = focus;
             game.updatedAt = new Date(Math.max(Date.now(), new Date(game.updatedAt).getTime() + 1)).toISOString();
-            await this.store.save(game); this.emitChange(game);
-            return getGameView(game, playerId, this.connectedSlots(game.id));
+            syncDuelRuns(root);
+            await this.store.save(root); this.emitChange(root);
+            return getGameView(root, playerId, this.connectedSlots(root.id));
         });
     }
 
     async setPaused(gameId: string, playerId: string, paused: boolean): Promise<GameView> {
         return this.withLock(gameId, async () => {
-            const game = await this.loadGame(gameId);
+            const root = await this.loadGame(gameId);
+            const game = personalLife(root,playerId);
             this.requireMember(game, playerId);
             setPaused(game, paused);
-            await this.store.save(game);
-            this.emitChange(game);
-            this.schedule(game);
-            return getGameView(game, playerId, this.connectedSlots(game.id));
+            syncDuelRuns(root);
+            await this.store.save(root);
+            this.emitChange(root);
+            this.schedule(root);
+            return getGameView(root, playerId, this.connectedSlots(root.id));
         });
     }
 
@@ -530,14 +566,16 @@ export class GameService {
         speed: GameConfig["speed"],
     ): Promise<GameView> {
         return this.withLock(gameId, async () => {
-            const game = await this.loadGame(gameId);
+            const root = await this.loadGame(gameId);
+            const game = personalLife(root,playerId);
             this.requireMember(game, playerId);
             if (game.status === "finished") throw Errors.conflict("La partida ya ha terminado.");
             setGameSpeed(game, speed);
-            await this.store.save(game);
-            this.emitChange(game);
-            this.schedule(game);
-            return getGameView(game, playerId, this.connectedSlots(game.id));
+            syncDuelRuns(root);
+            await this.store.save(root);
+            this.emitChange(root);
+            this.schedule(root);
+            return getGameView(root, playerId, this.connectedSlots(root.id));
         });
     }
 
@@ -548,7 +586,8 @@ export class GameService {
         decisionTimerSeconds?: number,
     ): Promise<GameView> {
         return this.withLock(gameId, async () => {
-            const game = await this.loadGame(gameId);
+            const root = await this.loadGame(gameId);
+            const game = personalLife(root,playerId);
             const player = this.requireMember(game, playerId);
             if (game.status === "finished") throw Errors.conflict("La partida ya ha terminado.");
             if (game.mode === "duel" && player.slot !== game.hostSlot) {
@@ -561,10 +600,11 @@ export class GameService {
                 }
                 setDecisionTimer(game, decisionTimerSeconds);
             }
-            await this.store.save(game);
-            this.emitChange(game);
-            this.schedule(game);
-            return getGameView(game, playerId, this.connectedSlots(game.id));
+            syncDuelRuns(root);
+            await this.store.save(root);
+            this.emitChange(root);
+            this.schedule(root);
+            return getGameView(root, playerId, this.connectedSlots(root.id));
         });
     }
 
@@ -573,7 +613,11 @@ export class GameService {
             const game = await this.loadGame(gameId);
             const player = this.requireMember(game, playerId);
             if (game.mode === "duel" && game.status !== "finished") {
-                markPlayerLeft(game, player.slot);
+                if (game.independentRuns) {
+                    const run = personalLife(game, playerId);
+                    if (run.status !== "finished") setPaused(run, true);
+                    syncDuelRuns(game);
+                } else markPlayerLeft(game, player.slot);
                 await this.store.save(game);
                 this.emitChange(game);
                 this.schedule(game);

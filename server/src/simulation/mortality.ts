@@ -71,9 +71,10 @@ export function annualMortalityRisk(
 
     if (age <= 0) {
         const infantRisk = clamp(country.infantMortalityPer1000 / 1000, 0, 0.4);
-        return clamp(infantRisk * DIFFICULTY_META[difficulty].mortalityMultiplier, 0, 0.9);
+        return clamp(infantRisk * DIFFICULTY_META[difficulty].mortalityMultiplier * (character.flags?.includes("duelo_infancia_protegida")?.025:1), 0, character.flags?.includes("duelo_infancia_protegida")?.001:.9);
     }
 
+    if(age<18&&character.flags?.includes("duelo_infancia_protegida"))return Math.min(.0005,baselineHazard(age)*factor*.05);
     const baseHazard = baselineHazard(age) * factor;
     const healthMultiplier = clamp(
         1 + (60 - character.stats.health) * model.healthRisk.perHealthPointBelow,

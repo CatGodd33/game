@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { DECISIONS } from "../server/src/simulation/decisions.js";
 
 /**
  * El atlas es una página estática autocontenida servida desde `client/public`.
@@ -32,8 +33,8 @@ test("atlas espacial: dos entradas, ramas acumulativas, constelación y móvil",
             roots: data.guide.roots.map((root: { decisionId: string }) => root.decisionId),
         };
     });
-    expect(metadata.decisions).toBe(171);
-    expect(metadata.options).toBe(543);
+    expect(metadata.decisions).toBe(DECISIONS.length);
+    expect(metadata.options).toBe(DECISIONS.reduce((sum, decision) => sum + decision.options.length, 0));
     expect(metadata.roots).toEqual(["story_first_encounter", "tiempo_propio"]);
 
     await page.screenshot({ path: "artifacts/decision-map-desktop.png", fullPage: false });
@@ -82,10 +83,10 @@ test("atlas espacial: dos entradas, ramas acumulativas, constelación y móvil",
     await page.locator("#zoom-reset").click();
     await expect(page.locator("#zoom-level")).toHaveText("100%");
 
-    // La constelación busca en las 171 decisiones y añade una pregunta real.
+    // La constelación busca en todas las decisiones y añade una pregunta real.
     await page.locator("#constellation-open").click();
     await expect(page.locator("#constellation")).toBeVisible();
-    await expect(page.locator(".constellation-node")).toHaveCount(171);
+    await expect(page.locator(".constellation-node")).toHaveCount(DECISIONS.length);
     await page.locator("#constellation-search").fill("epidemia");
     const epidemicResult = page.locator('#constellation-results [data-add-decision="respuesta_epidemia"]');
     await expect(epidemicResult).toBeVisible();

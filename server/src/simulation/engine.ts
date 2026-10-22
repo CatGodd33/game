@@ -1,3 +1,6 @@
+import { relationshipMonth, relationshipProgress } from "./relationship-progress.js";
+import { familyAction } from "./family-case.js";
+import { initializeDuelRuns } from "./duel-runs.js";
 import { offerMonthlyOpportunity } from "./monthly-opportunities.js";
 import { openExportRoute } from "./trade.js";
 import { computeWealthUpkeep } from "./wealth-pressure.js";
@@ -463,6 +466,8 @@ function applyOutcome(
                 : effect.partnerCountry ?? character.currentCountry;
         const country = getCountry(origin);
         const rng = createRng(deriveSeed(game.seed, "relationship", character.id, year));
+        character.relationship={stage:"seeing",startedMonth:relationshipMonth(character,year),memories:[]};
+        character.partnerBond=72;
         character.partnerName = rng.pick(character.sex === "female" ? country.names.male : country.names.female);
         character.flags = (character.flags ?? []).filter(f => f !== "pareja_internacional");
         if (origin !== character.currentCountry) character.flags = [...new Set([...(character.flags ?? []), "pareja_internacional"])];
@@ -470,6 +475,12 @@ function applyOutcome(
         if (!effect.maritalStatus && character.maritalStatus === "single") {
             character.maritalStatus = "dating";
         }
+    }
+    if (effect.relationshipStep && character.partnerName) {
+        const r = relationshipProgress(character, year)!;
+        if (effect.relationshipStep !== "wait") r.stage = effect.relationshipStep;
+        r.lastChoiceMonth = relationshipMonth(character, year);
+        if (effect.relationshipStep === "engaged") r.engagedMonth = r.lastChoiceMonth;
     }
     if (effect.shareHousehold || effect.maritalStatus === "married" || effect.milestone === "Primera convivencia") {
         if (character.partnerProfile) character.partnerProfile.sharedHousehold = true;
@@ -481,12 +492,14 @@ function applyOutcome(
         for (const r of character.story?.relatives ?? []) if (r.role === "partner" && r.name === character.partnerName) r.inHousehold = false;
         character.partnerName = null;
         character.partnerProfile = undefined;
+        character.relationship = undefined;
         character.flags = (character.flags ?? []).filter(f => f !== "pareja_internacional");
         if (!effect.maritalStatus && (character.maritalStatus === "dating" || character.maritalStatus === "married")) {
             character.maritalStatus = "divorced";
         }
     }
     if (effect.maritalStatus) character.maritalStatus = effect.maritalStatus;
+    if (effect.maritalStatus === "married" && character.partnerName) relationshipProgress(character,year)!.stage="married";
     if (effect.childrenDelta && (effect.childrenDelta < 0 || !parentingBlocked(character, game.currentYear))) {
         if (game.config.monthlyMode && effect.childrenDelta > 0) {
             const due = (character.liveEconomy?.month ?? 0) + 9;
@@ -569,6 +582,12 @@ function applyOutcome(
             effect.businessStart.name,
         );
     }
+    if(effect.familyAction)familyAction(game,character,effect.familyAction);
+    if(effect.partnerBondDelta)character.partnerBond=clamp((character.partnerBond??65)+effect.partnerBondDelta);
+    if(effect.propertyChange){const slot=game.players.find(p=>p.character?.id===character.id)?.slot;const property=slot?character.assets?.find(a=>a.id===game.pending?.secondary?.[slot]?.assetId):undefined;const lease=property?.rental;if(lease){const delta=effect.propertyChange;if(delta.recoveryPct){const amount=Math.round(lease.arrears*delta.recoveryPct);if(amount>0){grant(character,amount,`Rentas recuperadas · ${property!.name}`,year,"income");lease.arrears-=amount;}}if(delta.vacate)lease.occupied=false;if(delta.conditionDelta)lease.condition=clamp(lease.condition+delta.conditionDelta);if(delta.rentMultiplier&&!lease.occupied)lease.monthlyRent=Math.round(lease.monthlyRent*delta.rentMultiplier);}}
+    if(effect.pauseEducation&&character.educationPlan)character.educationPlan.paused=true;
+    if(effect.businessDelegation&&character.business?.active&&!character.business.delegated){character.business.delegated=true;character.business.employees++;}
+    if(effect.familyTargetChildren!==undefined)character.familyTargetChildren=Math.max(effect.familyTargetChildren,character.children+(effect.childrenDelta??0));
     if (effect.businessFocus && character.business?.active) { character.business.segment = effect.businessFocus.label; character.business.activity = effect.businessFocus.activity; }
     if (effect.businessChange) applyBusinessChange(character, effect.businessChange);
     if (effect.exportRoute && character.business?.active && character.business.kind === "comercio") openExportRoute(character, effect.exportRoute);
@@ -608,7 +627,7 @@ function automaticEmployment(character: CharacterState): void {
         character.employment.status = "unemployed";
     }
     if (
-        character.age >= 70 &&
+        character.age >= 70 && !character.flags?.includes("plan_etapa_tardia") &&
         (character.employment.status === "employed" || character.employment.status === "self-employed")
     ) {
         character.employment.status = "retired";
@@ -943,12 +962,13 @@ export function canStartDuel(game: StoredGame): boolean {
     );
 }
 
-export function startDuel(game: StoredGame): void {
+export function startDuel(game: StoredGame, independent=true): void {
     if (!canStartDuel(game)) {
         throw Errors.conflict(
             "Solo se puede comenzar cuando ambos jugadores están presentes y listos.",
         );
     }
+    if(independent)game.config={...game.config,storyMode:true,monthlyMode:true,autoDecisions:false,decisionTimerSeconds:0};
     game.status = "playing";
     game.age = 0;
     game.turnNumber = 0;
@@ -983,7 +1003,7 @@ export function startDuel(game: StoredGame): void {
     for (const player of game.players) {
         if (player.score) game.scoreHistory[0]!.players[player.slot] = player.score.total;
     }
-    beginTurn(game);
+    if(independent)initializeDuelRuns(game);else beginTurn(game);
     touch(game);
 }
 
@@ -1066,10 +1086,7 @@ export function beginTurn(
             const used = new Set(player.character.usedDecisionIds);
             const flags = new Set(player.character.flags ?? []);
             let forcedId: string | null = null;
-            if (age === 18) {
-                const entries = CAREER_OPENINGS.filter(d => decisionEligible(d, player.character!, game.config.content.severity, false, game.birth));
-                if (entries.length) forcedId = createRng(deriveSeed(game.seed, "career-opening")).pick(entries).id;
-            }
+            if(age===18)forcedId="adult_path_choice";
             else if (age >= 20 && (flags.has("father_en_apuros") || flags.has("mother_en_apuros")) && !used.has("padre_en_apuros")) forcedId = "padre_en_apuros";
             else if (age === 22 && flags.has("familia_puede_ayudar") && !used.has("prestamo_familia") && createRng(deriveSeed(game.seed, "family-loan-beat", 22)).chance(38)) forcedId = "prestamo_familia";
             else if (age === 22 && flags.has("profesion_musica") && !used.has("profesion_musica_gira")) forcedId = "profesion_musica_gira";
@@ -1212,6 +1229,8 @@ export function submitDecision(
         const secondary = pending.secondary?.[slot];
         if (!secondary) c.manualActions = [...(c.manualActions ?? []), { year: game.currentYear, month: c.liveEconomy?.month ?? 0, action: "decision", text: `${prompt.title}. Elegiste: ${option.label}.\n${personalize(effect.narrative, c, game.birth)}` }];
         if (secondary) {
+            if(secondary.businessId&&c.business?.id===secondary.businessId)c.business.lastDecisionMonth=c.age*12+(c.liveEconomy?.month??0);
+            if(secondary.assetId){const home=c.assets?.find(a=>a.id===secondary.assetId);if(home?.rental)home.rental.lastDecisionMonth=c.age*12+(c.liveEconomy?.month??0);}
             const child = c.story?.relatives.find(r => r.id === secondary.relativeId);
             if (child) {
                 child.milestones = [...new Set([...(child.milestones ?? []), secondary.key])];
@@ -1289,7 +1308,8 @@ export function refreshAvailableDecisions(game: StoredGame): void {
         const target = player.character.story?.relatives.find(r => r.id === game.pending!.secondary?.[player.slot]?.relativeId);
         const character = target ? { ...player.character, story: { ...player.character.story!, relatives: [target, ...player.character.story!.relatives.filter(r => r.role !== "child")] } } : player.character;
         const refreshed = buildPrompt(decision, character, game.config.content.severity, old.eventId, game.birth, { worldSeed: game.seed, turn: game.turnNumber, slot: player.slot, countryCode: player.character.currentCountry });
-        if (refreshed) game.pending.prompts[player.slot] = refreshed;
+        if(refreshed){const context=game.pending.secondary?.[player.slot];if(context?.assetId){const home=character.assets?.find(a=>a.id===context.assetId);refreshed.title=refreshed.title.replaceAll("{property}",home?.name??"tu vivienda");}game.pending.prompts[player.slot]=refreshed;}
+        else if(!game.pending.secondary?.[player.slot])delete game.pending.prompts[player.slot];
     }
 }
 

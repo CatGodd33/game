@@ -266,8 +266,10 @@ export function familyYear(
             const label = relative.generation === "grandchild" ? "tu nieto o nieta" : ROLE_LABELS[relative.role];
             lines.push(`${relative.name}, ${label}, falleció a los ${age} años. ${relative.causeOfDeath}.`);
             if (relative.role === "partner" && relative.name === character.partnerName) {
+                character.relationshipLossAge=character.age;
                 character.partnerName = null;
                 character.partnerProfile = undefined;
+                character.relationship = undefined;
                 character.maritalStatus = "widowed";
                 lines.push("La casa compartida se quedó con una sola voz. Aprendiste a llamar a otras personas para no hablarle al silencio.");
             }

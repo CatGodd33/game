@@ -15,7 +15,7 @@ La página se abre en **http://localhost:5173/mapa-decisiones.html** con el clie
   2. una o varias preguntas siguientes, según las banderas, la edad y la guía del catálogo.
 - Las ramas anteriores **permanecen en el mapa**. Se pueden abrir varias opciones de la misma pregunta y comparar los caminos.
 - El inspector lateral muestra requisitos, costes, opciones, tiradas base, efectos de éxito y de fallo, banderas activas y la foto aproximada del personaje.
-- La **constelación** distribuye las 171 preguntas en cinco grupos por etapa, con buscador y acceso directo para añadir cualquiera al mapa.
+- La **constelación** distribuye las 186 preguntas en cinco grupos por etapa, con buscador y acceso directo para añadir cualquiera al mapa.
 
 ## 2. Datos y generación
 
@@ -30,7 +30,7 @@ Después serializa un payload con:
 
 | Campo | Contenido |
 | --- | --- |
-| `totals` | 171 decisiones, 543 opciones, 30 sucesos, países, decisiones `once`, cooldowns y decisiones con banderas |
+| `totals` | 186 decisiones, 594 opciones, 30 sucesos, países, decisiones `once`, cooldowns y decisiones con banderas |
 | `decisions` | Título, descripción, etapa, categoría, prioridad, edades, requisitos, opciones, costes, tiradas y efectos |
 | `guide` | Entradas `A/B`, rutas de infancia y enlaces de adultez |
 | `education` / `categories` | Etiquetas y colores compartidos con el juego |
@@ -82,7 +82,7 @@ npm test -- --run
 npx playwright test e2e/decision-map.spec.ts
 ```
 
-`tests/decision-map.test.ts` comprueba que el HTML generado contiene las 171 decisiones, las 543 opciones, los 30 sucesos, la guía de entradas, los metadatos y que no quedan marcadores de plantilla.
+`tests/decision-map.test.ts` comprueba que el HTML generado contiene las 186 decisiones, las 594 opciones, los 30 sucesos, la guía de entradas, los metadatos y que no quedan marcadores de plantilla.
 
 `e2e/decision-map.spec.ts` comprueba en un navegador real:
 

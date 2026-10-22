@@ -12,7 +12,7 @@ No se afirma que estén verificadas las integraciones que requieren infraestruct
 | --- | --- | --- |
 | Motor determinista | Completo | Vitest, demo. |
 | Nacimiento compartido | Completo | Vitest, sockets, e2e. |
-| Decisiones y elegibilidad | Completo (171 decisiones, opciones por edad, variantes narrativas y cooldowns) | Vitest, servicio, e2e. |
+| Decisiones y elegibilidad | Completo (186 decisiones y 594 opciones, filtros por edad y contexto, variantes narrativas y cooldowns) | Vitest, servicio, e2e. |
 | Atlas espacial de decisiones | Completo | Vitest del catálogo y e2e de ramas, constelación y 390 px. |
 | Salidas ante crisis | Completo | 10 pruebas de recuperación, infancia y selector; 3 decisiones `recovery`. |
 | Eventos compartidos | Completo (30) | Vitest, e2e. |
@@ -25,11 +25,12 @@ No se afirma que estén verificadas las integraciones que requieren infraestruct
 | Empresas, préstamos y quiebra | Completo | Vitest y libro mayor. |
 | Vista de deudas y pago dirigido | Completo | Vitest y e2e (`debts.spec.ts`). |
 | Funerales interactivos y condonación familiar | Completo provisional | 8 pruebas Vitest, UI y revisión visual. |
-| Diario narrativo sin resumen financiero | Completo provisional | Test de 12 meses y revisión de textos. |
+| Diario narrativo sin resumen financiero | Completo provisional | Tests de escenas anuales, unicidad y revisión de textos. |
 | Coherencia de decisiones por edad | Completo | `tests/coherence-v9.test.ts`: epidemia a los 8, 15 y 25 años. |
 | Variedad de arcos | Completo provisional | 5 semillas, máximo 3 arcos y capítulos sin repetición. |
 | Presión patrimonial | Completo provisional | Patrimonio, mantenimiento, decisiones y vista para ambos jugadores. |
 | Relaciones y país aleatorio | Completo | Escenas reescritas; `intercambio` sin Italia fija. |
+| Dashboard móvil 2.2 | Completo | e2e de orden y 390 px, Life Record de cuatro escenas, pasaporte y catálogo infantil filtrado. |
 | Salud y mortalidad | Completo provisional | Vitest, demo. |
 | Puntuación configurable | Completo | Vitest, UI. |
 | Vida individual | Completo | e2e. |
@@ -102,10 +103,11 @@ No se afirma que estén verificadas las integraciones que requieren infraestruct
 - **Render + Neon:** desplegado en `https://life-duel.onrender.com` con servicio free de Render y PostgreSQL de Neon. `/api/health` responde con `persistence: postgres`. El plan gratuito de Render duerme el servicio tras inactividad y Neon puede suspenderse; el primer acceso puede tardar 30–60 s. El autoDeploy puede no lanzar el build aunque el push llegue a `main`: en la comprobación del 22/10/2026 el HTML público seguía apuntando al bundle anterior. En ese caso hay que usar **Manual Deploy → Deploy latest commit** y verificar que el `assets/index-*.js` cambia. Ver [`docs/deployment.md`](deployment.md).
 - **Atlas de decisiones:** `client/public/mapa-decisiones.html` es una página estática generada en el build. No consulta partidas ni sustituye al servidor: sirve para explorar el catálogo y el algoritmo. Las estadísticas que muestra al abrir una rama son aproximadas y no se guardan. Si cambia una decisión, hay que ejecutar `npm run map:build`; las pruebas detectan enlaces de guía muertos y datos desincronizados.
 - **Sesiones:** no hay recuperación de cuenta; si se borra `localStorage` o cambia el secreto, se pierde el acceso a las partidas asociadas.
-- **Bundle:** el cliente genera un aviso de ~877 kB (265 kB gzip). Se puede dividir con lazy routes y manual chunks.
+- **Bundle:** el cliente genera un aviso de ~908 kB (273 kB gzip). Se puede dividir con lazy routes y manual chunks.
 - **i18n:** todos los textos están en español; no hay selector de idioma ni extracción a catálogos.
 - **Accesibilidad:** hay base (skip link, focus trap, roles, teclado, contraste y movimiento reducido), pero falta una auditoría con lector de pantalla y axe.
-- **Móvil:** diseño responsive verificado a 390×844 con Playwright; el diario ya no usa scroll interno y las decisiones muestran un acceso fijo. No se probó en dispositivos físicos.
+- **Móvil:** dashboard 2.2 verificado a 390×844 con Playwright; bloques en orden, sin overflow, Life Record de cuatro escenas, pasaporte y acordeones. No se probó en dispositivos físicos ni con lector de pantalla.
+- **Gasto infantil:** antes de los 18 años solo se ofrecen acciones de salud, aprendizaje, familia y ocio. El dinero sale del presupuesto familiar modelado; no representa autonomía legal ni cuentas bancarias reales de un menor.
 - **Tiempo real:** una sola instancia de servidor. Para varias instancias haría falta un adaptador Redis de Socket.IO y coordinación del reloj.
 - **Rate limiting:** en memoria; para varias instancias, usar almacén compartido.
 - **Arranque con muchas partidas:** al iniciar se cargan solo las partidas activas que necesitan reloj o temporizador, no las terminadas. Aun así, un almacén JSON grande (el usado en pruebas llegó a 78 MB) tarda decenas de segundos en arrancar. Para producción, usar PostgreSQL y no acumular partidas de prueba.

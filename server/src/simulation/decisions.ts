@@ -1,3 +1,6 @@
+import {EDUCATION_PATH} from "./education-path.js";
+import {RELATIONSHIP_CRISES} from "./relationship-crises.js";
+import {PROPERTY_DECISIONS} from "./property-decisions.js";
 import { COMPANY_DECISIONS } from "./company-decisions.js";
 import { WEALTH_DECISIONS } from "./wealth-decisions.js";
 import { MOBILITY_DECISIONS } from "./mobility-decisions.js";
@@ -4517,10 +4520,15 @@ export const DECISIONS: DecisionDefinition[] = [
     ...FAMILY_SCENARIOS,
     ...HOUSEHOLD_DECISIONS,
     ...COMPANY_DECISIONS,
+    ...PROPERTY_DECISIONS,
+    ...EDUCATION_PATH,
+    ...RELATIONSHIP_CRISES,
     ...COUNTRY_PATHS,
     ...MOBILITY_DECISIONS,
     ...WEALTH_DECISIONS,
 ];
+
+for(const d of DECISIONS)if(d.id.startsWith("child_")||d.id==="company_trade_profile")d.monthlyOnly=true;
 
 const decisionById = new Map(DECISIONS.map((decision) => [decision.id, decision]));
 

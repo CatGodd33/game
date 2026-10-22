@@ -36,7 +36,7 @@ export interface StoredPlayer {
 }
 
 export interface PendingTurn {
-    secondary?: Partial<Record<PlayerSlot,{key:string;relativeId?:string;primaryPrompt?:DecisionPrompt;primaryChoice?:DecisionChoice;primaryApplied?:{chance:number|null;roll:number|null;success:boolean|null}}>>;
+    secondary?: Partial<Record<PlayerSlot,{key:string;relativeId?:string;businessId?:string;assetId?:string;primaryPrompt?:DecisionPrompt;primaryChoice?:DecisionChoice;primaryApplied?:{chance:number|null;roll:number|null;success:boolean|null}}>>;
     appliedChoices?: Partial<Record<PlayerSlot, { chance: number | null; roll: number | null; success: boolean | null }>>;
     turn: number;
     age: number;
@@ -50,6 +50,7 @@ export interface PendingTurn {
 }
 
 export interface StoredGame {
+    independentRuns?:Partial<Record<PlayerSlot,StoredGame>>;
     id: string;
     mode: GameMode;
     code: string | null;

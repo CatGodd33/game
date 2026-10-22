@@ -322,6 +322,7 @@ export function executeMobility(
                 happiness: clamp(character.stats.happiness + 3),
             };
             character.flags.push("estudios_exterior");
+            if (!character.educationPlan) character.flags.push("orientacion_universitaria");
         } else if (offer.purpose === "work") {
             character.employment = {
                 status: "employed",

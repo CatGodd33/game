@@ -1,3 +1,4 @@
+import {expectedAnnualRent,settleRentals} from "./rentals.js";
 import { monthlyStory } from "./monthly-story.js";
 import { settleDebtInterest, settleMortgagePayments } from "./mortgage.js";
 import { progressUniversity, tuitionAnnual } from "./education.js";
@@ -37,9 +38,11 @@ export function settleMonth(game: StoredGame): void {
     m.incomeItems=[];
     const phase=game.economy.phase==="expansion"?1.06:game.economy.phase==="recesion"?.9:game.economy.phase==="crisis"?.76:1;
     const partnerIncome=c.partnerName&&c.partnerProfile?.sharedHousehold?Math.min(m.income,Math.round(c.partnerProfile.annualIncome*phase/12*100)/100):0;
-    const own=m.income-partnerIncome;
+    const projectedRent=expectedAnnualRent(c)/12;const rentIncome=settleRentals(game,c,m.month);
+    const own=m.income-partnerIncome-projectedRent;
+    m.income=own+partnerIncome+rentIncome.reduce((sum,r)=>sum+r.amount,0);
     const origin=c.employment.status==="student"?"Apoyo familiar para estudios":c.employment.status==="retired"?"Pensión de jubilación":c.employment.status==="unemployed"||c.employment.status==="disabled"?"Prestación y apoyo social":`${c.employment.status==="self-employed"?"Honorarios":"Salario"} · ${c.employment.occupation??"trabajo por cuenta propia"}`;
-    for(const [label,amount] of [[origin,own],[`Ingreso de ${c.partnerName??"la pareja"} · hogar compartido`,partnerIncome]] as [string,number][]){
+    for(const [label,amount] of [[origin,own],[`Ingreso de ${c.partnerName??"la pareja"} · hogar compartido`,partnerIncome],...rentIncome.map(r=>[r.label,r.amount] as [string,number])] as [string,number][]){
       if(amount<=0)continue;grant(c,amount,`${label} · mes ${m.month}`,game.currentYear,"income");m.incomeItems.push({label,amount});
     }
     let tuitionPaid=true;

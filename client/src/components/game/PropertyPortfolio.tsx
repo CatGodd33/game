@@ -1,0 +1,6 @@
+import type {CharacterState} from "@life-duel/shared";
+const money=(n:number)=>new Intl.NumberFormat("es",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(n);
+export function PropertyPortfolio({character:c,onManage}:{character:CharacterState;onManage:()=>void}){
+ const homes=(c.assets??[]).filter(a=>a.kind==="home");if(!homes.length)return null;
+ return <section className="story-panel property-portfolio"><h2>Tus viviendas <small>{homes.length}</small></h2>{homes.map(h=><article key={h.id}><div><strong>{h.name}</strong><span>{h.location??c.currentLocation} · valor {money(h.value)} PPP</span></div>{h.rental?<><p>{h.rental.occupied?`${h.rental.tenantName} · contrato activo`:"Vivienda vacante"}</p><dl><div><dt>Renta pactada</dt><dd>{money(h.rental.monthlyRent)}/mes</dd></div><div><dt>Estado</dt><dd>{Math.round(h.rental.condition)}/100</dd></div>{h.rental.arrears>0&&<div className="property-arrears"><dt>Rentas sin cobrar</dt><dd>{money(h.rental.arrears)}</dd></div>}</dl></>:<p>Uso personal o disponible para alquiler</p>}{!!h.loanBalance&&<small>Hipoteca pendiente {money(h.loanBalance)}</small>}</article>)}<button className="story-button full" onClick={onManage}>Alquileres, reformas y ventas</button><p className="story-muted">Las rentas aparecen en la cuenta cuando se cobran. Mantenimiento y financiación siguen siendo gastos.</p></section>;
+}

@@ -1,3 +1,5 @@
+import { relationshipDecision } from "./relationship-progress.js";
+import { activeBusinesses, selectBusiness } from "./portfolio.js";
 import type { CharacterState, DecisionPrompt, PlayerSlot } from "@life-duel/shared";
 import type { StoredGame } from "../types/records.js";
 import { getDecision, DECISIONS } from "./decisions.js";
@@ -51,8 +53,23 @@ export function offerMonthlyOpportunity(game: StoredGame, slot: PlayerSlot, c: C
     if (!p || p.secondary?.[slot] || month >= 12 || !game.config.storyMode || game.mode !== "solo") return;
     if (p.prompts[slot] && !p.submitted[slot]) return;
     const rng = createRng(deriveSeed(game.seed, "monthly-opportunity", c.id, game.currentYear, month));
-    let id: string | undefined, key: string | undefined, relativeId: string | undefined;
-    for (const child of c.story?.relatives ?? []) {
+    let id: string | undefined, key: string | undefined, relativeId: string | undefined, assetId: string | undefined, businessId: string | undefined;
+    const stamp = c.age * 12 + month;
+    const unmanaged = activeBusinesses(c).find(b => !b.delegated);
+    const academicReady = c.age < 65 && !unmanaged;
+    if (c.familyCase?.stage === "agreement") id = "family_separation_agreement";
+    else if (c.familyCase?.stage === "hearing" && stamp - c.familyCase.openedMonth >= 3) id = "family_hearing";
+    else if (unmanaged && (c.employment.status === "employed" || c.educationPlan && !c.educationPlan.paused)) { selectBusiness(c, unmanaged.id); businessId = unmanaged.id; id = "capacity_conflict"; }
+    else if (academicReady && c.flags?.includes("orientacion_universitaria") && !c.educationPlan) id = "degree_field_choice";
+    else if (academicReady && c.flags?.some(f => ["campo_tech", "campo_business", "campo_medicine"].includes(f)) && !c.educationPlan) id = "university_institution_choice";
+    else if (c.partnerName && (c.partnerBond ?? 70) < 35 && month === 5 && c.age - (c.lastDecisionAges?.relationship_strain ?? -100) >= 2) id = "relationship_strain";
+    if (!id) id = relationshipDecision(c, game.currentYear);
+    if (!id && c.age >= 65 && activeBusinesses(c).length && !c.flags?.includes("plan_etapa_tardia")) { const target = unmanaged ?? activeBusinesses(c)[0]!; selectBusiness(c, target.id); businessId = target.id; id = "later_life_work"; }
+    if (!id && [3, 9].includes(month)) {
+        const home = (c.assets ?? []).find(a => a.rental && stamp - (a.rental.lastDecisionMonth ?? -1000) >= 6 && (a.rental.arrears > 0 || a.rental.condition < 60));
+        if (home) { assetId = home.id; id = home.rental!.arrears > 0 ? "property_arrears" : "property_maintenance"; }
+    }
+    for (const child of (id ? [] : c.story?.relatives ?? [])) {
         if (child.role !== "child" || child.generation === "grandchild" || !child.alive) continue;
         const age = game.currentYear - child.bornYear, done = new Set(child.milestones ?? []);
         if (age < 2 && !done.has("care")) { id = "child_care_plan"; key = "care"; }
@@ -67,7 +84,7 @@ export function offerMonthlyOpportunity(game: StoredGame, slot: PlayerSlot, c: C
         if (!c.partnerName && c.age - Math.max(-100, ...socialIds) >= 2) { const encounters = DECISIONS.filter(d => d.id.startsWith("encuentro_") && decisionEligible(d, c, game.config.content.severity, false, game.birth)); if (encounters.length) id = rng.pick(encounters).id; }
     }
     if (!id && month === 8 && c.partnerName) {
-        const familyIds = ["acuerdo_pareja", "crianza_dialogo"];
+        const familyIds = ["crianza_dialogo"];
         const lastFamilyAge = Math.max(
             -100,
             ...Object.entries(c.lastDecisionAges ?? {})
@@ -78,21 +95,21 @@ export function offerMonthlyOpportunity(game: StoredGame, slot: PlayerSlot, c: C
         // Sin este límite global, dos cooldowns distintos podían alternarse y
         // producir una pregunta familiar casi todos los años.
         if (c.age - lastFamilyAge >= 5) {
-            if (c.maritalStatus === "dating" && c.age - (c.lastDecisionAges?.acuerdo_pareja ?? -100) >= 3) id = "acuerdo_pareja";
-            else if (!parentingBlocked(c, game.currentYear) && !(c.flags ?? []).some(f => ["no_nueva_crianza", "sin_hijos_elegido"].includes(f)) && c.age - (c.lastDecisionAges?.crianza_dialogo ?? -100) >= 3) id = "crianza_dialogo";
+            if (!parentingBlocked(c, game.currentYear) && !(c.flags ?? []).some(f => ["no_nueva_crianza", "sin_hijos_elegido"].includes(f)) && c.age - (c.lastDecisionAges?.crianza_dialogo ?? -100) >= 3) id = "crianza_dialogo";
         }
     }
-    if (!id && month === 6 && c.business?.active) {
-        // Una oportunidad de empresa al año como máximo, y no cada año: la vida del
-        // negocio compite con el resto de la vida y no debe convertirse en un bucle.
-        const lastBusiness = lastBusinessAge(c);
-        if (c.age - lastBusiness >= 4 && rng.chance(45)) {
-            const eligible = businessOpportunityPool(c.business.kind, Boolean(c.business.trade)).map(getDecision).filter(d => d && decisionEligible(d, c, game.config.content.severity, false, game.birth));
-            if (eligible.length) id = rng.pick(eligible)!.id;
+    const companies = activeBusinesses(c);
+    if (!id && ([6, ...(companies.length > 2 ? [10] : [])].includes(month)) && companies.length) {
+        const business = companies.filter(b => stamp - (b.lastDecisionMonth ?? -1000) >= (companies.length > 1 ? 12 : 42)).sort((a, b) => (a.lastDecisionMonth ?? -1000) - (b.lastDecisionMonth ?? -1000))[0];
+        if (business && rng.chance(Math.min(90, 40 + companies.length * 12))) {
+            selectBusiness(c, business.id);
+            const eligible = businessOpportunityPool(business.kind, !!business.trade).map(getDecision).filter(d => d && decisionEligible(d, c, game.config.content.severity, false, game.birth));
+            if (eligible.length) { id = rng.pick(eligible)!.id; businessId = business.id; }
         }
     }
     if (!id) return;
     const d = getDecision(id); if (!d || !decisionEligible(d, c, game.config.content.severity, false, game.birth)) return;
+    if (d.requirements?.hasBusiness || d.requirements?.businessKind) businessId = c.business?.id;
     let prompt = buildPrompt(d, c, game.config.content.severity, undefined, game.birth, { worldSeed: game.seed, turn: game.turnNumber, slot, countryCode: c.currentCountry });
     if (!prompt) return;
     if (relativeId) {
@@ -101,6 +118,9 @@ export function offerMonthlyOpportunity(game: StoredGame, slot: PlayerSlot, c: C
         const proxy = { ...c, story: { ...c.story!, relatives: [child, ...c.story!.relatives.filter(r => r.id !== child.id && r.role !== "child")] } };
         prompt = buildPrompt(d, proxy, game.config.content.severity, undefined, game.birth)!;
     }
-    p.secondary ??= {}; p.secondary[slot] = { key: key ?? id, relativeId, primaryPrompt: p.prompts[slot], primaryChoice: p.submitted[slot], primaryApplied: p.appliedChoices?.[slot] };
+    if (assetId) { const home = c.assets!.find(a => a.id === assetId)!; prompt.title = prompt.title.replaceAll("{property}", home.name); prompt.description += ` Vivienda: ${home.location ?? c.currentLocation}. Pendiente: ${Math.round(home.rental!.arrears)} PPP; estado ${Math.round(home.rental!.condition)}/100.`; }
+    if (c.familyCase && ["family_separation_agreement", "family_hearing"].includes(id)) prompt.contextNote = `Patrimonio en discusión: ${Math.round(c.familyCase.claim)} PPP · saldo disponible: ${Math.round(c.finance.money)} PPP · alimentos previstos: ${Math.round(c.childSupport?.annualAmount ?? 0)} PPP/año. Importes simulados, sujetos al resultado del acuerdo.`;
+    if (businessId) prompt.contextNote = `${c.business!.name} · ${c.business!.segment ?? c.business!.kind} · ${c.currentLocation}`;
+    p.secondary ??= {}; p.secondary[slot] = { key: key ?? id, relativeId, assetId, businessId, primaryPrompt: p.prompts[slot], primaryChoice: p.submitted[slot], primaryApplied: p.appliedChoices?.[slot] };
     p.prompts[slot] = prompt; delete p.submitted[slot]; if (p.appliedChoices) delete p.appliedChoices[slot];
 }

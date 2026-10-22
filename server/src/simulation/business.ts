@@ -1,3 +1,4 @@
+import { activeBusinesses,businesses } from "./portfolio.js";
 import { settleTrade } from "./trade.js";
 import type { BusinessKind, BusinessState, CharacterState, EconomyState } from "@life-duel/shared";
 import { clamp } from "@life-duel/shared";
@@ -41,9 +42,13 @@ export function startBusiness(
     customName?: string,
 ): BusinessState {
     const country = getCountry(character.currentCountry);
+    const previous=character.business;
+    const portfolio=businesses(character);
+    if(previous)character.otherBusinesses=portfolio;
     const business: BusinessState = {
+        delegated:portfolio.some(b=>b.active),
         activity:"local",
-        id: `business-${character.id}-${year}`,
+        id: `business-${character.id}-${year}-${portfolio.length+1}`,
         name: customName ?? `${BUSINESS_LABELS[kind]} de ${character.alias}`,
         kind,
         foundedAge: character.age,
@@ -52,7 +57,7 @@ export function startBusiness(
         annualCosts: 0,
         marketingSpend: Math.round(country.gdpPerCapitaPpp * 0.025),
         reputation: 35,
-        employees: 0,
+        employees: portfolio.some(b=>b.active)?1:0,
         active: true,
         insolventYears: 0,
     };
@@ -85,7 +90,7 @@ export interface BusinessAnnualResult {
  * impresión narrativa: cada resultado se registra en el libro mayor personal.
  * Un negocio puede crecer, estancarse o quebrar según el mercado y la gestión.
  */
-export function advanceBusiness(
+function advanceOneBusiness(
     character: CharacterState,
     economy: EconomyState,
     year: number,
@@ -177,6 +182,17 @@ export function advanceBusiness(
         });
     }
     return { revenue, costs, net, bankrupt };
+}
+
+/** Each business owns its operating costs and settlement; results are aggregated once. */
+export function advanceBusiness(character:CharacterState,economy:EconomyState,year:number,rng:Rng):BusinessAnnualResult|null{
+ const list=activeBusinesses(character).sort((a,b)=>a.id.localeCompare(b.id));if(!list.length)return null;
+ const wasRetired=character.employment.status==="retired";const selected=character.business,wasEmployed=character.employment.status==="employed",occupation=character.employment.occupation,sector=character.employment.sector;
+ const total:BusinessAnnualResult={revenue:0,costs:0,net:0,bankrupt:false};
+ for(const company of list){character.business=company;const result=advanceOneBusiness(character,economy,year,rng);if(result){total.revenue+=result.revenue;total.costs+=result.costs;total.net+=result.net;total.bankrupt ||=result.bankrupt;}}
+ character.business=selected;
+ if(list.some(b=>b.active)){character.flags=[...new Set([...(character.flags??[]),"negocio_activo"])];character.employment.status=wasRetired?"retired":wasEmployed?"employed":"self-employed";if(wasEmployed){character.employment.occupation=occupation;character.employment.sector=sector;}}
+ return total;
 }
 
 export function applyBusinessChange(

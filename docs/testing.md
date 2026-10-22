@@ -23,14 +23,14 @@ npx playwright install chromium
 E2E_CHANNEL=chromium npm run e2e
 ```
 
-El `webServer` de Playwright reutiliza un `npm run dev` ya activo. Si no existe, lo arranca y espera a `http://localhost:5173`.
+El `webServer` de Playwright reutiliza un `npm run dev` ya activo. Si no existe, lo arranca con `NODE_ENV=test PERSIST_DIR=.e2e-data LOG_LEVEL=warn` para aislar las partidas de prueba del almacén local, omitir el rate limit de desarrollo y esperar a `http://localhost:5173`. Ese directorio está ignorado por git.
 
 ### Resultado de la última ejecución
 
-- Vitest: **22 archivos, 177 pruebas, 177 correctas** (incluye `tests/coherence-v9.test.ts` y `tests/decision-map.test.ts`: catálogo, guía de entradas y marcadores del atlas).
-- Playwright: **5 pruebas, 5 correctas** (vida individual completa, duelo en dos contextos, acciones económicas manuales, deudas con pago dirigido y atlas espacial con dos entradas, ramas acumulativas, constelación y móvil).
+- Vitest: **25 archivos, 204 pruebas, 204 correctas** (incluye `tests/coherence-v9.test.ts`, `tests/relationship-narrative.test.ts`, `tests/country-paths.test.ts`, `tests/decision-map.test.ts` y `tests/mobile-v22.test.ts`: límite de cuatro escenas, enfoques por edad y catálogo de gasto infantil).
+- Playwright: **6 pruebas, 6 correctas** (vida individual completa, duelo en dos contextos, acciones económicas manuales, deudas con pago dirigido, atlas espacial y dashboard móvil 2.2 a 390 px: orden de bloques, sin overflow, Life Record ≤4 y gasto sin empresa ni inversión).
 - `npm run typecheck`: correcto.
-- `npm run build`: correcto; aviso no bloqueante de chunk de ~877 kB (265 kB gzip).
+- `npm run build`: correcto; cliente de 908,13 kB (273,26 kB gzip), CSS de 158,60 kB (34,20 kB gzip) y aviso no bloqueante de chunk.
 - Reinicio real del servidor compilado: sesión y partida recuperadas con la misma huella de semilla, nacimiento y turno.
 - Arranque de producción (`node server/dist/index.js`) en el puerto 4105: `GET /api/health` devuelve `status: ok`, persistencia JSON y modo IA local.
 - Inicio y panel de vida sin overflow horizontal en 390, 768 y 1440 px.
@@ -56,7 +56,7 @@ Motor puro:
 ### `tests/decision-map.test.ts`
 Atlas espacial estático:
 
-- el HTML generado contiene las 171 decisiones, 543 opciones y 30 sucesos del catálogo real;
+- el HTML generado contiene las 186 decisiones, 594 opciones y 30 sucesos del catálogo real;
 - no quedan los marcadores `__DECISION_MAP_DATA__` ni `__DECISION_MAP_APP__`;
 - la plantilla incluye el lienzo (`map-viewport`) y la constelación;
 - todas las entradas de la guía (`story_first_encounter`, `tiempo_propio`, rutas de infancia, adultez y curso) apuntan a decisiones existentes;
@@ -67,7 +67,7 @@ Flujo narrativo y reloj manual:
 
 - una vida manual no crea deadline ni avanza por el reloj;
 - el modo automático sí programa y ejecuta el avance;
-- la crónica anual produce 5–6 líneas, es determinista y no repite las recientes;
+- la crónica anual produce hasta cuatro escenas, es determinista y no repite las frases recientes;
 - la crónica no modifica dinero ni estadísticas;
 - el eco anual inline (`YearEcho`) se cubre en el e2e individual: tras elegir con un clic, la página muestra el resultado y avanza de edad sin modales intermedios.
 
@@ -94,7 +94,7 @@ Flujo narrativo y reloj manual:
 - Condonación de un préstamo familiar al morir el acreedor; el préstamo bancario permanece.
 - Funeral pendiente sin cobro automático, coste correcto, efectos de bienestar e idempotencia (misma clave duplicada; misma clave con otra opción, `409`).
 - Despedida sin ceremonia sin coste y con efecto en felicidad/relaciones.
-- Diario de doce meses sin resúmenes financieros ni escenas genéricas eliminadas.
+- Diario de escenas anuales sin resúmenes financieros ni escenas genéricas eliminadas.
 - Encuentros online con peso reducido y requisito educativo.
 
 ### `e2e/debts.spec.ts`
@@ -113,7 +113,7 @@ Modelo de vida realista v2:
 - ingresos y costes de empresa en el libro mayor;
 - herencia liquidada una sola vez;
 - funeral pendiente que solo se cobra al elegir ceremonia y no admite doble cobro;
-- 171 decisiones, identificadores únicos y al menos dos opciones base por decisión (la interfaz garantiza varios caminos);
+- 186 decisiones, identificadores únicos y al menos dos opciones base por decisión (la interfaz garantiza varios caminos);
 - resultado final con psicología, empresa, hogar y saldo de préstamos.
 
 ### `tests/context-v3.test.ts`
@@ -164,7 +164,7 @@ Servidor HTTP real + Socket.IO + dos clientes:
 3. `explore` abre una segunda rama; las dos siguen en el mapa.
 4. La rama guiada llega a `tiempo_propio`, `ruta_curso_proyecto` y `ruta_beca_exterior`.
 5. Zoom real, reinicio a 100 %, inspector y cierre del panel.
-6. Constelación con 171 nodos, búsqueda de “epidemia” y adición de `respuesta_epidemia`.
+6. Constelación con 186 nodos, búsqueda de “epidemia” y adición de `respuesta_epidemia`.
 7. Recarga limpia y layout de 390 px sin overflow horizontal.
 8. Sin errores de página.
 

@@ -128,9 +128,9 @@ export function GamePage() {
             setGame(result.game);
             if (result.duplicate) {
                 toast.push("Esa decisión ya estaba registrada.", "info");
-            } else if (result.waitingFor.length > 0) {
+            } else if (result.waitingFor.length > 0 && !game.duel?.independent) {
                 toast.push("Decisión guardada. Esperando al rival.", "success");
-            } else if (game.mode === "duel") {
+            } else if (game.mode === "duel" && !game.duel?.independent) {
                 toast.push("Turno resuelto.", "success");
             }
         } catch (reason) {
@@ -232,7 +232,7 @@ export function GamePage() {
     const dead = !me.character.alive;
     const paused = game.status === "paused";
 
-    if (game.mode === "solo") return <SoloLife key={game.id} game={game} onGame={setGame} onDecision={optionId => void submitDecision(optionId)} submitting={submitting} countryName={countryName} />;
+    if (game.mode === "solo" || game.duel?.independent) return <SoloLife key={game.id} game={game} onGame={setGame} onDecision={optionId => void submitDecision(optionId)} submitting={submitting} countryName={countryName} />;
 
     return (
         <div className="container-page pt-6 sm:pt-9">

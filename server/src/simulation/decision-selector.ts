@@ -1,3 +1,5 @@
+import { relationshipProgress, relationshipSummary } from "./relationship-progress.js";
+import { contextMatches } from "./context-gates.js";
 import { monthlyInstallment, mortgageRate } from "./mortgage.js";
 import { UNIVERSITY_PROGRAMS, universityBlocked } from "./education.js";
 import { personalize } from "./personalization.js";
@@ -213,6 +215,7 @@ export function optionAvailable(
     birth?: BirthProfile,
 ): boolean {
     if (!requirementsMet(character, option.requirements, contentSeverity, birth)) return false;
+    if (option.outcomes.success.maritalStatus === "married" && relationshipProgress(character, (birth?.year ?? 2000) + character.age)?.stage !== "engaged") return false;
     if ((option.outcomes.success.childrenDelta ?? 0) > 0 && parentingBlocked(character, (birth?.year ?? 2000) + character.age)) return false;
     if (option.outcomes.success.studyProgram) {
         const program = UNIVERSITY_PROGRAMS.find(p => p.id === option.outcomes.success.studyProgram);
@@ -277,7 +280,8 @@ function promptForDecision(
     birth?: BirthProfile,
     variantContext?: { worldSeed?: string; turn?: number; slot?: number; countryCode?: string },
 ): DecisionPrompt | null {
-    const variant = chooseDecisionVariant(
+    if (!contextMatches(decision, character, birth ? birth.year + character.age : undefined)) return null;
+    const variant = ["acuerdo_pareja", "crianza_dialogo"].includes(decision.id) ? undefined : chooseDecisionVariant(
         decision,
         variantContext?.worldSeed,
         variantContext?.turn,
@@ -303,6 +307,10 @@ function promptForDecision(
     // Only authored options belong to this situation. Never add generic answers
     // just to fill a fixed number of cards.
     if (options.length === 0) return null;
+    const romanticDecision = decision.id.startsWith("relationship_") || decision.id === "acuerdo_pareja";
+    const relationshipNote = romanticDecision && birth ? relationshipSummary(character, birth.year + character.age) : undefined;
+    const baseContextNote = (variant?.contextNote ?? decision.contextNote) ? personalize((variant?.contextNote ?? decision.contextNote)!, character, birth) : undefined;
+
     return {
         id: decision.id,
         source: eventId ? "evento" : "vida",
@@ -311,7 +319,7 @@ function promptForDecision(
         description: personalize(variant?.description ?? decision.description, character, birth),
         age: character.age,
         eventId,
-        contextNote: (variant?.contextNote ?? decision.contextNote) ? personalize((variant?.contextNote ?? decision.contextNote)!, character, birth) : undefined,
+        contextNote: [baseContextNote, relationshipNote].filter(Boolean).join(" ") || undefined,
         options,
     };
 }
@@ -323,6 +331,7 @@ export function decisionEligible(
     eventOnly: boolean,
     birth?: BirthProfile,
 ): boolean {
+    if (!contextMatches(decision, character, birth ? birth.year + character.age : undefined)) return false;
     if (decision.id.startsWith("embarazo_") && character.familyPlans?.length) return false;
     if (character.age < decision.minAge || character.age > decision.maxAge) return false;
     if (eventOnly && decision.priority !== "event") return false;
@@ -422,7 +431,7 @@ export function selectDecision(context: DecisionContext): SelectedDecision | nul
 
     // Family opportunities share a cooldown across scenes, so eight encounters
     // neither disappear in the general bank nor repeat every year.
-    const familyIds = ["acuerdo_pareja", "crianza_dialogo"];
+    const familyIds = ["crianza_dialogo"];
     const lastFamily = Math.max(-100, ...Object.entries(character.lastDecisionAges ?? {}).filter(([id]) => id.startsWith("encuentro_") || familyIds.includes(id)).map(([, age]) => age));
     // Las conversaciones de pareja no deben convertirse en la pregunta anual.
     const familyGap = character.partnerName ? 6 : 5;
@@ -433,7 +442,7 @@ export function selectDecision(context: DecisionContext): SelectedDecision | nul
 
     const majorCandidates = DECISIONS.filter(
         (decision) =>
-            decision.priority === "major" &&
+            !decision.monthlyOnly && decision.priority === "major" &&
             decision.id !== lastDecisionId &&
             decisionEligible(decision, character, contentSeverity, false, birth),
     );

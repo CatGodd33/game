@@ -66,8 +66,8 @@ Traducción HTTP → servicio. No contiene reglas de simulación. Todos los cuer
 ### `server/src/simulation/`
 - `rng.ts`: xmur3/mulberry32 y flujos derivados.
 - `birth.ts`: nacimiento reproducible.
-- `decisions.ts` / `decision-expansion.ts` / `decision-selector.ts`: catálogo de 171 decisiones, requisitos por país/familia/sexo, costes contextuales, elegibilidad, cooldowns y prompts. `decision-variants.ts` cambia solo la redacción por semilla/turno/decisión/suceso; nunca las opciones ni los efectos, y no depende del jugador ni del país para mantener la equidad del duelo. `event-decision-variants.ts` describe el suceso concreto. El selector prioriza las decisiones `recovery` cuando detecta crisis de empleo, deuda, salud o ánimo y aplica un intervalo global entre decisiones de evento. `mobility-decisions.ts` y `wealth-decisions.ts` añaden migración temprana y presión patrimonial; `wealth-pressure.ts` calcula patrimonio, liquidez y mantenimiento sin modificar el resultado por sí solo.
-- `chronicle.ts`: crónica anual determinista de 5–6 escenas cotidianas por personaje. Depende de semilla, nacimiento, estado y año; no altera estadísticas ni dinero.
+- `decisions.ts` / `decision-expansion.ts` / `decision-selector.ts`: catálogo de 186 decisiones, requisitos por país/familia/sexo, costes contextuales, elegibilidad, cooldowns y prompts. `decision-variants.ts` cambia solo la redacción por semilla/turno/decisión/suceso; nunca las opciones ni los efectos, y no depende del jugador ni del país para mantener la equidad del duelo. `event-decision-variants.ts` describe el suceso concreto. El selector prioriza las decisiones `recovery` cuando detecta crisis de empleo, deuda, salud o ánimo y aplica un intervalo global entre decisiones de evento. `mobility-decisions.ts` y `wealth-decisions.ts` añaden migración temprana y presión patrimonial; `wealth-pressure.ts` calcula patrimonio, liquidez y mantenimiento sin modificar el resultado por sí solo.
+- `monthly-story.ts`: hasta cuatro escenas anuales deterministas por personaje, con categoría e importancia, sin repetir frases recientes. Depende de semilla, nacimiento, estado y año; no altera estadísticas ni dinero.
 - `story.ts`: combina crónica personal, familia, sucesos compartidos y narrativa del turno.
 - `fallback-options.ts`: cinco repliegues contextuales por categoría (salida modesta, apoyo, alternativa modesta, negociar, estabilidad). Son opciones reales con efectos sociales/psicológicos, resueltas también por el servidor.
 - `events.ts`: catálogo de sucesos compartidos y efectos del mundo.
@@ -99,10 +99,13 @@ Traducción HTTP → servicio. No contiene reglas de simulación. Todos los cuer
 - `components/game/LiveLedger.tsx`: extracto mensual derivado del cierre anual; muestra saldo disponible, deuda y movimientos sin simular un reloj mensual independiente.
 - `components/game/DebtPanel.tsx`: vista conciliada de deudas con pago dirigido y validación de servidor.
 - `components/game/FuneralPanel.tsx`: elección explícita de despedida y estimación de coste.
+- `components/game/mobile/`: dashboard móvil 2.2. `MobileLife` compone cabecera, controles, familia, enfoque, vitales, Life Record, pasaporte y banco; `MobileFamilyStrip`, `MobileVitals`, `MobileFocusCard`, `MobileLifeRecord` y `PassportCard` son piezas reutilizables.
+- `features/life/`: catálogo de enfoques, visibilidad del gasto por edad y construcción del Life Record (máximo cuatro escenas) compartidos por ambos layouts.
+- El layout móvil se elige con `hooks/useMediaQuery.ts` (`matchMedia`, 700 px) y sustituye al de escritorio; no se renderizan dos árboles ocultos. El servidor sigue siendo la única autoridad sobre estadísticas, dinero y decisiones.
 - `components/ui/MoneyText.tsx`: formato monetario sin desbordamiento.
 - Las fichas del duelo (`CharacterPanel`) y el resultado final exponen también psicología, empresa y situación familiar.
 - `features/`: sesión, preferencias, formato y tarjeta resumen.
-- `hooks/`: socket con reconexión y datos demográficos.
+- `hooks/`: socket con reconexión, datos demográficos y `useMediaQuery`.
 - `services/`: fetch tipado y socket singleton.
 
 ## 3. Flujo de una decisión

@@ -1,3 +1,4 @@
+import {personalLife} from "../server/src/simulation/duel-runs.js";
 import { createServer, type Server as HttpServer } from "node:http";
 import { randomUUID } from "node:crypto";
 import type { AddressInfo } from "node:net";
@@ -87,6 +88,7 @@ async function waitFor(predicate: () => boolean, timeoutMs = 4000): Promise<void
 }
 
 function decisionFor(game: StoredGame, slot: PlayerSlot, index = 0) {
+  game=personalLife(game,game.players.find(p=>p.slot===slot)!.playerId);
   const prompt = game.pending?.prompts[slot];
   const option = prompt?.options[index];
   if (!prompt || !option) throw new Error(`Sin prompt para el jugador ${slot}`);
@@ -127,6 +129,10 @@ describe("sincronización Socket.IO del duelo", () => {
     await service.setReady(room.code, guest.playerId, true);
     const view = await service.startRoom(room.code, host.playerId);
     gameId = view.id;
+    await service.setPaused(gameId,host.playerId,false);
+    await service.advanceStory(gameId,host.playerId);
+    await service.setPaused(gameId,guest.playerId,false);
+    await service.advanceStory(gameId,guest.playerId);
 
     httpServer = createServer();
     io = new SocketServer(httpServer, { cors: { origin: true } });
@@ -177,13 +183,13 @@ describe("sincronización Socket.IO del duelo", () => {
     expect(hostAck.ok).toBe(true);
 
     const privateView = await guestUpdatePromise;
-    expect(privateView.opponent?.hasSubmitted).toBe(true);
-    expect(privateView.opponent?.ownChoice).toBeNull();
+    expect(privateView.opponent).toBeNull();
+    expect(privateView.turn.prompt).not.toBeNull();
 
     const guestDecision = decisionFor(
       (await service.getRecord(gameId))!,
       2,
-      (await service.getRecord(gameId))!.pending!.prompts[2]!.options.length > 1 ? 1 : 0,
+      0,
     );
     const hostUpdatePromise = nextGame(hostSocket);
     const guestAck = await emitAck<{ ok: boolean; result?: { turnResolved: boolean } }>(
@@ -192,9 +198,9 @@ describe("sincronización Socket.IO del duelo", () => {
       { gameId, ...guestDecision },
     );
     expect(guestAck.ok).toBe(true);
-    expect(guestAck.result?.turnResolved).toBe(true);
+    expect(guestAck.result?.turnResolved).toBe(false);
     const resolvedView = await hostUpdatePromise;
-    expect(resolvedView.turn.number).toBe(1);
+    expect(resolvedView.duel?.independent).toBe(true);
 
     const invalid = await emitAck<{ ok: boolean; code?: string }>(
       guestSocket,
@@ -212,6 +218,7 @@ describe("sincronización Socket.IO del duelo", () => {
     expect(reconnectedView.id).toBe(gameId);
     await waitFor(() => service.getConnectedSlots(gameId).size === 2);
 
+    await service.advanceStory(gameId,(await service.getRecord(gameId))!.players.find(p=>p.slot===2)!.playerId);
     const current = (await service.getRecord(gameId))!;
     const duplicateDecision = decisionFor(current, 2, 0);
     const first = await emitAck<{ ok: boolean; result?: { duplicate: boolean } }>(
@@ -229,6 +236,7 @@ describe("sincronización Socket.IO del duelo", () => {
     expect(second.ok).toBe(true);
     expect(second.result?.duplicate).toBe(true);
 
+    await service.advanceStory(gameId,(await service.getRecord(gameId))!.players.find(p=>p.slot===1)!.playerId);
     const hostCurrent = (await service.getRecord(gameId))!;
     const hostFinish = decisionFor(hostCurrent, 1, 0);
     const finishAck = await emitAck<{ ok: boolean }>(hostSocket, "game:decision", {

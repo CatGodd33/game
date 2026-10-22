@@ -274,10 +274,12 @@ export interface PendingFuneral {
 export type BusinessKind = "estudio-musica" | "clinica" | "tecnologia" | "comercio" | "taller" | "gastronomia";
 
 export interface BusinessState {
+    lastDecisionMonth?: number;
     demandModifier?: number;
     operatingCostAdjustment?: number;
     activity?: "local" | "exportacion";
     segment?: string;
+    delegated?: boolean;
     trade?: { destination: "PER" | "ITA"; insured: boolean; advancePct: number; diversified: boolean; qualityControl: boolean; fxBuffer: boolean; shipments: number; lastResult: string };
     id: string;
     name: string;
@@ -501,7 +503,7 @@ export interface CurrencyInfo {
     localPerIntlDollar: number;
 }
 
-export interface OwnedAsset { country?: string; location?: string; loanBalance?: number; loanRate?: number; monthlyPayment?: number; missedPayments?: number; id: string; kind: "home" | "car" | "bicycle" | "phone" | "equipment" | "investment"; name: string; value: number; purchasedYear: number; }
+export interface OwnedAsset { rental?: { monthlyRent: number; tenantName: string; occupied: boolean; arrears: number; unpaidMonths: number; condition: number; sinceYear: number; lastDecisionMonth?: number }; country?: string; location?: string; loanBalance?: number; loanRate?: number; monthlyPayment?: number; missedPayments?: number; id: string; kind: "home" | "car" | "bicycle" | "phone" | "equipment" | "investment"; name: string; value: number; purchasedYear: number; }
 export interface LiveEconomy { month: number; statements: MonthlyStatement[]; unpaid: number; interest: number; }
 export interface ManualPurchase { action: string; idempotencyKey: string; amount?: number; quantity?: number; name?: string; assetId?: string; targetId?: string; }
 export interface SpendingOption {
@@ -510,16 +512,23 @@ export interface SpendingOption {
     reference?: { label: string; url: string }; id: string; label: string; category: "bienestar" | "educacion" | "familia" | "animales" | "patrimonio" | "empresa" | "finanzas"; description: string; price: number; maintenance: number; blocked?: string;
 }
 export interface CharacterState {
+    familyTargetChildren?: number;
+    partnerBond?: number;
+    familyCase?: { stage: "agreement" | "hearing" | "closed"; openedMonth: number; partnerName: string; claim: number; homeIds: string[]; evidence: number };
+    otherBusinesses?: BusinessState[];
+    activities?: { languageUntilAgeMonth?: number };
+    relationshipLossAge?: number;
     lifeInsurance?: { expiresMonth: number; benefit: number; paidPremium: number };
     liveEconomy?: LiveEconomy;
     visitedCountries?: string[];
     unpaidBills?: number;
     educationPlan?: { paused?: boolean; programId: string; institution: string; title: string; field: string; monthsLeft: number; annualFee: number; scholarshipPct: number; source: string; reference: string };
+    relationship?: { stage: "seeing" | "committed" | "engaged" | "married"; startedMonth: number; engagedMonth?: number; lastChoiceMonth?: number; lastSceneMonth?: number; memories: string[]; timeline?: { id: string; title: string; text: string; month: number; category: "cita" | "familia" | "crisis" | "hito" }[] };
     partnerProfile?: { country: string; annualIncome: number; metAt: string; sinceYear: number; bornYear?: number; sharedHousehold: boolean };
     childSupport?: { annualAmount: number; untilYear: number; birthYears?: number[] };
     familyPlans?: { id: string; dueYear: number; dueMonth: number; name: string; sex: Sex }[];
     assets?: OwnedAsset[];
-    manualActions?: { year: number; month: number; text: string; action?: string; hours?: number }[];
+    manualActions?: { year: number; month: number; text: string; action?: string; hours?: number; category?: string; importance?: "alta" | "media" | "baja" }[];
     actionKeys?: Record<string, string>;
     actionCooldowns?: Record<string, number>;
     story?: LifeStory;
@@ -776,6 +785,7 @@ export interface ScorePoint {
 }
 
 export interface GameView {
+    duel?: { independent: true; myFinished: boolean; opponentFinished: boolean; opponentAlias: string; opponentAge: number; resultReady: boolean };
     id: string;
     mode: GameMode;
     status: GameStatus;

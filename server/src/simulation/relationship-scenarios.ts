@@ -332,63 +332,67 @@ export const RELATIONSHIP_SCENARIOS: DecisionDefinition[] = encounters.map(encou
 
 RELATIONSHIP_SCENARIOS.push(
     {
-        id: "acuerdo_pareja",
-        title: "Qué queréis construir juntos",
-        description:
-            "La relación con {partner} ya tiene historia. Compartir una cuenta y una casa implica hablar también de ingresos, tareas y autonomía.",
-        category: "familia",
-        priority: "major",
-        minAge: 20,
-        maxAge: 85,
-        once: true,
-        cooldownYears: 8,
-        weight: 5,
+        id: "acuerdo_pareja", monthlyOnly: true,
+        title: "¿Quieres pedirle matrimonio a {partner}?",
+        description: "Después de las citas, los desacuerdos y los planes compartidos, te imaginas una vida con {partner}. Aún no hay una boda decidida: hoy puedes proponer el compromiso, hablar de convivencia o decir que todavía no estás preparado/a.",
+        category: "familia", priority: "major", minAge: 20, maxAge: 85, cooldownYears: 1,
         requirements: { hasPartner: true, maritalStatus: ["dating"] },
         options: [
             {
-                id: "civil",
-                label: "Una boda civil sencilla",
-                description: "Compromiso con una celebración contenida. Empezáis a compartir el presupuesto y los ingresos de ambos.",
-                cost: { shareOfGdp: 0.025 },
-                outcomes: {
-                    success: {
-                        narrative:
-                            "Celebrasteis una boda sencilla. {partner} y tú empezasteis a compartir ingresos, gastos y responsabilidades.",
-                        maritalStatus: "married",
-                        shareHousehold: true,
-                        stats: { happiness: 3, relationships: 4 },
-                        flags: ["pareja_acuerdos"],
-                    },
-                },
+                id: "civil", label: "Proponerle matrimonio a {partner}", description: "Decir por qué quieres compartir la vida y escuchar su respuesta. Si acepta, la celebración se decidirá más adelante.", check: { type: "social", base: 78 }, outcomes: {
+                    success: { narrative: "Le pediste matrimonio a {partner}. Aceptó emocionado/a y os quedasteis hablando hasta tarde. Ahora estáis comprometidos; todavía no hay una boda ni cuentas compartidas por ese gesto.", relationshipStep: "engaged", stats: { happiness: 4, relationships: 3 } },
+                    failure: { narrative: "{partner} te dijo que te quiere, pero que aún no está preparado/a para casarse. No hubo ruptura: acordasteis no convertir la espera en una deuda emocional.", relationshipStep: "wait", stats: { happiness: -2 }, psychology: { stress: 2 } }
+                }
             },
-            {
-                id: "convivir",
-                label: "Probar la convivencia con acuerdos",
-                description: "Compartir vivienda e ingresos sin casaros; repartir tareas y conservar un fondo de emergencia.",
-                cost: { shareOfGdp: 0.015 },
-                outcomes: {
-                    success: {
-                        narrative:
-                            "Os mudasteis juntos en {city}. Acordasteis cómo pagar las facturas y cuánto reservar para imprevistos.",
-                        shareHousehold: true,
-                        stats: { relationships: 3 },
-                        flags: ["convivencia_acordada"],
-                    },
-                },
-            },
-            {
-                id: "espacio",
-                label: "Mantener dos hogares por ahora",
-                description: "Más autonomía; los ingresos de la otra persona todavía no entran en tu cuenta.",
-                outcomes: {
-                    success: {
-                        narrative:
-                            "Elegisteis continuar la relación sin unir las cuentas ni las llaves. No era una ruptura, sino un acuerdo.",
-                        stats: { happiness: 2, relationships: 1 },
-                    },
-                },
-            },
-        ],
+            { id: "convivir", label: "Proponer vivir juntos antes de decidir una boda", description: "Hablar de tareas, gastos y espacio personal. Compartir el hogar cambia el presupuesto; no os convierte en matrimonio.", cost: { shareOfGdp: .015 }, outcomes: { success: { narrative: "{partner} y tú acordasteis probar la convivencia en {city}. Repartisteis tareas y gastos antes de entregar las llaves; el matrimonio quedó para otra conversación.", shareHousehold: true, relationshipStep: "wait", stats: { relationships: 3 }, flags: ["convivencia_acordada"] } } },
+            { id: "espacio", label: "Decir que todavía no quieres dar ese paso", description: "Explicar tus dudas sin prometer una fecha. Podéis seguir juntos conservando los acuerdos actuales.", outcomes: { success: { narrative: "Dijiste a {partner} que quieres seguir juntos, pero no prometer una boda todavía. La conversación no fue fácil; al menos ninguno tuvo que adivinar al otro.", relationshipStep: "wait", stats: { relationships: 1 } } } }
+        ]
+    },
+    {
+        id: "relationship_define", monthlyOnly: true, title: "¿Qué está naciendo entre {partner} y tú?",
+        description: "Os habéis vuelto a ver y ya hay confianza, pero nunca habéis hablado de qué significa lo vuestro. {partner} te pregunta si quieres intentar una relación estable o seguir conociéndoos sin compromiso.",
+        category: "familia", priority: "major", minAge: 18, maxAge: 85, requirements: { hasPartner: true }, options: [
+            { id: "commit", label: "Decir que quieres una relación estable", description: "Escuchar qué espera la otra persona y acordar tiempo y límites. No implica convivencia, boda ni hijos.", outcomes: { success: { narrative: "{partner} y tú decidisteis ser pareja. Hablasteis de lo que cada uno necesita y acordasteis cuidar la relación sin correr hacia una boda.", relationshipStep: "committed", stats: { happiness: 3, relationships: 3 } } } },
+            { id: "slow", label: "Seguir conociéndoos, con sinceridad", description: "Pedir tiempo y dejar claro que todavía no puedes prometer una relación estable.", outcomes: { success: { narrative: "Le explicaste a {partner} que necesitas ir más despacio. Acordasteis seguir viéndoos sin fingir un compromiso que todavía no sentís.", relationshipStep: "wait", stats: { relationships: 1 } } } },
+            { id: "stop", label: "Explicar que no sientes lo mismo", description: "Cerrar el romance con respeto antes de alimentar expectativas.", outcomes: { success: { narrative: "Hablaste con {partner} antes de que la ilusión creciera más. La despedida dolió, pero no dejaste una promesa que no ibas a cumplir.", clearPartner: true, maritalStatus: "single", stats: { happiness: -1, relationships: 1 } } } }
+        ]
+    },
+    {
+        id: "relationship_commit", monthlyOnly: true, title: "El futuro que queréis construir con {partner}",
+        description: "Lleváis tiempo juntos y ya no basta con dejar que los días pasen. No es una boda: es hablar de convivencia, proyectos y límites. {partner} espera una respuesta honesta, no una promesa grandiosa.",
+        category: "familia", priority: "major", minAge: 20, maxAge: 85, requirements: { hasPartner: true }, options: [
+            { id: "project", label: "Hablar de un proyecto de vida común", description: "Poner sobre la mesa dónde queréis vivir, cómo repartiréis tiempo y dinero y qué no estáis dispuestos a sacrificar. Sin fecha de boda.", outcomes: { success: { narrative: "{partner} y tú hablasteis de un proyecto común: dónde vivir, cómo repartir gastos y qué espacio necesita cada uno. No salió una boda de esa conversación, pero sí un futuro que ambos reconocíais.", relationshipStep: "wait", flags: ["futuro_hablado"], stats: { relationships: 3, happiness: 2 } } } },
+            { id: "cohabit", label: "Probar la convivencia con acuerdos", description: "Compartir hogar no es casarse. Acordad tareas, gastos y una salida digna si no funciona.", cost: { shareOfGdp: .015 }, outcomes: { success: { narrative: "{partner} y tú acordasteis probar la convivencia. Antes de las llaves hablasteis de tareas, gastos y espacio personal; el matrimonio quedó fuera de la conversación.", shareHousehold: true, relationshipStep: "wait", flags: ["futuro_hablado", "convivencia_acordada"], stats: { relationships: 3 } } } },
+            { id: "separate", label: "Mantener dos hogares por ahora", description: "Reconocer que todavía necesitáis vuestra independencia. No es rechazar a la otra persona.", outcomes: { success: { narrative: "Le dijiste a {partner} que todavía querías conservar tu casa y tus rutinas. La conversación fue sincera; el vínculo siguió, sin convertir la independencia en una amenaza.", relationshipStep: "wait", flags: ["futuro_hablado"], stats: { relationships: 2, knowledge: 1 } } } }
+        ]
+    },
+    {
+        id: "relationship_proposal", monthlyOnly: true, title: "¿Quieres proponerle matrimonio a {partner}?",
+        description: "Ya habéis compartido una historia con {partner} y hablado de vuestro futuro. Hoy puedes dar un paso más: proponer un compromiso, esperar o decir que no es el momento. Comprometerse no es celebrar la boda hoy.",
+        category: "familia", priority: "major", minAge: 20, maxAge: 85, requirements: { hasPartner: true, maritalStatus: ["dating"] }, options: [
+            { id: "propose", label: "Proponerle matrimonio a {partner}", description: "Decir por qué quieres compartir la vida y escuchar su respuesta. Si acepta, la celebración se decidirá más adelante.", check: { type: "social", base: 78 }, outcomes: { success: { narrative: "Le pediste matrimonio a {partner}. Aceptó emocionado/a y os quedasteis hablando hasta tarde. Ahora estáis comprometidos; todavía no hay una boda ni cuentas compartidas por ese gesto.", relationshipStep: "engaged", stats: { happiness: 4, relationships: 3 } }, failure: { narrative: "{partner} te dijo que te quiere, pero que aún no está preparado/a para casarse. No hubo ruptura: acordasteis no convertir la espera en una deuda emocional.", relationshipStep: "wait", stats: { happiness: -2 }, psychology: { stress: 2 } } } },
+            { id: "wait", label: "Esperar y seguir construyendo la relación", description: "No confundir el miedo a perder a la otra persona con la certeza de querer casarte.", outcomes: { success: { narrative: "Decidiste esperar. {partner} y tú siguisteis juntos, con una conversación pendiente que ya no ocultabais.", relationshipStep: "wait", stats: { relationships: 1, knowledge: 1 } } } },
+            { id: "no", label: "No proponer matrimonio", description: "Ser claro/a sobre lo que quieres, aunque eso pueda cambiar la relación.", outcomes: { success: { narrative: "Elegiste no proponer matrimonio. Lo hablasteis sin convertir el amor en una obligación; la relación tendría que encontrar otra forma de seguir.", relationshipStep: "wait", stats: { relationships: -1, happiness: -1 } } } }
+        ]
+    },
+
+    {
+        id: "relationship_proposal_received", monthlyOnly: true, title: "{partner} te ha pedido matrimonio",
+        description: "Después de vuestra historia compartida, {partner} te dice que quiere construir una vida contigo y te pregunta si quieres casarte. No tienes que responder por presión: aceptar es comprometerse, no celebrar una boda hoy.",
+        category: "familia", priority: "major", minAge: 20, maxAge: 85, requirements: { hasPartner: true, maritalStatus: ["dating"] }, options: [
+            { id: "accept", label: "Aceptar y empezar a preparar el compromiso", description: "Compartir la ilusión. Más adelante decidiréis presupuesto, fecha y tipo de celebración.", outcomes: { success: { narrative: "Aceptaste la propuesta de {partner}. Os abrazasteis y llamasteis a alguien querido. La boda podía esperar: esa noche celebrasteis haber dicho que sí.", relationshipStep: "engaged", stats: { happiness: 4, relationships: 3 } } } },
+            { id: "time", label: "Pedir tiempo y explicar tus dudas", description: "No convertir la emoción del momento en una obligación.", outcomes: { success: { narrative: "Pediste tiempo a {partner}. Hubo decepción, pero también una conversación sincera sobre dinero, proyectos y miedo a equivocarse.", relationshipStep: "wait", stats: { happiness: -1, knowledge: 1 } } } },
+            { id: "no", label: "Decir que no quieres casarte", description: "Ser claro/a sobre el matrimonio y escuchar si vuestra relación puede continuar con esa diferencia.", outcomes: { success: { narrative: "Dijiste a {partner} que no quieres casarte por ahora. La diferencia quedó sobre la mesa; continuar juntos requerirá respetarla, no esconderla.", relationshipStep: "wait", stats: { relationships: -2 } } } }
+        ]
+    },
+    {
+        id: "relationship_wedding", monthlyOnly: true, title: "La boda que podéis y queréis celebrar",
+        description: "Han pasado meses desde el compromiso con {partner}. Ahora toca decidir si celebrar el matrimonio y con qué presupuesto. Una fiesta grande no mide lo que os queréis; las cuentas seguirán existiendo al día siguiente.",
+        category: "familia", priority: "major", minAge: 20, maxAge: 90, requirements: { hasPartner: true, maritalStatus: ["dating"] }, options: [
+            { id: "civil", label: "Celebrar una boda sencilla con los más cercanos", description: "Pagar la celebración y formalizar el matrimonio. Acordaréis cómo compartir ingresos y gastos.", cost: { shareOfGdp: .025 }, outcomes: { success: { narrative: "Celebrasteis una boda sencilla. Al volver a casa con {partner}, todavía vestidos para la ocasión, os reísteis buscando algo para cenar. Empezó el matrimonio, con un presupuesto compartido y una vida cotidiana por construir.", maritalStatus: "married", relationshipStep: "married", shareHousehold: true, stats: { happiness: 3, relationships: 4 } } } },
+            { id: "save", label: "Aplazar la boda y proteger la reserva", description: "Conservar el compromiso mientras ahorráis. No se cobra ninguna celebración.", outcomes: { success: { narrative: "{partner} y tú aplazasteis la boda para no empezar endeudados. Guardasteis las ideas para otro momento; el compromiso seguía intacto.", relationshipStep: "wait", stats: { knowledge: 1 } } } },
+            { id: "private", label: "Preferir la convivencia sin matrimonio", description: "Revisar juntos el compromiso; compartir hogar no obliga a casarse.", cost: { shareOfGdp: .015 }, outcomes: { success: { narrative: "Tras hablarlo con {partner}, elegisteis convivir sin celebrar el matrimonio. No fue cancelar vuestra historia, sino darle una forma que ambos aceptabais.", relationshipStep: "committed", shareHousehold: true, stats: { relationships: 2 } } } }
+        ]
     },
     {
         id: "crianza_dialogo",
@@ -413,11 +417,13 @@ RELATIONSHIP_SCENARIOS.push(
                         narrative:
                             "Iniciasteis un proyecto de crianza. Reservasteis dinero y hablasteis de cómo repartir el cuidado antes de la llegada.",
                         childrenDelta: 1,
+                        familyTargetChildren: 1,
                         stats: { relationships: 2 },
                         psychology: { stress: 3 },
                     },
                 },
             },
+            { id: "plan_dos", label: "Intentar un primer hijo y proyectar una familia de dos", description: "Una llegada cada vez, con revisión de salud, dinero y cuidados antes de intentar otra. No garantiza un embarazo ni dos nacimientos.", requirements: { childrenMax: 0 }, cost: { shareOfGdp: .025 }, outcomes: { success: { narrative: "Acordasteis intentar una primera llegada y volver a evaluar si ampliar la familia más adelante. El plan de dos hijos no elimina la incertidumbre ni los gastos.", childrenDelta: 1, familyTargetChildren: 2, stats: { relationships: 2 }, psychology: { stress: 3 } } } },
             {
                 id: "ahorro",
                 label: "Esperar y preparar una reserva",

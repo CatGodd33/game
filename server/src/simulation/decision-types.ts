@@ -117,6 +117,12 @@ export interface FutureEffect {
 }
 
 export interface OutcomeEffect {
+    pauseEducation?:boolean;
+    businessDelegation?:boolean;
+    familyTargetChildren?:number;
+    familyAction?:"open"|"prepare"|"rush"|"mediate"|"sell"|"pay"|"review";
+    partnerBondDelta?:number;
+    propertyChange?:{recoveryPct?:number;vacate?:boolean;conditionDelta?:number;rentMultiplier?:number};
     businessFocus?: { label: string; activity: "local" | "exportacion" };
     childPlan?: { kind: "public" | "private" | "vocational" | "university" | "family-business"; feeGdp: number; untilAge: number; name: string };
     exportRoute?: "PER" | "ITA";
@@ -139,6 +145,7 @@ export interface OutcomeEffect {
     contractQuality?: number;
     maritalStatus?: MaritalStatus;
     setPartner?: boolean;
+    relationshipStep?: "committed" | "engaged" | "married" | "wait";
     relationshipContext?: "university" | "work" | "online" | "community";
     partnerCountry?: string;
     shareHousehold?: boolean;
@@ -199,6 +206,7 @@ export interface DecisionVariant {
 }
 
 export interface DecisionDefinition {
+    monthlyOnly?:boolean;
     id: string;
     title: string;
     description: string;

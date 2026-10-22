@@ -1,8 +1,11 @@
+import { RelationshipStory } from "./RelationshipStory";
+import { PropertyPortfolio } from "./PropertyPortfolio";
+import { DuelWaiting } from "./DuelWaiting";
 import { FamilyTree } from "./FamilyTree";
 import { LifeResume } from "./LifeResume";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import type { GameView, LifeFocus, LifeMoment, TurnRecord } from "@life-duel/shared";
+import type { GameView, LifeMoment, TurnRecord } from "@life-duel/shared";
 import { CORE_STAT_META, EDUCATION_META, GAME_SPEEDS } from "@life-duel/shared";
 import { BriefcaseBusiness, HeartHandshake, PawPrint, Pause, Play, Store, UsersRound } from "lucide-react";
 import { api } from "../../services/api";
@@ -22,18 +25,14 @@ import { LocationPanel } from "./LocationPanel";
 import { MoneyText } from "../ui/MoneyText";
 import { YearEcho } from "./YearEcho";
 import { monthProgressSeconds } from "../../lib/monthProgress";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { buildRecentEntries } from "../../features/life/recentEntries";
+import { FOCUS_OPTIONS } from "../../features/life/focusOptions";
+import { MobileLifeDashboard } from "./mobile/MobileLife";
 
 const dollars = (n: number) =>
     new Intl.NumberFormat("es", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
-const FOCUSES: { id: LifeFocus; label: string; effect: string }[] = [
-    { id: "balanced", label: "Equilibrio", effect: "Un poco de todo" },
-    { id: "study", label: "Estudiar", effect: "Conocimiento ↑" },
-    { id: "relationships", label: "Familia y amigos", effect: "Vínculos ↑" },
-    { id: "health", label: "Cuidarme", effect: "Salud ↑" },
-    { id: "hobbies", label: "Aficiones", effect: "Felicidad ↑" },
-    { id: "work", label: "Trabajo", effect: "Experiencia ↑" },
-];
 
 const roles: Record<string, string> = {
     mother: "Madre",
@@ -91,6 +90,7 @@ export function SoloLife({
     const [moneyOpen, setMoneyOpen] = useState(false);
     const [debtOpen, setDebtOpen] = useState(false);
     const [funeralOpen, setFuneralOpen] = useState(false);
+    const mobileLayout = useMediaQuery("(max-width: 700px)");
     const toast = useToast();
     const c = game.me.character;
     const b = game.world.birth;
@@ -162,35 +162,19 @@ export function SoloLife({
         }
     }
 
-    const recentEntries = useMemo(() => {
-        if (moments.length) {
-            const interesting = moments.filter((moment) =>
-                !/^Continuidad\b/.test(moment.title) &&
-                !/Este año no trajo una encrucijada|El entorno evoluciona|La vida siguió su curso/.test(moment.text),
-            );
-            return (interesting.length ? interesting : moments).slice(-5).reverse().map((moment) => ({
-                id: moment.id,
-                age: moment.age,
-                year: moment.year,
-                month: moment.month === undefined ? 12 : moment.month + 1,
-                text: moment.kind === "diario" ? moment.text : `${moment.title}. ${moment.text}`,
-                decision: moment.kind === "decision",
-            }));
-        }
-        const decisionTexts = (c.manualActions ?? []).filter(a => a.action === "decision").map(a => a.text);
-        const yearly = [...records].flatMap((turn, recordIndex) => {
-            const r = turn.players[game.me.slot];
-            if (!r) return [];
-            return [
-                ...(r.decisionId !== "sin_decision" && !decisionTexts.some(text => text.startsWith(r.decisionTitle)) ? [{ id: `${turn.year}-${turn.turn}-${recordIndex}-choice`, age: turn.age, year: turn.year, month: 12, text: `${r.decisionTitle}. Elegiste: ${r.optionLabel}.`, decision: true }] : []),
-                ...r.narrative.filter(line => !line.includes("Este año no trajo una encrucijada") && !line.includes("El entorno evoluciona") && !decisionTexts.some(text => text.includes(line))).map((line, i) => ({ id: `${turn.year}-${turn.turn}-${recordIndex}-${i}`, age: turn.age, year: turn.year, month: 12, text: line, decision: false })),
-            ];
-        });
-        const manual = (c.manualActions ?? []).map((a, i) => ({ id: `manual-${i}`, age: a.year - b.year, year: a.year, month: a.month + 1, text: a.text, decision: a.action === "decision" })).reverse();
-        return [...yearly, ...manual].sort((a, b) => b.year - a.year || b.month - a.month);
+    const recentEntries = useMemo(
+        () => buildRecentEntries({
+            moments,
+            records,
+            slot: game.me.slot,
+            manualActions: c.manualActions ?? [],
+            birthYear: b.year,
+            limit: 4,
+        }),
+        [moments, records, game.me.slot, c.manualActions, b.year],
+    );
 
-    }, [moments, records, game.me.slot, c.manualActions, b.year]);
-
+    if (game.duel?.myFinished && !game.final) return <DuelWaiting game={game} />;
     if (!registered && game.turn.number === 0) {
         return (
             <div className="birth-stage">
@@ -205,6 +189,70 @@ export function SoloLife({
 
     const profit = c.business ? c.business.annualRevenue - c.business.annualCosts : 0;
     const progressSeconds = monthProgressSeconds(Boolean(game.config.monthlyMode), game.clock.decisionTimerSeconds, game.clock.speed);
+
+    const overlays = (
+        <>
+            <Modal open={birthOpen} onClose={() => setBirthOpen(false)} title="Tu registro de nacimiento" size="lg">
+                <BirthCertificate game={game} embedded />
+            </Modal>
+            {spendOpen && <SpendingPanel game={game} onGame={onGame} onExploreStudies={() => { setSpendOpen(false); setMobilityOpen(true); }} onClose={() => void closeSpending()} />}
+            {debtOpen && <DebtPanel game={game} onGame={onGame} onClose={() => setDebtOpen(false)} />}
+            {mobilityOpen && <MobilityPanel game={game} onGame={onGame} onClose={() => setMobilityOpen(false)} />}
+            {funeralOpen && (c.pendingFunerals?.length ?? 0) > 0 ? <FuneralPanel game={game} onGame={onGame} onClose={() => setFuneralOpen(false)} /> : null}
+            <Modal open={decisionOpen && !!game.turn.prompt} onClose={() => setDecisionOpen(false)} title="Un momento para decidir" size="lg">{game.turn.prompt && <><DecisionPanel solo prompt={game.turn.prompt} currency={c.currentCurrency} submitted={game.me.hasSubmitted} ownChoice={game.me.ownChoice} pending={submitting} disabled={paused} onSubmit={onDecision} /><button className="story-button full" onClick={() => setDecisionOpen(false)}>Consultar mi vida primero</button></>}</Modal>
+            <Modal open={moneyOpen} onClose={() => setMoneyOpen(false)} title="Economía de tu vida" size="lg">
+                <div className="story-finance">
+                    <BankStatement statements={latestBankRecord?.players[game.me.slot]?.bank} year={latestBankRecord?.year ?? game.turn.year} />
+                    <p>Todo movimiento personal queda registrado en dólares internacionales (PPP).</p>
+                    <div><span>Disponible</span><b>{dollars(c.finance.money)}</b></div>
+                    <div><span>Deuda</span><b><MoneyText value={c.finance.debt} /></b></div>
+                    <div><span>Ingresos anuales</span><b>{dollars(c.finance.annualIncome)}</b></div>
+                    <div><span>Gastos anuales</span><b>{dollars(c.finance.annualExpenses)}</b></div>
+                    {c.business ? <><div><span>{c.business.name} · ingresos</span><b>{dollars(c.business.annualRevenue)}</b></div><div><span>{c.business.name} · costes</span><b>{dollars(c.business.annualCosts)}</b></div></> : null}
+                    {(c.loans ?? []).filter((loan) => loan.active).map((loan) => <div key={loan.id}><span>Préstamo {loan.lender} · {loan.label}</span><b>{dollars(loan.balance)}</b></div>)}
+                    {[...c.finance.ledger].reverse().map((tx) => <div key={tx.id}><span>{tx.year} · {tx.label}</span><b>{dollars(tx.amount)}</b></div>)}
+                </div>
+            </Modal>
+        </>
+    );
+
+    const statements = game.config.monthlyMode
+        ? c.liveEconomy?.statements
+        : latestBankRecord?.players[game.me.slot]?.bank;
+    const bankYear = game.config.monthlyMode ? game.turn.year : latestBankRecord?.year ?? game.turn.year;
+
+    if (mobileLayout) {
+        return (
+            <>
+                <MobileLifeDashboard
+                    game={game}
+                    busy={busy}
+                    recentEntries={recentEntries}
+                    expandedEntry={expandedEntry}
+                    historyError={historyError}
+                    statements={statements}
+                    bankYear={bankYear}
+                    latestTurn={latestTurn}
+                    progressSeconds={progressSeconds}
+                    countryName={countryName}
+                    onPause={(next) => void update(() => api.pause(game.id, next))}
+                    onSpeed={(speed) => void update(() => api.speed(game.id, speed))}
+                    onAuto={(enabled) => void update(() => api.auto(game.id, enabled))}
+                    onAdvance={() => void update(() => api.advance(game.id))}
+                    onFocus={(focus) => void update(() => api.focus(game.id, focus))}
+                    onToggleEntry={(id) => setExpandedEntry(expandedEntry === id ? null : id)}
+                    onOpenDecision={() => setDecisionOpen(true)}
+                    onOpenSpending={() => void openSpending()}
+                    onOpenDebt={() => setDebtOpen(true)}
+                    onOpenMoney={() => setMoneyOpen(true)}
+                    onOpenBirth={() => setBirthOpen(true)}
+                    onOpenMobility={() => setMobilityOpen(true)}
+                    onOpenFuneral={() => setFuneralOpen(true)}
+                />
+                {overlays}
+            </>
+        );
+    }
 
     return (
         <div className="story-dashboard story-v5">
@@ -223,6 +271,7 @@ export function SoloLife({
                     </div>
                 </div>
 
+                {game.duel?.independent && <div className="duel-life-banner"><span>Sala {game.roomCode} · misma vida inicial</span><strong>{game.duel.opponentAlias}: {game.duel.opponentFinished ? "vida completada" : "jugando a su ritmo"}</strong><small>Tu pausa y tus decisiones son independientes. El resultado se revela al terminar ambas vidas.</small></div>}
                 <div className="story-controls">
                     <button className="story-button" disabled={busy} onClick={() => void update(() => api.pause(game.id, !paused))}>
                         {paused ? <><Play className="h-3.5 w-3.5" /> Reanudar</> : <><Pause className="h-3.5 w-3.5" /> Pausar</>}
@@ -322,6 +371,7 @@ export function SoloLife({
 
                 <main className="story-center">
                     {c.educationPlan && <section className="story-panel education-plan-panel"><p className="story-eyebrow">Tu formación · {c.educationPlan.paused ? "en pausa" : c.employment.status === "employed" ? "a tiempo parcial" : "en curso"}</p><h2>{c.educationPlan.title}</h2><p>{c.educationPlan.institution} · {c.educationPlan.monthsLeft} meses de dedicación pendientes</p><div className="education-plan-facts"><span>Cuota actual <b>{dollars(c.educationPlan.paused ? 0 : c.educationPlan.annualFee / 12 * (c.employment.status === "employed" ? .5 : 1))}/mes</b></span><span>Beca <b>{c.educationPlan.scholarshipPct} %</b></span></div><p className="story-muted">{c.educationPlan.reference}</p><button className="story-button" onClick={() => void openSpending()}>Becas, trabajo y pausa académica ↗</button></section>}
+                    <RelationshipStory character={c} year={game.turn.year} />
                     <PixelFamilyScene birth={b} character={c} year={game.turn.year} />
                     {game.turn.prompt && <div className="decision-notice" role="status"><div><span>Una decisión importante · El tiempo espera</span><h2>{game.turn.prompt.title}</h2></div><button className="story-button primary" onClick={() => setDecisionOpen(true)}>Tomar decisión →</button></div>}
                     {(c.pendingFunerals?.length ?? 0) > 0 ? <div className="decision-notice funeral-notice" role="status"><div><span>Una despedida pendiente</span><h2>{c.pendingFunerals![0].relativeName} · {c.pendingFunerals![0].relationship}</h2><p>Elegir ceremonia no cuesta nada hasta que confirmes. La partida no ha cobrado el funeral.</p></div><button className="story-button primary" onClick={() => setFuneralOpen(true)}>Elegir despedida →</button></div> : null}
@@ -344,8 +394,8 @@ export function SoloLife({
                             {historyError ? <p role="alert">No se pudo cargar el diario. <Link to={`/partida/${game.id}/historial`}>Abrir historial</Link></p> : null}
 
                             {recentEntries.map((e) => (
-                                <article key={e.id} className={`journal-entry ${e.decision ? "decision-entry" : /falleci|murió|muerte/i.test(e.text) ? "loss-entry" : /nació|llegó a la familia|hijo|pareja/i.test(e.text) ? "family-entry" : /deuda|perdió|despido|enferm/i.test(e.text) ? "warning-entry" : ""}`}>
-                                    <span>Edad {e.age}<small>{e.year} · {e.month === 12 ? "cierre anual" : `mes ${e.month}`}</small></span>
+                                <article key={e.id} className={`journal-entry ${e.decision ? "decision-entry" : e.category ? `journal-${e.category}` : /falleci|murió|muerte/i.test(e.text) ? "loss-entry" : /deuda|perdió|despido|enferm/i.test(e.text) ? "warning-entry" : ""}`}>
+                                    <span>Edad {e.age}<small>{e.year} · {e.month === 12 ? "cierre anual" : `mes ${e.month}`}{e.category ? ` · ${e.category}` : ""}</small></span>
                                     <p className={e.text.length > 170 && expandedEntry !== e.id ? "journal-excerpt" : undefined}>{e.text}</p>
                                     {e.text.length > 170 ? (
                                         <button
@@ -370,6 +420,7 @@ export function SoloLife({
                     <section className="story-panel family-panel">
                         <h2><UsersRound className="h-4 w-4" /> Familia y hogar</h2>{c.partnerProfile && <p className="story-muted">{c.partnerName} · {countryName(c.partnerProfile.country)} · {c.partnerProfile.sharedHousehold ? `Aporta ${dollars(c.partnerProfile.annualIncome)}/año al hogar` : "Todavía mantenéis hogares y cuentas separados"}</p>}
                         {c.familyPlans?.map(plan => <p className="story-muted" key={plan.id}>♡ Preparando la llegada de {plan.name} · {new Date(plan.dueYear, plan.dueMonth).toLocaleDateString("es", { month: "long", year: "numeric" })}</p>)}
+                        {c.familyCase && c.familyCase.stage !== "closed" ? <p className="family-case-note">Acuerdo con {c.familyCase.partnerName} · {c.familyCase.stage === "agreement" ? "negociación pendiente" : "revisión en preparación"}. Compensación estimada del juego: {dollars(c.familyCase.claim)}.</p> : null}
                         <FamilyTree character={c} birth={b} year={game.turn.year} />
                         <details className="family-details"><summary>Ver detalles de cada familiar</summary>
                             {(story?.relatives ?? []).map((r) => {
@@ -404,10 +455,13 @@ export function SoloLife({
                     </section>
 
                     <LocationPanel character={c} countryName={countryName} />
+                    <PropertyPortfolio character={c} onManage={() => void openSpending()} />
                     <LifeResume character={c} />
                     {c.business ? (
                         <section className="story-panel business-panel">
                             <h2><Store className="h-4 w-4" /> Tu empresa</h2>
+                            <div className="business-selector">{[c.business, ...(c.otherBusinesses ?? [])].filter((item): item is NonNullable<typeof item> => !!item).map(item => <button key={item.id} disabled={busy || item.id === c.business?.id} aria-pressed={item.id === c.business?.id} onClick={() => void update(() => api.purchase(game.id, { action: `manage-business-${item.id}`, idempotencyKey: crypto.randomUUID() }))}>{item.name} · {item.active ? item.delegated ? "gestión delegada" : "dirección propia" : "cerrada"}</button>)}</div>
+                            <p className="story-muted">Cuentas del último cierre anual. Cada empresa conserva sus gastos, equipo y riesgos.</p>
                             <p className="story-muted">{{ comercio: "Comercio local", clinica: "Consulta médica", tecnologia: "Tecnología", "estudio-musica": "Estudio musical", taller: "Taller y oficios", gastronomia: "Gastronomía" }[c.business.kind]} · {c.currentLocation} · fundada a los {c.business.foundedAge} años</p>
                             {c.business.segment ? <p className="business-segment">{c.business.segment}</p> : null}
                             <div className="business-name"><BriefcaseBusiness className="h-4 w-4" /><strong>{c.business.name}</strong><span>{c.business.active ? "Activa" : "Cerrada"}</span></div>
@@ -427,7 +481,7 @@ export function SoloLife({
                         <p>{c.age < 2 ? "Los primeros días" : c.age < 6 ? "Descubriendo el mundo" : c.age < 18 ? "Los años de escuela" : c.age < 65 ? "Construyendo tu camino" : "Una vida de recuerdos"} <span>· {c.currentLocation}</span></p>
                         {story && c.age >= 6 ? (
                             <div className="focus-options">
-                                {FOCUSES.filter((f) => c.age >= 18 || f.id !== "work").map((f) => (
+                                {FOCUS_OPTIONS.filter((f) => c.age >= 18 || f.id !== "work").map((f) => (
                                     <button key={f.id} aria-pressed={story.focus === f.id} disabled={busy} onClick={() => void update(() => api.focus(game.id, f.id))}>
                                         {f.label}<small>{f.effect}</small>
                                     </button>
@@ -449,27 +503,7 @@ export function SoloLife({
                 </aside>
             </div>
 
-            <Modal open={birthOpen} onClose={() => setBirthOpen(false)} title="Tu registro de nacimiento" size="lg">
-                <BirthCertificate game={game} embedded />
-            </Modal>
-            {spendOpen && <SpendingPanel game={game} onGame={onGame} onClose={() => void closeSpending()} />}
-            {debtOpen && <DebtPanel game={game} onGame={onGame} onClose={() => setDebtOpen(false)} />}
-            {mobilityOpen && <MobilityPanel game={game} onGame={onGame} onClose={() => setMobilityOpen(false)} />}
-            {funeralOpen && (c.pendingFunerals?.length ?? 0) > 0 ? <FuneralPanel game={game} onGame={onGame} onClose={() => setFuneralOpen(false)} /> : null}
-            <Modal open={decisionOpen && !!game.turn.prompt} onClose={() => setDecisionOpen(false)} title="Un momento para decidir" size="lg">{game.turn.prompt && <><DecisionPanel solo prompt={game.turn.prompt} currency={c.currentCurrency} submitted={game.me.hasSubmitted} ownChoice={game.me.ownChoice} pending={submitting} disabled={paused} onSubmit={onDecision} /><button className="story-button full" onClick={() => setDecisionOpen(false)}>Consultar mi vida primero</button></>}</Modal>
-            <Modal open={moneyOpen} onClose={() => setMoneyOpen(false)} title="Economía de tu vida" size="lg">
-                <div className="story-finance">
-                    <BankStatement statements={latestBankRecord?.players[game.me.slot]?.bank} year={latestBankRecord?.year ?? game.turn.year} />
-                    <p>Todo movimiento personal queda registrado en dólares internacionales (PPP).</p>
-                    <div><span>Disponible</span><b>{dollars(c.finance.money)}</b></div>
-                    <div><span>Deuda</span><b><MoneyText value={c.finance.debt} /></b></div>
-                    <div><span>Ingresos anuales</span><b>{dollars(c.finance.annualIncome)}</b></div>
-                    <div><span>Gastos anuales</span><b>{dollars(c.finance.annualExpenses)}</b></div>
-                    {c.business ? <><div><span>{c.business.name} · ingresos</span><b>{dollars(c.business.annualRevenue)}</b></div><div><span>{c.business.name} · costes</span><b>{dollars(c.business.annualCosts)}</b></div></> : null}
-                    {(c.loans ?? []).filter((loan) => loan.active).map((loan) => <div key={loan.id}><span>Préstamo {loan.lender} · {loan.label}</span><b>{dollars(loan.balance)}</b></div>)}
-                    {[...c.finance.ledger].reverse().map((tx) => <div key={tx.id}><span>{tx.year} · {tx.label}</span><b>{dollars(tx.amount)}</b></div>)}
-                </div>
-            </Modal>
+            {overlays}
         </div>
     );
 }

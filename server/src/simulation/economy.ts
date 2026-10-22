@@ -1,3 +1,5 @@
+import {expectedAnnualRent} from "./rentals.js";
+import {activeBusinesses} from "./portfolio.js";
 import { tuitionAnnual } from "./education.js";
 import { annualChildSupport, annualSchoolFees, dependentCostUnits, dependentChildren, petAnnualCost } from "./household-care.js";
 import type {
@@ -293,7 +295,7 @@ export function computeGrossIncome(
         return round(Math.max(0, support));
     }
 
-    if (character.business?.active && status === "self-employed") {
+    if (activeBusinesses(character).length>0 && status === "self-employed") {
         // El beneficio de la empresa se contabiliza en su propio módulo.
         return 0;
     }
@@ -394,7 +396,7 @@ export function computeEssentialBreakdown(
         parts.health = round(parts.health + base * model.healthCare.basicAnnualCostShareOfEssentials);
     }
     const homes = (character.assets ?? []).filter(asset => asset.kind === "home");
-    const ownHere = homes.some(asset => (!asset.country || asset.country === character.currentCountry) && (!asset.location || asset.location === character.currentLocation));
+    const ownHere = homes.some(asset => !asset.rental?.occupied && (!asset.country || asset.country === character.currentCountry) && (!asset.location || asset.location === character.currentLocation));
     const propertyUpkeep = homes.reduce((sum, asset) => sum + asset.value * .00375, 0);
     parts.housing = round((ownHere ? 0 : parts.housing) + propertyUpkeep);
     parts.other += petAnnualCost(character, country.gdpPerCapitaPpp) + annualChildSupport(character, _birth.year + character.age) + (character.assets ?? []).filter(a => a.kind === "car").reduce((sum, a) => sum + a.value * .025, 0);
@@ -544,7 +546,7 @@ export function runAnnualEconomy(
     const country = getCountry(character.currentCountry);
     const toolBoost = character.employment.status === "employed" ? 1 + Math.min(2, (character.assets ?? []).filter(a => a.kind === "equipment").length) * .04 : 1;
     const partnerIncome = character.partnerName && character.partnerProfile?.sharedHousehold ? character.partnerProfile.annualIncome * economyPhaseMultiplier(economy.phase) : 0;
-    const grossIncome = round(computeGrossIncome(character, birth, economy, rng) * toolBoost + partnerIncome);
+    const grossIncome = round(computeGrossIncome(character, birth, economy, rng) * toolBoost + partnerIncome+expectedAnnualRent(character));
     const taxes = incomeTax(grossIncome, country.gdpPerCapitaPpp);
     const breakdown = computeEssentialBreakdown(character, birth, economy, difficulty);
     let essentials = breakdown.total;

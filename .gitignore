@@ -4,6 +4,7 @@ dist-server/
 generated/
 server/generated/
 server/.data/
+.e2e-data/
 data/private/
 replays/
 coverage/

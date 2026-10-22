@@ -1,3 +1,4 @@
+import { personalLife } from "../simulation/duel-runs.js";
 import type {
     CharacterState,
     GameSummary,
@@ -93,6 +94,19 @@ export function getGameView(
     viewerPlayerId: string,
     connected: ConnectedSlots = new Set(),
 ): GameView {
+    if(game.independentRuns){
+        const run=personalLife(game,viewerPlayerId);
+        if(run===game)throw Errors.forbidden("No participas en esta partida.");
+        const view=getGameView(run,viewerPlayerId,connected);
+        const rival=game.players.find(p=>p.playerId!==viewerPlayerId)!;
+        const rivalRun=game.independentRuns[rival.slot];
+        return {...view,id:game.id,mode:"duel",roomCode:game.code,updatedAt:game.updatedAt,
+          status:game.final?"finished":run.status==="finished"?"paused":view.status,
+          opponent:game.final?playerView(game,rival,view.me.slot,connected):null,
+          scoreHistory:game.final?structuredClone(game.scoreHistory):view.scoreHistory,
+          final:game.final?structuredClone(game.final):null,canRematch:!!game.final,canControlAuto:true,
+          duel:{independent:true,myFinished:run.status==="finished",opponentFinished:rivalRun?.status==="finished",opponentAlias:rival.alias,opponentAge:rivalRun?.age??0,resultReady:!!game.final}};
+    }
     const me = findPlayerByPlayerId(game, viewerPlayerId);
     if (!me) throw Errors.forbidden("No participas en esta partida.");
     if (!me.character) throw Errors.conflict("La partida aún no ha comenzado.");
@@ -209,6 +223,7 @@ export function getHistoryResponse(
     game: StoredGame,
     viewerPlayerId: string,
 ): HistoryResponse {
+    if(game.independentRuns){const run=personalLife(game,viewerPlayerId);if(run===game)throw Errors.forbidden("No participas en esta partida.");const response=getHistoryResponse(run,viewerPlayerId);return {...response,mode:"duel",final:game.final?structuredClone(game.final):null};}
     const me = findPlayerByPlayerId(game, viewerPlayerId);
     if (!me) throw Errors.forbidden("No participas en esta partida.");
     const turns: TurnRecord[] = structuredClone(game.history);
@@ -269,7 +284,7 @@ export function categoryLabels(): { decision: typeof DECISION_CATEGORY_META; eve
     return { decision: DECISION_CATEGORY_META, event: EVENT_CATEGORY_META };
 }
 
-export function exportGameData(game: StoredGame, viewerPlayerId: string) {
+function buildExportData(game: StoredGame, viewerPlayerId: string) {
     const me = findPlayerByPlayerId(game, viewerPlayerId);
     if (!me) throw Errors.forbidden("No participas en esta partida.");
     const finished = game.status === "finished";
@@ -302,4 +317,9 @@ export function exportGameData(game: StoredGame, viewerPlayerId: string) {
             meta: game.meta,
         },
     };
+}
+
+export function exportGameData(game:StoredGame,viewerPlayerId:string){
+ if(game.independentRuns&&!game.final){const run=personalLife(game,viewerPlayerId);if(run===game)throw Errors.forbidden("No participas en esta partida.");const result=buildExportData(run,viewerPlayerId);delete result.game.worldSeed;result.game.mode="duel";return result;}
+ return buildExportData(game,viewerPlayerId);
 }

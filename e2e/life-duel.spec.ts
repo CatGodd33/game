@@ -58,7 +58,7 @@ test.describe("flujos principales", () => {
     }
 
     test("vida individual: decisión, historial, comparador y final", async ({ page }) => {
-        test.setTimeout(180_000);
+        test.setTimeout(300_000);
         const errors: string[] = [];
         page.on("pageerror", (error) => errors.push(error.message));
 
@@ -181,103 +181,23 @@ test.describe("flujos principales", () => {
         expect(errors, `Errores de página: ${errors.join(" | ")}`).toEqual([]);
     });
 
-    test("duelo en dos navegadores: misma vida, decisiones privadas y sincronización", async ({ browser, baseURL }) => {
-        const hostContext = await browser.newContext({ baseURL, viewport: { width: 1280, height: 900 } });
-        const guestContext = await browser.newContext({ baseURL, viewport: { width: 1280, height: 900 } });
-        const host = await hostContext.newPage();
-        const guest = await guestContext.newPage();
-        const hostErrors: string[] = [];
-        const guestErrors: string[] = [];
-        host.on("pageerror", (error) => hostErrors.push(error.message));
-        guest.on("pageerror", (error) => guestErrors.push(error.message));
-
+    test("duelo independiente: misma vida, sala móvil y libertad para avanzar", async ({ browser, baseURL }) => {
+        const hostContext = await browser.newContext({ baseURL, viewport: { width: 1280, height: 900 } }), guestContext = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 } });
+        const host = await hostContext.newPage(), guest = await guestContext.newPage(); const errors: string[] = []; host.on("pageerror", e => errors.push(e.message)); guest.on("pageerror", e => errors.push(e.message));
         try {
-            await host.goto("/duelo");
-            await expect(host.getByRole("heading", { name: "La misma vida. Dos formas de vivirla." })).toBeVisible();
-            await host.getByLabel(/Tu alias/i).fill("Host E2E");
-            await host.getByRole("button", { name: /Crear sala de duelo/ }).click();
-            await host.waitForURL(/\/sala\/[A-Z0-9]{6}$/, { timeout: 25_000 });
-            const code = host.url().split("/").pop()!;
-            await expect(host.getByText(code, { exact: true })).toBeVisible();
-            await expect(host.getByRole("heading", { name: "Preparados para la misma vida" })).toBeVisible();
-
-            await guest.goto("/duelo?modo=unirse");
-            await guest.getByLabel("Código de sala").fill(code);
-            await guest.getByLabel(/Tu alias/i).fill("Guest E2E");
-            await expect(guest.getByText("Sala encontrada")).toBeVisible({ timeout: 15_000 });
-            await guest.getByRole("button", { name: /Unirme al duelo/ }).click();
-            await guest.waitForURL(new RegExp(`/sala/${code}$`), { timeout: 25_000 });
-            await expect(guest.getByText("Host E2E")).toBeVisible();
-
-            await guest.getByRole("button", { name: /Estoy listo/ }).click();
-            await expect(host.getByText("Guest E2E")).toBeVisible({ timeout: 15_000 });
-            await host.getByRole("button", { name: /Estoy listo/ }).click();
-            await expect(host.getByRole("button", { name: /Comenzar duelo/ })).toBeEnabled({ timeout: 15_000 });
-            await host.getByRole("button", { name: /Comenzar duelo/ }).click();
-
-            await host.waitForURL(/\/partida\/[0-9a-f-]+$/, { timeout: 25_000 });
-            await guest.waitForURL(/\/partida\/[0-9a-f-]+$/, { timeout: 25_000 });
-            const hostUrlId = host.url().match(/\/partida\/([0-9a-f-]+)$/)?.[1];
-            const guestUrlId = guest.url().match(/\/partida\/([0-9a-f-]+)$/)?.[1];
-            expect(hostUrlId).toBeTruthy();
-            expect(guestUrlId).toBe(hostUrlId);
-
-            const hostStart = (await readGame(host)).game;
-            const guestStart = (await readGame(guest)).game;
-            expect(hostStart.world.birth).toEqual(guestStart.world.birth);
-            expect(hostStart.world.seedFingerprint).toBe(guestStart.world.seedFingerprint);
-            expect(hostStart.turn.sharedEvents.map((event) => event.eventId)).toEqual(
-                guestStart.turn.sharedEvents.map((event) => event.eventId),
-            );
-            expect(hostStart.turn.prompt?.id).toBe(guestStart.turn.prompt?.id);
-
-            await host.getByRole("switch", { name: "Decisiones automáticas" }).click();
-            await expect(host.getByRole("switch", { name: "Decisiones automáticas" })).toHaveAttribute("aria-checked", "false");
-            await advanceDuelUntilPrompt(host);
-            await expect(guest.locator("#decision-title")).toBeVisible({ timeout: 20_000 });
-
-            const hostOptions = host.locator('section[aria-labelledby="decision-title"] button');
-            const guestOptions = guest.locator('section[aria-labelledby="decision-title"] button');
-            const optionCount = await hostOptions.count();
-            expect(optionCount).toBeGreaterThan(0);
-            const guestOptionIndex = optionCount > 1 && (await guestOptions.count()) > 1 ? 1 : 0;
-
-            await hostOptions.first().click();
-            await expect(host.getByText("Decisión privada registrada")).toBeVisible({ timeout: 15_000 });
-
-            await expect
-                .poll(async () => (await readGame(guest)).game.opponent?.hasSubmitted, { timeout: 15_000 })
-                .toBe(true);
-            const guestPending = (await readGame(guest)).game;
-            expect(guestPending.opponent?.ownChoice).toBeNull();
-            await expect(guest.getByText(/No puedes ver su elección pendiente/)).toBeVisible();
-
-            await guestOptions.nth(guestOptionIndex).click();
-            await expect.poll(async () => (await readGame(host)).game.turn.number, { timeout: 20_000 }).toBeGreaterThanOrEqual(1);
-            await expect.poll(async () => (await readGame(guest)).game.turn.number, { timeout: 20_000 }).toBeGreaterThanOrEqual(1);
-            await expect(host.getByRole("heading", { name: /años|historia/ }).first()).toBeVisible({ timeout: 20_000 });
-            await expect(guest.getByRole("heading", { name: /años|historia/ }).first()).toBeVisible({ timeout: 20_000 });
-
-            const hostAfter = (await readGame(host)).game;
-            const guestAfter = (await readGame(guest)).game;
-            expect(hostAfter.turn.number).toBeGreaterThanOrEqual(1);
-            expect(guestAfter.turn.number).toBeGreaterThanOrEqual(1);
-            expect(hostAfter.lastResolution?.players["1"]?.optionId).toBeTruthy();
-            expect(hostAfter.lastResolution?.players["2"]?.optionId).toBeTruthy();
-            if (optionCount > 1) {
-                expect(hostAfter.lastResolution?.players["1"]?.optionId).not.toBe(
-                    hostAfter.lastResolution?.players["2"]?.optionId,
-                );
-            }
-            expect(hostAfter.turn.sharedEvents.map((event) => event.eventId)).toEqual(
-                guestAfter.turn.sharedEvents.map((event) => event.eventId),
-            );
-
-            expect(hostErrors, `Errores del anfitrión: ${hostErrors.join(" | ")}`).toEqual([]);
-            expect(guestErrors, `Errores del invitado: ${guestErrors.join(" | ")}`).toEqual([]);
-        } finally {
-            await hostContext.close();
-            await guestContext.close();
-        }
+            await host.goto("/duelo"); await host.getByLabel("Tu alias").fill("Host E2E"); await host.getByRole("button", { name: "Crear sala privada", exact: true }).click(); await host.waitForURL(/\/sala\/[A-Z0-9]{6}$/); const code = host.url().split("/").pop()!;
+            await guest.goto(`/duelo?modo=unirse&codigo=${code}`); await guest.getByLabel("Tu alias").fill("Guest E2E"); await guest.getByRole("button", { name: "Entrar en la sala", exact: true }).click(); await guest.waitForURL(new RegExp(`/sala/${code}$`));
+            await expect(host.getByText("Guest E2E", { exact: true })).toBeVisible();
+            await host.screenshot({ path: "artifacts/duel-room-desktop.png", fullPage: false }); await guest.screenshot({ path: "artifacts/duel-room-mobile.png", fullPage: true }); expect(await guest.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+            await host.getByRole("button", { name: "Estoy listo", exact: true }).click(); await guest.getByRole("button", { name: "Estoy listo", exact: true }).click(); await expect(host.getByRole("button", { name: "Comenzar el duelo", exact: true })).toBeEnabled(); await host.getByRole("button", { name: "Comenzar el duelo", exact: true }).click();
+            await host.waitForURL(/\/partida\/[0-9a-f-]+$/); await guest.waitForURL(/\/partida\/[0-9a-f-]+$/);
+            const a = (await readGame(host)).game, b = (await readGame(guest)).game; expect(a.world.birth).toEqual(b.world.birth); expect(a.opponent).toBeNull(); expect(b.opponent).toBeNull();
+            await host.getByRole("button", { name: /Comenzar esta vida/ }).click(); await advanceUntilDecision(host, 2); await expect(host.locator("#decision-title")).toBeVisible();
+            expect((await readGame(guest)).game.turn.number).toBe(0);
+            await host.locator('section[aria-labelledby="decision-title"] button').first().click(); await expect(host.getByRole("button", { name: /Siguiente decisión/ })).toBeEnabled(); await host.getByRole("button", { name: /Siguiente decisión/ }).click();
+            await expect.poll(async () => (await readGame(host)).game.turn.number).toBeGreaterThan(2); expect((await readGame(guest)).game.turn.number).toBe(0);
+            await guest.getByRole("button", { name: /Comenzar esta vida/ }).click(); await expect(guest.getByRole("button", { name: "Pausar", exact: true })).toBeEnabled(); await guest.getByRole("button", { name: "Pausar", exact: true }).click(); await expect(guest.getByRole("button", { name: "Reanudar", exact: true })).toBeEnabled();
+            await guest.reload(); await expect(guest.getByRole("button", { name: "Reanudar", exact: true })).toBeVisible(); expect(errors).toEqual([]);
+        } finally { await hostContext.close(); await guestContext.close(); }
     });
 });

@@ -199,7 +199,7 @@ describe("deudas y despedidas", () => {
 });
 
 describe("diario narrativo", () => {
-    it("no mezcla resúmenes financieros con la historia y escribe una escena cada mes", () => {
+    it("no mezcla resúmenes financieros con la historia y selecciona escenas con peso", () => {
         const { game, character } = adultCharacter("diary-no-finance");
         character.employment.status = "employed";
         character.employment.occupation = "Diseñador/a";
@@ -209,8 +209,8 @@ describe("diario narrativo", () => {
             monthlyStory(game, character, { month } as unknown as MonthlyStatement);
         }
         const entries = character.manualActions!.filter((entry) => entry.action === "chronicle");
-        expect(entries).toHaveLength(12);
-        expect(new Set(entries.map((entry) => entry.month)).size).toBe(12);
+        expect(entries).toHaveLength(4);
+        expect(new Set(entries.map((entry) => entry.month)).size).toBe(4);
         for (const entry of entries) {
             expect(entry.text.length).toBeGreaterThan(80);
             expect(entry.text).not.toMatch(/Entraron \d|origen y cada cargo|Quedaron facturas pendientes|saldo personal no recibe|Ordenaste un rincón/i);

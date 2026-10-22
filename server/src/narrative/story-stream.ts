@@ -137,7 +137,7 @@ export function buildLifeMoments(game: StoredGame, viewerSlot: PlayerSlot): Life
                 title: firstSentence(action.text, monthLabel ? `Un día de ${monthLabel}` : "Un día de tu vida"),
                 text: action.text,
                 place: character.currentLocation,
-                category: "vida",
+                category: action.category ?? "vida",
             });
         }
 

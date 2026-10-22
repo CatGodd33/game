@@ -65,7 +65,7 @@ export function makeDuel(
   joinDuelRoom(game, "guest-player", "Invitado");
   setPlayerReady(game, 1, true);
   setPlayerReady(game, 2, true);
-  startDuel(game);
+  startDuel(game,false); // Fixtures exercise persisted legacy turn-based duels; independent duels have dedicated service tests.
   return { game, hostId: "host-player", guestId: "guest-player", hostSlot: 1, guestSlot: 2 };
 }
 

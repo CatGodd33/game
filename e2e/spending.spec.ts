@@ -23,7 +23,8 @@ test("acciones manuales: préstamo, animales y saldo en una vida adulta", async 
     });
     await page.goto(`/partida/${id}`);
     const funeralLater = page.getByRole("button", { name: "Decidir más tarde" });
-    if (await funeralLater.isVisible().catch(() => false)) await funeralLater.click();
+    const funeralVisible = await funeralLater.waitFor({ state: "visible", timeout: 5000 }).then(() => true).catch(() => false);
+    if (funeralVisible) await funeralLater.click();
     await page.getByRole("button", { name: "Gastar e invertir ↗", exact: true }).first().click();
     await expect(page.getByRole("heading", { name: "Gastar e invertir", exact: true })).toBeVisible();
     const headingColor = await page.getByRole("heading", { name: "Gastar e invertir", exact: true }).evaluate(el => getComputedStyle(el).color);
