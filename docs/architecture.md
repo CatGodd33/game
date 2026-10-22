@@ -46,6 +46,10 @@ El servidor valida pertenencia, estado, turno, decisión, elegibilidad y clave d
 ### `shared/`
 Contratos TypeScript (`types.ts`), constantes de juego (`constants.ts`), esquemas Zod (`schemas.ts`) y utilidades puras. Evita divergencias entre cliente y servidor.
 
+### Localización
+
+`shared/src/i18n/` contiene el catálogo chino versionado y el traductor puro: texto exacto, fechas, cantidades, plantillas con huecos y primera frase de una escena. `client/src/i18n/LocaleProvider.tsx` aplica la preferencia y traduce la interfaz renderizada; `server/src/i18n.ts` localiza los valores textuales de las respuestas HTTP sin tocar IDs, enums, semilla ni datos privados. El motor y la persistencia permanecen neutrales al idioma. Detalle: [`i18n.md`](i18n.md).
+
 ### `server/src/routes/`
 Traducción HTTP → servicio. No contiene reglas de simulación. Todos los cuerpos pasan por Zod; los errores se normalizan en `validation/http.ts`.
 

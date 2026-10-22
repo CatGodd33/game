@@ -9722,3 +9722,72 @@ body::before {
         font-size: 36px;
     }
 }
+/* Selector de idioma (2.4) */
+.language-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 3px 4px 3px 6px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.035);
+    color: #d9d4c7;
+    flex-shrink: 0;
+}
+.language-toggle-icon {
+    width: 13px;
+    height: 13px;
+    margin-right: 2px;
+    opacity: 0.65;
+}
+.language-toggle button {
+    min-width: 30px;
+    padding: 3px 7px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+}
+.language-toggle button:hover,
+.language-toggle button:focus-visible {
+    background: rgba(255, 255, 255, 0.09);
+    outline: none;
+}
+.language-toggle button.is-active {
+    background: #e8c77b;
+    color: #1b1d1a;
+}
+.language-toggle-label {
+    padding: 0 6px 0 3px;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.55;
+}
+@media (max-width: 640px) {
+    .language-toggle-label { display: none; }
+    .language-toggle { padding-left: 5px; }
+}
+/* Tipografía y ritmo para chino simplificado */
+html[lang="zh-Hans"] body {
+    font-family: "PingFang SC", "Noto Sans SC", "Hiragino Sans GB", "Microsoft YaHei", Inter, sans-serif;
+    letter-spacing: 0.01em;
+}
+html[lang="zh-Hans"] h1,
+html[lang="zh-Hans"] h2,
+html[lang="zh-Hans"] h3,
+html[lang="zh-Hans"] .story-title h1,
+html[lang="zh-Hans"] .page-title {
+    font-family: "Noto Serif SC", "Songti SC", "STSong", Fraunces, serif;
+    letter-spacing: -0.01em;
+}
+html[lang="zh-Hans"] p,
+html[lang="zh-Hans"] li,
+html[lang="zh-Hans"] .story-muted {
+    line-height: 1.75;
+}

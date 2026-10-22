@@ -27,13 +27,13 @@ El `webServer` de Playwright reutiliza un `npm run dev` ya activo. Si no existe,
 
 ### Resultado de la última ejecución
 
-- Vitest: **26 archivos, 208 pruebas, 204 correctas** (incluye `tests/coherence-v9.test.ts`, `tests/relationship-narrative.test.ts`, `tests/country-paths.test.ts`, `tests/decision-map.test.ts` y `tests/mobile-v22.test.ts`: límite de cuatro escenas, enfoques por edad y catálogo de gasto infantil).
-- Playwright: **6 pruebas, 6 correctas** (vida individual completa, duelo en dos contextos, acciones económicas manuales, deudas con pago dirigido, atlas espacial y dashboard móvil 2.2 a 390 px: orden de bloques, sin overflow, Life Record ≤4 y gasto sin empresa ni inversión).
+- Vitest: **27 archivos, 214 pruebas, 214 correctas** (incluye `tests/i18n.test.ts` y las suites anteriores de coherencia, relación, país, atlas y móvil).
+- Playwright: **10 pruebas, 10 correctas** (vida individual completa, duelo en dos contextos, acciones económicas manuales, deudas con pago dirigido, atlas espacial, estabilidad de escritorio, dashboard móvil y tres flujos de chino: portada/partida, decisión/historial y pantallas secundarias con final).
 - `npm run typecheck`: correcto.
-- `npm run build`: correcto; cliente de 909,50 kB (273,78 kB gzip), CSS de 162,66 kB (34,87 kB gzip) y aviso no bloqueante de chunk.
+- `npm run build`: correcto; cliente de 1.581,91 kB (554,48 kB gzip), CSS de 163,93 kB (35,20 kB gzip) y aviso no bloqueante de chunk por el catálogo chino.
 - Reinicio real del servidor compilado: sesión y partida recuperadas con la misma huella de semilla, nacimiento y turno.
 - Arranque de producción (`node server/dist/index.js`) en el puerto 4105: `GET /api/health` devuelve `status: ok`, persistencia JSON y modo IA local.
-- Producción: `https://life-duel.onrender.com/api/health` devuelve `version: 2.3.0` con `persistence: postgres`; la portada sirve el bundle nuevo y muestra «versión 2.3».
+- Producción: el health local y el arranque compilado devuelven `version: 2.4.0`; el despliegue de Render se verifica después del push (`/api/health` y portada con «versión 2.4»).
 - Inicio y panel de vida sin overflow horizontal en 390, 768 y 1440 px.
 - Banco compacto: máximo de cinco filas y sin overflow interno en 390 px; la animación del saldo termina en el importe autoritativo.
 
@@ -260,3 +260,11 @@ Ejecuta siempre `npm run typecheck` y `npm run build` además de las pruebas.
 `tests/v5.test.ts` verifica que las variantes narrativas conservan exactamente los mismos identificadores de opción, que la selección es determinista por semilla/turno, que `cooldownYears` bloquea una decisión de empresa reciente, que `parentsAlive` funciona con el registro de nacimiento cuando no hay historia familiar, que `hasPet` acepta mascotas reales y banderas heredadas, que el automático elige una apertura de negocio con liquidez, que una empresa genera ingresos y puede venderse, que las mascotas envejecen dentro de 0–100 y que las decisiones manuales son el valor por defecto (`autoDecisions=false`). `tests/pacing-v8.test.ts` añade variantes ligadas al suceso, cooldowns de evento, intervalo global, calendario de infancia/adolescencia y pool de empresa.
 
 Los flujos Playwright cubren la vida individual completa, con registro de nacimiento, decisión, historial, comparador y final, y un duelo real entre dos contextos con nacimiento/eventos idénticos, decisiones privadas y sincronización. El flujo individual avanza con «Siguiente decisión» y elige sin diálogo de confirmación; el balance anual queda abierto bajo el diario. El avance final usa el contexto de peticiones de Playwright para no bloquear la pestaña con una vida larga. El duelo activa sus decisiones desde la interfaz y comprueba que solo el anfitrión controla el modo automático.
+
+## Capa i18n (2.4)
+
+`tests/i18n.test.ts` comprueba que el catálogo traduce etiquetas, cantidades y fechas; que conserva el español y no inventa entradas; que resuelve plantillas con nombres, lugares y cifras; que traduce la primera frase de una escena; que `localizeDeep` no toca IDs, enums, semilla ni nombres propios; y que la cobertura mínima de la interfaz sigue presente.
+
+`e2e/i18n.spec.ts` abre la portada en `?lang=zh`, crea una vida, comprueba 健康/幸福/知识/人际关系, guarda capturas y vuelve a español. `e2e/i18n-content.spec.ts` avanza hasta una decisión real, verifica título y opciones con caracteres CJK, abre el historial y comprueba que la narrativa persistida también está localizada. Las capturas quedan en `artifacts/`.
+
+La cobertura pendiente se consulta en `data/i18n/missing.json`. No se afirma que el catálogo sea total: los topónimos menores y los nombres propios pueden conservarse en alfabeto latino.

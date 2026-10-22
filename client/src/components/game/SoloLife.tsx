@@ -23,6 +23,7 @@ import { FuneralPanel } from "./FuneralPanel";
 import { Modal } from "../ui/Modal";
 import { LocationPanel } from "./LocationPanel";
 import { MoneyText } from "../ui/MoneyText";
+import { LanguageToggle } from "../ui/LanguageToggle";
 import { YearEcho } from "./YearEcho";
 import { monthProgressSeconds } from "../../lib/monthProgress";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
@@ -300,6 +301,7 @@ export function SoloLife({
                     <button className="story-button" disabled={busy || paused || !!game.turn.prompt} onClick={() => void update(() => api.advance(game.id))}>Siguiente decisión »</button>
                     <button className="story-button primary" disabled={busy} onClick={() => void openSpending()}>Gastar e invertir ↗</button>
                     <span className="story-live-pill"><i />{paused ? "En pausa" : game.turn.prompt ? "Decisión pendiente" : "La vida avanza"}</span>
+                    <LanguageToggle compact />
                     <Link className="story-button story-exit" to="/partidas">Salir ↗</Link>
                 </div>
 

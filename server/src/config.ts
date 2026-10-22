@@ -119,7 +119,7 @@ export const config = {
     },
     logLevel: env.LOG_LEVEL,
     trustProxy: env.TRUST_PROXY,
-    version: "2.3.0",
+    version: "2.4.0",
 } as const;
 
 export type AppConfig = typeof config;

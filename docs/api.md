@@ -28,7 +28,7 @@ Sin auth.
 {
   "status": "ok",
   "name": "LIFE DUEL",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "persistence": "json",
   "ai": "local",
   "time": "2026-01-01T00:00:00.000Z"

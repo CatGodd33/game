@@ -14,6 +14,7 @@ import type { GameService } from "./services/gameService.js";
 import type { NarrativeService } from "./services/narrativeService.js";
 import type { SessionService } from "./services/sessionService.js";
 import { errorHandler } from "./validation/http.js";
+import { localeMiddleware } from "./i18n.js";
 
 export interface AppDependencies {
     gameService: GameService;
@@ -57,12 +58,13 @@ export function createApp(dependencies: AppDependencies): Express {
                 callback(new AppError(403, "CORS_FORBIDDEN", "Origen no permitido."));
             },
             methods: ["GET", "POST", "PATCH", "OPTIONS"],
-            allowedHeaders: ["Content-Type", "Authorization"],
+            allowedHeaders: ["Content-Type", "Authorization", "X-Locale"],
             credentials: false,
             maxAge: 3600,
         }),
     );
     app.use(express.json({ limit: "64kb" }));
+    app.use("/api", localeMiddleware());
 
     app.use("/api", (_req, res, next) => {
         res.setHeader("Cache-Control", "no-store");

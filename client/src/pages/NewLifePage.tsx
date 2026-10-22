@@ -116,6 +116,7 @@ export function NewLifePage() {
                         </div>
                     </div>
                     <GameConfigForm
+                        compact
                         value={config}
                         onChange={setConfig}
                         countries={data?.countries ?? []}

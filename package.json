@@ -1,6 +1,6 @@
 {
     "name": "life-duel",
-    "version": "2.3.0",
+    "version": "2.4.0",
     "private": true,
     "type": "module",
     "description": "Simulador de vidas determinista para un jugador y duelos online para dos jugadores.",
@@ -27,12 +27,16 @@
         "prisma:deploy": "prisma migrate deploy",
         "sim:demo": "tsx scripts/demo-life.ts",
         "map:build": "tsx scripts/build-decision-map.ts",
-        "audit:pacing": "tsx scripts/audit-pacing.ts"
+        "audit:pacing": "tsx scripts/audit-pacing.ts",
+        "i18n:extract": "node scripts/extract-i18n.mjs",
+        "i18n:translate": "node scripts/translate-zh-missing.mjs",
+        "i18n:build": "node scripts/build-zh-catalog.mjs"
     },
     "engines": {
         "node": ">=20"
     },
     "devDependencies": {
+        "@babel/parser": "^8.0.7",
         "@playwright/test": "^1.64.1",
         "@types/node": "^26.6.5",
         "@types/supertest": "^7.2.1",

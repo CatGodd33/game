@@ -1,6 +1,6 @@
 {
     "name": "@life-duel/server",
-    "version": "2.3.0",
+    "version": "2.4.0",
     "private": true,
     "type": "module",
     "main": "dist/index.js",
@@ -11,7 +11,7 @@
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "@life-duel/shared": "^2.3.0",
+        "@life-duel/shared": "^2.4.0",
         "@prisma/adapter-pg": "^7.10.1",
         "@prisma/client": "^7.10.1",
         "cors": "^2.8.6",

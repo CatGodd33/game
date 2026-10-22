@@ -29,6 +29,7 @@ import { GAME_SPEEDS } from "@life-duel/shared";
 import type { RecentLifeEntry } from "../../../features/life/recentEntries";
 import { PixelFamilyScene } from "../../art/PixelLife";
 import { MoneyText } from "../../ui/MoneyText";
+import { LanguageToggle } from "../../ui/LanguageToggle";
 import { LiveLedger } from "../LiveLedger";
 import { RelationshipStory } from "../RelationshipStory";
 import { FamilyTree } from "../FamilyTree";
@@ -160,6 +161,7 @@ export function MobileLifeDashboard({
                         <i aria-hidden="true" />
                         {statusText(game, paused)}
                     </span>
+                    <LanguageToggle compact />
                     <Link to="/partidas" className="mobile-exit" aria-label="Salir y ver mis vidas">
                         Salir
                     </Link>

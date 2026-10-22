@@ -20,6 +20,7 @@ import type {
     MobilityResponse,
     SubmitDecisionInput,
 } from "@life-duel/shared";
+import { LOCALE_STORAGE_KEY, type Locale } from "@life-duel/shared";
 import { getToken } from "./auth";
 
 const API_BASE = (import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "");
@@ -43,8 +44,18 @@ interface RequestOptions {
     signal?: AbortSignal;
 }
 
+function activeLocale(): Locale {
+    if (typeof window === "undefined") return "es";
+    const query = new URLSearchParams(window.location.search).get("lang");
+    if (query === "zh" || query === "es") return query;
+    const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY);
+    if (stored === "zh" || stored === "es") return stored;
+    return window.navigator.language.toLowerCase().startsWith("zh") ? "zh" : "es";
+}
+
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
     const headers: Record<string, string> = { Accept: "application/json" };
+    headers["X-Locale"] = activeLocale();
     if (options.body !== undefined) headers["Content-Type"] = "application/json";
     const token = getToken();
     if (options.auth !== false && token) headers.Authorization = `Bearer ${token}`;

@@ -127,8 +127,8 @@ No se afirma que estén verificadas las integraciones que requieren infraestruct
 2. Probar DeepSeek con una clave de pruebas y verificar timeout/límites.
 3. Ampliar el dataset a más países con un proceso de importación reproducible.
 4. Añadir expulsión/auto-pausa tras inactividad prolongada y notificaciones.
-5. Dividir el bundle del cliente y añadir i18n.
-6. Auditoría de accesibilidad y pruebas en móvil real.
+5. Dividir el bundle del cliente para cargar el catálogo chino bajo demanda.
+6. Auditoría de accesibilidad y pruebas en móvil real, incluida la tipografía china.
 7. Añadir espectadores, torneos o historial social si se desea crecer.
 8. Ampliar los bancos de crónica y las decisiones específicas por país; ajustar balance con telemetría de partidas.
 9. Firmar/verificar exportaciones y añadir una vista de replay.
@@ -144,3 +144,13 @@ No se afirma que estén verificadas las integraciones que requieren infraestruct
 - Interacción en tiempo real entre los jugadores más allá de la competición asíncrona por turnos.
 
 Estas ausencias son decisiones de alcance, no fallos ocultos. La arquitectura modular permite añadirlas sin reescribir el núcleo.
+
+
+## 9. Limitaciones de la versión china
+
+- La traducción automática se revisó en la interfaz principal, pero la narrativa muy específica puede sonar literal. Los términos visibles se corrigen en `data/i18n/zh-overrides.json`.
+- La cobertura no es total: `data/i18n/missing.json` enumera lo pendiente. No se presenta como «todo traducido».
+- Los topónimos menores y los nombres de personas pueden conservarse en alfabeto latino.
+- El catálogo chino se incluye en el bundle compartido (unos 600 kB de texto, mucho menos comprimido). Se puede separar por idioma en una próxima iteración.
+- Las respuestas de Socket.IO no se localizan en el servidor; el cliente traduce los nodos visibles y la narrativa HTTP usa plantillas.
+- La calidad del texto chino no sustituye una revisión editorial profesional; la arquitectura permite corregir cadenas sin tocar el motor.

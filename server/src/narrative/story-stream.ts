@@ -52,7 +52,9 @@ export function buildLifeMoments(game: StoredGame, viewerSlot: PlayerSlot): Life
         age: 0,
         title: `Nacer en ${birth.countryName}`,
         text: `${birth.givenName} ${birth.surname} nació en ${birth.location}, ${birth.countryName}, en una familia ${birth.family.label.toLowerCase()}. ${birth.family.story}`,
-        place: `${birth.location}, ${birth.countryName}`,
+        place: birth.location.includes(birth.countryName)
+            ? birth.location
+            : `${birth.location}, ${birth.countryName}`,
         category: "vida",
     });
 

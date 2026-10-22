@@ -2,9 +2,9 @@
 
 **La misma vida. Dos formas de vivirla.** Un simulador de vidas determinista para un jugador y un duelo online en tiempo real para dos, donde ambos reciben exactamente el mismo nacimiento y los mismos acontecimientos, pero deciden por separado.
 
-> Proyecto funcional en español, ejecutable en local. No es una maqueta: el motor, la economía, la mortalidad, las salas, la sincronización, la persistencia y la puntuación están implementados y cubiertos por pruebas.
+> Proyecto funcional en **español y chino simplificado**, ejecutable en local. No es una maqueta: el motor, la economía, la mortalidad, las salas, la sincronización, la persistencia y la puntuación están implementados y cubiertos por pruebas.
 
-**Versión 2.3** — cabecera móvil compacta, escritorio sin saltos de scroll, viviendas que generan renta real y crisis de empresa según el tipo de negocio. Notas: [`docs/releases/v2.3.md`](docs/releases/v2.3.md).
+**Versión 2.4** — interfaz completa en chino (`中文`) con selector ES / 中文, localización en el servidor y plantillas narrativas, sin cambiar las reglas ni la semilla del motor. Notas: [`docs/releases/v2.4.md`](docs/releases/v2.4.md) · Detalle técnico: [`docs/i18n.md`](docs/i18n.md).
 
 ---
 
@@ -46,8 +46,16 @@ Sin `SESSION_SECRET`, el servidor de desarrollo crea una clave local en `server/
 | `npm run prisma:generate` | Genera el cliente Prisma. |
 | `npm run prisma:migrate` | Crea/aplica migraciones de desarrollo. |
 | `npm run prisma:deploy` | Aplica migraciones existentes (producción/Neon). |
+| `npm run i18n:extract` | Extrae cadenas y plantillas del código para el catálogo chino. |
+| `npm run i18n:translate` | Completa los huecos con el servicio de desarrollo (no se usa en runtime). |
+| `npm run i18n:build` | Regenera `shared/src/i18n/zh.ts` desde los datos versionados. |
 
 Para usar Playwright con el Chrome instalado no hace falta descargar navegadores; `playwright.config.ts` usa `channel: "chrome"`. En CI: `npx playwright install chromium` y define `E2E_CHANNEL=chromium`.
+
+### Idioma
+
+La aplicación arranca en español o en chino según la preferencia guardada, el navegador o `?lang=zh`. El selector **ES / 中文** está en la cabecera, en el menú móvil, en Ajustes y dentro de la partida. El estado de la simulación es único: la localización solo transforma la presentación, así que un duelo puede tener a un jugador en español y al otro en chino sin alterar el mundo compartido, las decisiones privadas ni la puntuación. Detalle: [`docs/i18n.md`](docs/i18n.md).
+
 
 ### Atlas espacial de decisiones
 
@@ -98,7 +106,16 @@ Detalle: [`docs/decision-map.md`](docs/decision-map.md).
 - **Life Record breve.** Solo acciones con contenido: decisiones, hitos, salud, dinero y migración. Se descartan las líneas de continuidad y se muestran como máximo cuatro escenas.
 - **Pasaporte de vida.** Sexo, año y lugar de nacimiento, residencia, educación, ocupación, estado civil, hijos y países vividos en una ficha con retrato y sello.
 - **Gasto según la edad.** El catálogo infantil se limita a salud, terapia, aficiones, idiomas, tiempo en familia, cumpleaños, regalos, donaciones, animales domésticos, bicicleta, teléfono y viaje familiar. Empresa, universidad, deuda, inversión, coche y vivienda aparecen bloqueados hasta los 18 años, con el motivo visible.
-- **Versión visible.** La portada muestra «LIFE DUEL · versión 2.3» y el pie del dashboard repite la versión para confirmar qué build se está sirviendo.
+- **Versión visible.** La portada muestra «LIFE DUEL · versión 2.4» y el pie del dashboard repite la versión para confirmar qué build se está sirviendo.
+
+
+### Versión 2.4: interfaz china y mundo compartido
+
+- **Chino simplificado completo.** Selector **ES / 中文** en cabecera, móvil, ajustes y partida; `?lang=zh`; preferencia persistida y detección del navegador.
+- **Misma partida en dos idiomas.** El servidor localiza solo los valores textuales de las respuestas HTTP y respeta IDs, enums, semilla y datos privados. Un duelo puede tener un jugador en español y otro en chino.
+- **Narrativa traducida por plantillas.** Nacimiento, familia, escenas mensuales, historial, decisiones y títulos de primera frase se resuelven con plantillas con huecos, no con texto inventado por IA.
+- **Catálogo versionado y reproducible.** `npm run i18n:extract`, `npm run i18n:translate` y `npm run i18n:build`. La aplicación no llama a ningún traductor en runtime.
+- **Cobertura honesta.** `data/i18n/missing.json` registra lo pendiente y los topónimos menores pueden conservar el alfabeto latino.
 
 
 ### Versión 2.3: composición estable, vivienda rentable y empresas bajo presión
