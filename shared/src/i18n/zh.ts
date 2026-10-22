@@ -4908,6 +4908,9 @@ export const ZH_CATALOG: Record<string, string> = {
 export const ZH_OVERRIDES: Record<string, string> = {
     "· DATOS DEMOGRÁFICOS ABIERTOS": "· 开放人口数据",
     "· el mismo mundo, decisiones distintas": "· 同一个世界，不同的决定",
+    "· Las elecciones personales se mantienen privadas.": "· 个人选择始终保密。",
+    "· Sala conectada": "· 房间已连接",
+    "· tú": "· 你",
     "a tu manera.": "亲手书写。",
     "Abandonar sala": "离开房间",
     "abr": "四月",
@@ -5959,7 +5962,7 @@ export const ZH_TEMPLATES: Record<string, string> = {
 
 export const ZH_COVERAGE = {
     "machine": 4900,
-    "overrides": 714,
+    "overrides": 717,
     "tokens": 148,
     "templates": 181,
     "missing": 0
