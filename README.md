@@ -458,6 +458,8 @@ Lista completa: [`docs/limitations.md`](docs/limitations.md).
 
 La guía paso a paso está en **[`docs/deployment.md`](docs/deployment.md)**: Render Free + Neon PostgreSQL + GitHub, con variables, migraciones, dominio opcional, límites y solución de problemas.
 
+**[Publicar en Render](https://render.com/deploy?repo=https://github.com/CatGodd33/game)** (necesitas cuenta gratuita de Render y una `DATABASE_URL` de Neon).
+
 Resumen:
 
 1. Sube el proyecto a GitHub.

@@ -8,6 +8,8 @@ Esta guía publica el juego completo en Internet con **coste 0 €**:
 
 No hace falta tarjeta para los planes gratuitos, aunque las condiciones pueden cambiar. Tampoco hace falta tocar el hosting ni los archivos de ningún cliente.
 
+**[Publicar en Render](https://render.com/deploy?repo=https://github.com/CatGodd33/game)** — el botón abre el Blueprint del repositorio. Te pedirá iniciar sesión y pegar la `DATABASE_URL` de Neon; el resto lo crea Render.
+
 ---
 
 ## 1. Antes de empezar
