@@ -12,7 +12,7 @@ No se afirma que estén verificadas las integraciones que requieren infraestruct
 | --- | --- | --- |
 | Motor determinista | Completo | Vitest, demo. |
 | Nacimiento compartido | Completo | Vitest, sockets, e2e. |
-| Decisiones y elegibilidad | Completo (186 decisiones y 594 opciones, filtros por edad y contexto, variantes narrativas y cooldowns) | Vitest, servicio, e2e. |
+| Decisiones y elegibilidad | Completo (196 decisiones y 624 opciones, filtros por edad y contexto, variantes narrativas y cooldowns) | Vitest, servicio, e2e. |
 | Atlas espacial de decisiones | Completo | Vitest del catálogo y e2e de ramas, constelación y 390 px. |
 | Salidas ante crisis | Completo | 10 pruebas de recuperación, infancia y selector; 3 decisiones `recovery`. |
 | Eventos compartidos | Completo (30) | Vitest, e2e. |
@@ -100,10 +100,10 @@ No se afirma que estén verificadas las integraciones que requieren infraestruct
 - **DeepSeek:** no hay clave configurada. El flujo de error/fallback está probado; la llamada real no. La IA solo redacta el epílogo y nunca altera estado.
 - **Docker:** `Dockerfile` y `docker-compose.yml` están preparados, pero Docker no está disponible en el entorno de desarrollo. No se ejecutó el compose.
 - **Escala:** JSON es un único archivo y está pensado para desarrollo/pruebas. Para carga real, usar PostgreSQL y un despliegue con múltiples instancias compartiendo la misma base.
-- **Render + Neon:** desplegado en `https://life-duel.onrender.com` con servicio free de Render y PostgreSQL de Neon. **Verificado el 22/10/2026: `/api/health` devuelve `version: 2.2.0` con `persistence: postgres` y la portada muestra «versión 2.2».** El plan gratuito duerme el servicio tras inactividad y Neon puede suspenderse; el primer acceso puede tardar 30–60 s. El autoDeploy puede no lanzar el build aunque el push llegue a `main`: en la 2.2 no se disparó y el primer build manual falló por el lockfile desalineado (`@life-duel/shared@1.0.0`); corregido en `3b76eba`, el deploy manual quedó Live. Si vuelve a pasar, **Manual Deploy → Deploy latest commit** y comprobar que cambia el `assets/index-*.js`. Ver [`docs/deployment.md`](deployment.md).
+- **Render + Neon:** desplegado en `https://life-duel.onrender.com` con servicio free de Render y PostgreSQL de Neon. **Verificado el 22/10/2026: `/api/health` devuelve `version: 2.3.0` con `persistence: postgres` y la portada muestra «versión 2.3».** El plan gratuito duerme el servicio tras inactividad y Neon puede suspenderse; el primer acceso puede tardar 30–60 s. El autoDeploy puede no lanzar el build aunque el push llegue a `main`: en la 2.2 no se disparó y el primer build manual falló por el lockfile desalineado (`@life-duel/shared@1.0.0`); corregido en `3b76eba`, el deploy manual quedó Live. Si vuelve a pasar, **Manual Deploy → Deploy latest commit** y comprobar que cambia el `assets/index-*.js`. Ver [`docs/deployment.md`](deployment.md).
 - **Atlas de decisiones:** `client/public/mapa-decisiones.html` es una página estática generada en el build. No consulta partidas ni sustituye al servidor: sirve para explorar el catálogo y el algoritmo. Las estadísticas que muestra al abrir una rama son aproximadas y no se guardan. Si cambia una decisión, hay que ejecutar `npm run map:build`; las pruebas detectan enlaces de guía muertos y datos desincronizados.
 - **Sesiones:** no hay recuperación de cuenta; si se borra `localStorage` o cambia el secreto, se pierde el acceso a las partidas asociadas.
-- **Bundle:** el cliente genera un aviso de ~908 kB (273 kB gzip). Se puede dividir con lazy routes y manual chunks.
+- **Bundle:** el cliente genera un aviso de ~910 kB (274 kB gzip). Se puede dividir con lazy routes y manual chunks.
 - **i18n:** todos los textos están en español; no hay selector de idioma ni extracción a catálogos.
 - **Accesibilidad:** hay base (skip link, focus trap, roles, teclado, contraste y movimiento reducido), pero falta una auditoría con lector de pantalla y axe.
 - **Móvil:** dashboard 2.2 verificado a 390×844 con Playwright; bloques en orden, sin overflow, Life Record de cuatro escenas, pasaporte y acordeones. No se probó en dispositivos físicos ni con lector de pantalla.

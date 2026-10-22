@@ -194,7 +194,12 @@ test.describe("flujos principales", () => {
             const a = (await readGame(host)).game, b = (await readGame(guest)).game; expect(a.world.birth).toEqual(b.world.birth); expect(a.opponent).toBeNull(); expect(b.opponent).toBeNull();
             await host.getByRole("button", { name: /Comenzar esta vida/ }).click(); await advanceUntilDecision(host, 2); await expect(host.locator("#decision-title")).toBeVisible();
             expect((await readGame(guest)).game.turn.number).toBe(0);
-            await host.locator('section[aria-labelledby="decision-title"] button').first().click(); await expect(host.getByRole("button", { name: /Siguiente decisión/ })).toBeEnabled(); await host.getByRole("button", { name: /Siguiente decisión/ }).click();
+            await host.locator('section[aria-labelledby="decision-title"] button').first().click();
+            await expect(host.getByRole("button", { name: /Siguiente decisión/ })).toBeEnabled();
+            const consult = host.getByRole("button", { name: "Consultar mi vida primero", exact: true });
+            if (await consult.isVisible().catch(() => false)) await consult.click();
+            await expect(host.getByRole("dialog")).toHaveCount(0);
+            await host.getByRole("button", { name: /Siguiente decisión/ }).click();
             await expect.poll(async () => (await readGame(host)).game.turn.number).toBeGreaterThan(2); expect((await readGame(guest)).game.turn.number).toBe(0);
             await guest.getByRole("button", { name: /Comenzar esta vida/ }).click(); await expect(guest.getByRole("button", { name: "Pausar", exact: true })).toBeEnabled(); await guest.getByRole("button", { name: "Pausar", exact: true }).click(); await expect(guest.getByRole("button", { name: "Reanudar", exact: true })).toBeEnabled();
             await guest.reload(); await expect(guest.getByRole("button", { name: "Reanudar", exact: true })).toBeVisible(); expect(errors).toEqual([]);

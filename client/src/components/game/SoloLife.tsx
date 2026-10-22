@@ -388,7 +388,7 @@ export function SoloLife({
                         </section>
                     ) : null}
 
-                    <details className="story-panel life-journal" open>
+                    <details className="story-panel life-journal">
                         <summary>Diario de vida <small>Lo más reciente</small></summary>
                         <div className="journal-scroll">
                             {historyError ? <p role="alert">No se pudo cargar el diario. <Link to={`/partida/${game.id}/historial`}>Abrir historial</Link></p> : null}

@@ -27,13 +27,13 @@ El `webServer` de Playwright reutiliza un `npm run dev` ya activo. Si no existe,
 
 ### Resultado de la última ejecución
 
-- Vitest: **25 archivos, 204 pruebas, 204 correctas** (incluye `tests/coherence-v9.test.ts`, `tests/relationship-narrative.test.ts`, `tests/country-paths.test.ts`, `tests/decision-map.test.ts` y `tests/mobile-v22.test.ts`: límite de cuatro escenas, enfoques por edad y catálogo de gasto infantil).
+- Vitest: **26 archivos, 208 pruebas, 204 correctas** (incluye `tests/coherence-v9.test.ts`, `tests/relationship-narrative.test.ts`, `tests/country-paths.test.ts`, `tests/decision-map.test.ts` y `tests/mobile-v22.test.ts`: límite de cuatro escenas, enfoques por edad y catálogo de gasto infantil).
 - Playwright: **6 pruebas, 6 correctas** (vida individual completa, duelo en dos contextos, acciones económicas manuales, deudas con pago dirigido, atlas espacial y dashboard móvil 2.2 a 390 px: orden de bloques, sin overflow, Life Record ≤4 y gasto sin empresa ni inversión).
 - `npm run typecheck`: correcto.
-- `npm run build`: correcto; cliente de 908,13 kB (273,26 kB gzip), CSS de 158,60 kB (34,20 kB gzip) y aviso no bloqueante de chunk.
+- `npm run build`: correcto; cliente de 909,50 kB (273,78 kB gzip), CSS de 162,66 kB (34,87 kB gzip) y aviso no bloqueante de chunk.
 - Reinicio real del servidor compilado: sesión y partida recuperadas con la misma huella de semilla, nacimiento y turno.
 - Arranque de producción (`node server/dist/index.js`) en el puerto 4105: `GET /api/health` devuelve `status: ok`, persistencia JSON y modo IA local.
-- Producción: `https://life-duel.onrender.com/api/health` devuelve `version: 2.2.0` con `persistence: postgres`; la portada sirve el bundle nuevo y muestra «versión 2.2».
+- Producción: `https://life-duel.onrender.com/api/health` devuelve `version: 2.3.0` con `persistence: postgres`; la portada sirve el bundle nuevo y muestra «versión 2.3».
 - Inicio y panel de vida sin overflow horizontal en 390, 768 y 1440 px.
 - Banco compacto: máximo de cinco filas y sin overflow interno en 390 px; la animación del saldo termina en el importe autoritativo.
 
@@ -57,7 +57,7 @@ Motor puro:
 ### `tests/decision-map.test.ts`
 Atlas espacial estático:
 
-- el HTML generado contiene las 186 decisiones, 594 opciones y 30 sucesos del catálogo real;
+- el HTML generado contiene las 196 decisiones, 624 opciones y 30 sucesos del catálogo real;
 - no quedan los marcadores `__DECISION_MAP_DATA__` ni `__DECISION_MAP_APP__`;
 - la plantilla incluye el lienzo (`map-viewport`) y la constelación;
 - todas las entradas de la guía (`story_first_encounter`, `tiempo_propio`, rutas de infancia, adultez y curso) apuntan a decisiones existentes;
@@ -114,7 +114,7 @@ Modelo de vida realista v2:
 - ingresos y costes de empresa en el libro mayor;
 - herencia liquidada una sola vez;
 - funeral pendiente que solo se cobra al elegir ceremonia y no admite doble cobro;
-- 186 decisiones, identificadores únicos y al menos dos opciones base por decisión (la interfaz garantiza varios caminos);
+- 196 decisiones, identificadores únicos y al menos dos opciones base por decisión (la interfaz garantiza varios caminos);
 - resultado final con psicología, empresa, hogar y saldo de préstamos.
 
 ### `tests/context-v3.test.ts`
@@ -165,7 +165,7 @@ Servidor HTTP real + Socket.IO + dos clientes:
 3. `explore` abre una segunda rama; las dos siguen en el mapa.
 4. La rama guiada llega a `tiempo_propio`, `ruta_curso_proyecto` y `ruta_beca_exterior`.
 5. Zoom real, reinicio a 100 %, inspector y cierre del panel.
-6. Constelación con 186 nodos, búsqueda de “epidemia” y adición de `respuesta_epidemia`.
+6. Constelación con 196 nodos, búsqueda de “epidemia” y adición de `respuesta_epidemia`.
 7. Recarga limpia y layout de 390 px sin overflow horizontal.
 8. Sin errores de página.
 

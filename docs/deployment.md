@@ -98,7 +98,7 @@ Respuesta esperada:
 {
   "status": "ok",
   "name": "LIFE DUEL",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "persistence": "postgres",
   "ai": "local"
 }

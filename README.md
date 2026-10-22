@@ -4,7 +4,7 @@
 
 > Proyecto funcional en español, ejecutable en local. No es una maqueta: el motor, la economía, la mortalidad, las salas, la sincronización, la persistencia y la puntuación están implementados y cubiertos por pruebas.
 
-**Versión 2.2** — dashboard móvil propio, Life Record de cuatro escenas, pasaporte de vida y gasto filtrado por edad. Notas: [`docs/releases/v2.2.md`](docs/releases/v2.2.md).
+**Versión 2.3** — cabecera móvil compacta, escritorio sin saltos de scroll, viviendas que generan renta real y crisis de empresa según el tipo de negocio. Notas: [`docs/releases/v2.3.md`](docs/releases/v2.3.md).
 
 ---
 
@@ -41,7 +41,7 @@ Sin `SESSION_SECRET`, el servidor de desarrollo crea una clave local en `server/
 | `npm start` | Sirve la compilación desde el servidor (producción) y aplica migraciones si `PERSISTENCE=postgres`. |
 | `npm run e2e` | Playwright sobre los flujos reales. |
 | `npm run sim:demo` | Simula una vida completa por consola. |
-| `npm run map:build` | Regenera el atlas espacial estático desde las 186 decisiones y los 30 sucesos reales. |
+| `npm run map:build` | Regenera el atlas espacial estático desde las 196 decisiones y los 30 sucesos reales. |
 | `npm run prisma:validate` | Valida el esquema Prisma. |
 | `npm run prisma:generate` | Genera el cliente Prisma. |
 | `npm run prisma:migrate` | Crea/aplica migraciones de desarrollo. |
@@ -51,12 +51,12 @@ Para usar Playwright con el Chrome instalado no hace falta descargar navegadores
 
 ### Atlas espacial de decisiones
 
-Abre **http://localhost:5173/mapa-decisiones.html** (también enlazado desde la portada). No es una maqueta ni un artículo: es un lienzo navegable generado desde el catálogo real del motor (186 decisiones, 594 opciones y 30 sucesos).
+Abre **http://localhost:5173/mapa-decisiones.html** (también enlazado desde la portada). No es una maqueta ni un artículo: es un lienzo navegable generado desde el catálogo real del motor (196 decisiones, 624 opciones y 30 sucesos).
 
 - Dos entradas simultáneas: **Infancia · 2 años** y **Adultez · 18+**.
 - Al pulsar una opción se abre su consecuencia y la siguiente pregunta; **las ramas anteriores no se borran**. Puedes abrir varias respuestas de la misma pregunta y comparar caminos.
 - Zoom con rueda/pinza, paneo, encuadre, inspector de requisitos y efectos, minimapa y toast de estado.
-- **Constelación completa** con las 186 preguntas agrupadas por etapa, buscador y adición de cualquier pregunta al mapa.
+- **Constelación completa** con las 196 preguntas agrupadas por etapa, buscador y adición de cualquier pregunta al mapa.
 - Navegación por teclado (`/` abre el buscador, `+`/`-` zoom, `0` encuadra, `Esc` cierra). Diseño responsive verificado a 1440 y 390 px.
 - La página es estática y autocontenida: ideal para explorar el algoritmo. Las estadísticas de una rama son una **aproximación visual** del estado, no una partida guardada ni una segunda autoridad de simulación.
 
@@ -98,10 +98,18 @@ Detalle: [`docs/decision-map.md`](docs/decision-map.md).
 - **Life Record breve.** Solo acciones con contenido: decisiones, hitos, salud, dinero y migración. Se descartan las líneas de continuidad y se muestran como máximo cuatro escenas.
 - **Pasaporte de vida.** Sexo, año y lugar de nacimiento, residencia, educación, ocupación, estado civil, hijos y países vividos en una ficha con retrato y sello.
 - **Gasto según la edad.** El catálogo infantil se limita a salud, terapia, aficiones, idiomas, tiempo en familia, cumpleaños, regalos, donaciones, animales domésticos, bicicleta, teléfono y viaje familiar. Empresa, universidad, deuda, inversión, coche y vivienda aparecen bloqueados hasta los 18 años, con el motivo visible.
-- **Versión visible.** La portada muestra «LIFE DUEL · versión 2.2» y el pie del dashboard repite la versión para confirmar qué build se está sirviendo.
+- **Versión visible.** La portada muestra «LIFE DUEL · versión 2.3» y el pie del dashboard repite la versión para confirmar qué build se está sirviendo.
 
 
-### Iteración actual: coherencia, variedad y patrimonio
+### Versión 2.3: composición estable, vivienda rentable y empresas bajo presión
+
+- **Cabecera móvil compacta.** Edad, dinero, contexto y controles en una sola franja; la decisión pendiente aparece como aviso y el botón principal cabe junto al reloj. La cabecera mide menos de 240 px a 390 px y el test lo comprueba.
+- **Escritorio sin saltos.** La barra de vida deja de ser sticky, el diario se carga cerrado y la altura de la cabecera no cambia al desplazarse. Una prueba Playwright mide `scrollY`, la altura del documento y la altura de la barra tras esperar la carga asíncrona.
+- **Vivienda que paga.** El alquiler se cobra mensualmente en el banco (4,5 % bruto anual del valor, 2–3 % neto después de costes) y el panel muestra renta, rendimiento, impagos y contrato. Sin contrato, la vivienda no genera ingresos.
+- **Segunda vivienda más cara.** Cada propiedad adicional cuesta un 22 % más (entrada, segunda residencia y mantenimiento). El catálogo lo indica y el test verifica 1,22× y 1,44×.
+- **Diez crisis de empresa.** Inspección, proveedores, dependencia de una persona clave, ciberataque, alquiler, demanda, incendio, expansión, guerra de precios e inspección fiscal. Cada una condiciona el tipo de negocio y puede acabar en quiebra real.
+
+### Iteración anterior: coherencia, variedad y patrimonio
 
 - **Decisiones coherentes con la edad.** La epidemia ya no ofrece «mantener el trabajo» a un niño: hay opciones de infancia (6–12), adolescencia (13–17) y adultez (18+). El evento sigue siendo compartido; lo que cambia es la pregunta que puede responder cada edad.
 - **Atlas espacial de decisiones.** Nuevo mapa navegable en `/mapa-decisiones.html`, generado desde el catálogo real: dos entradas simultáneas, ramas acumulativas, inspector, zoom, minimapa, constelación completa y buscador. Se recompila con `npm run map:build` y tiene pruebas Vitest + Playwright propias.
@@ -179,7 +187,7 @@ Detalle: [`docs/decision-map.md`](docs/decision-map.md).
 - **Salidas ante la crisis.** Cuando el empleo, las deudas o la salud se rompen, el selector prioriza tres decisiones de recuperación (`reconstruir_empleo`, `renegociar_deudas`, `recuperar_salud`). Ofrecen caminos modestos y verificables —empleo temporal, formación pública, renegociación, apoyo familiar— sin regalar grandes sumas de dinero. Después se puede volver a las decisiones mayores.
 - **Economía sostenible.** La infancia no genera gastos ni deuda personal; la cesta esencial se ajusta a la capacidad real de gasto y el crédito se ancla a los ingresos del personaje. Una mala racha puede doler, pero no se convierte en una espiral infinita.
 - **Automático competente.** La política automática ordena por utilidad esperada y elige de forma ponderada entre las tres mejores opciones (90 % / 8 % / 2 %), con más peso para salud, empleo y liquidez cuando están en riesgo. Juega bien sin ser infalible.
-- **Catálogo ampliado:** **186 decisiones**, **594 opciones** y **30 sucesos compartidos**, con decisiones de infancia, adolescencia, empresa, familia, migración, salud, vivienda, patrimonio y recuperación.
+- **Catálogo ampliado:** **196 decisiones**, **624 opciones** y **30 sucesos compartidos**, con decisiones de infancia, adolescencia, empresa, familia, migración, salud, vivienda, patrimonio y recuperación.
 - La interfaz del diario usa un lenguaje más editorial y muestra la crónica como una vida que se lee, no como un panel de métricas.
 
 
@@ -198,7 +206,7 @@ Detalle: [`docs/decision-map.md`](docs/decision-map.md).
 - **Vista completa de deudas.** «Tus deudas» desglosa préstamos, hipotecas y deuda residual, con acreedor, interés y cuota. Permite pagar un importe parcial o total contra una deuda concreta; el servidor valida saldo, saldo pendiente e idempotencia y registra cada pago en el libro mayor. También está disponible en duelo para deudas personales.
 - **Despedidas con consecuencias.** La muerte de un pariente encola una decisión de funeral. Una ceremonia íntima cuesta menos y sostiene los vínculos; una despedida grande mejora el apoyo pero puede generar deuda; renunciar a la ceremonia ahorra dinero y pesa en felicidad, relaciones y estrés. En la infancia el coste lo asume el hogar.
 - **Diario narrativo, no contable.** El diario mensual cuenta escenas de escuela, trabajo, pareja, salud, duelo, deuda o vejez, con variedad determinista y sin resúmenes automáticos de ingresos/gastos. Las cifras viven en el banco y en la vista de deudas.
-- **Catálogo de 186 decisiones.** Incluye infancia, adolescencia, empresa, familia, migración, salud, vivienda, patrimonio y recuperación. La cobertura incluye varios caminos visibles cuando faltan opciones específicas.
+- **Catálogo de 196 decisiones.** Incluye infancia, adolescencia, empresa, familia, migración, salud, vivienda, patrimonio y recuperación. La cobertura incluye varios caminos visibles cuando faltan opciones específicas.
 
 ### Modelo de vida y ritmo v8 (Fase 0)
 
@@ -434,7 +442,7 @@ npm run audit:pacing   # métricas de repetición y ritmo narrativo
 ```
 
 Cobertura actual:
-- **204 pruebas Vitest** distribuidas en 25 archivos, incluidas coherencia de edad, arcos y presión patrimonial (`tests/coherence-v9.test.ts`), la experiencia de vida (`tests/new-life-experience.test.ts`), ritmo narrativo v8 (`tests/pacing-v8.test.ts`), el arco de relación y el contexto local (`tests/relationship-narrative.test.ts`, `tests/country-paths.test.ts`), presentación del banco (`tests/bank-presentation.test.ts`), deudas, funerales y diario (`tests/debts-funerals-diary.test.ts`), el atlas (`tests/decision-map.test.ts`), el dashboard móvil 2.2 (`tests/mobile-v22.test.ts`), determinismo, economía mensual, empresa, familia y recuperación. Todas pasan.
+- **208 pruebas Vitest** distribuidas en 26 archivos, incluidas coherencia de edad, arcos y presión patrimonial (`tests/coherence-v9.test.ts`), la experiencia de vida (`tests/new-life-experience.test.ts`), ritmo narrativo v8 (`tests/pacing-v8.test.ts`), el arco de relación y el contexto local (`tests/relationship-narrative.test.ts`, `tests/country-paths.test.ts`), presentación del banco (`tests/bank-presentation.test.ts`), deudas, funerales y diario (`tests/debts-funerals-diary.test.ts`), el atlas (`tests/decision-map.test.ts`), el dashboard móvil 2.2 (`tests/mobile-v22.test.ts`), determinismo, economía mensual, empresa, familia y recuperación. Todas pasan.
 - Determinismo por semilla, igualdad de nacimiento, igualdad de sucesos compartidos, independencia de decisiones.
 - Límites 0–100, libro mayor, economía, probabilidades, muerte y continuación del superviviente.
 - Puntuación, empate, idempotencia, historial, vistas privadas.
@@ -442,7 +450,7 @@ Cobertura actual:
 - Persistencia JSON tras reiniciar el almacén, recuperación de corrupción, validación HTTP, acceso ajeno, epílogo local.
 - Servicio de salas, presencia, abandono y revancha; reconstrucción del servicio con el mismo almacén.
 - Socket.IO real con dos clientes: privacidad, resolución, rechazo de entrada inválida, desconexión y reconexión.
-- **6 pruebas Playwright**: vida individual completa (incluye final y hitos de 4/6 años), duelo entre dos contextos de navegador con nacimiento/eventos idénticos y decisiones privadas, acciones económicas manuales, pago dirigido de deudas con comprobación del saldo del servidor, atlas espacial en escritorio y 390 px, y dashboard móvil 2.2 a 390 px con orden de bloques, ausencia de overflow, Life Record de cuatro escenas y gasto infantil sin empresa ni inversión.
+- **7 pruebas Playwright**: vida individual completa (incluye final y hitos de 4/6 años), duelo entre dos contextos de navegador con nacimiento/eventos idénticos y decisiones privadas, acciones económicas manuales, pago dirigido de deudas con comprobación del saldo del servidor, atlas espacial en escritorio y 390 px, y dashboard móvil 2.3 a 390 px con orden de bloques, cabecera compacta, ausencia de overflow, Life Record de cuatro escenas y gasto infantil sin empresa ni inversión; más una prueba de estabilidad de escritorio que verifica que la cabecera y el scroll no cambian tras la carga asíncrona.
 
 Detalle y mapeo a criterios de aceptación: [`docs/testing.md`](docs/testing.md).
 
@@ -459,7 +467,7 @@ Limitaciones honestas:
 - El dataset es una muestra de 16 países, suficiente para el núcleo y ampliable.
 - Los modelos económico y de mortalidad son paramétricos provisionales; no son tablas oficiales.
 - Docker está preparado, pero no se ejecutó aquí (Docker no está instalado).
-- El bundle del cliente genera un aviso de tamaño (~908 kB, 273 kB gzip); no bloquea el build.
+- El bundle del cliente genera un aviso de tamaño (~910 kB, 274 kB gzip); no bloquea el build.
 - El presupuesto del hogar y la herencia estimada se fijan al nacer; no simulan cada factura familiar ni la revalorización de activos. Está documentado como aproximación.
 - La salud y mortandad de hermanos, hijos y pareja se modelan con su edad, sexo y país; sus carreras y decisiones personales no tienen la misma profundidad que las del jugador.
 - La distribución de religiones, ocupaciones y familias es un modelo de simulación, no una estadística oficial.

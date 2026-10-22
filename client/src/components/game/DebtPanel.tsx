@@ -44,6 +44,7 @@ export function DebtPanel({
     const [amount, setAmount] = useState("");
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState("");
+    const [notice, setNotice] = useState("");
     const retry = useRef<{ body: string; key: string } | null>(null);
 
     const rows = useMemo<DebtRow[]>(() => {
@@ -129,6 +130,7 @@ export function DebtPanel({
                 idempotencyKey: retry.current.key,
             });
             onGame(result.game);
+            setNotice(result.message);
             toast.push(result.message, "success");
             setSelected(null);
             setAmount("");
@@ -157,6 +159,7 @@ export function DebtPanel({
                         <strong>{monthly > 0 ? <MoneyText value={monthly} suffix="/mes" /> : "—"}</strong>
                     </div>
                 </div>
+                {notice ? <p className="debt-notice" role="status">{notice}</p> : null}
 
                 {rows.length === 0 ? (
                     <div className="debt-empty">

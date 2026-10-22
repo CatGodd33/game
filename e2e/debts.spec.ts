@@ -109,7 +109,7 @@ test("deudas: vista completa y pago dirigido validado por el servidor", async ({
     await row.getByRole("button", { name: "Pagar", exact: true }).click();
     await page.getByLabel("Importe a pagar (PPP)").fill("100");
     await page.getByRole("button", { name: "Confirmar pago", exact: true }).click();
-    await expect(page.getByText(/Pagaste 100.00 dólares PPP/).first()).toBeVisible();
+    await expect(page.locator(".debt-notice").filter({ hasText: /Pagaste 100.00 dólares PPP/ })).toBeVisible();
     await page.screenshot({ path: "artifacts/debt-panel-desktop.png", fullPage: false });
 
     const after = await debtValue(page, id);

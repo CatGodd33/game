@@ -5618,6 +5618,16 @@ body::before {
     font-size: 11px;
 }
 
+.debt-notice {
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    border: 1px solid #cfe2c8;
+    border-radius: 10px;
+    background: #f1f8ec;
+    color: #3f6138;
+    font-size: 12px;
+}
+
 .debt-empty {
     display: grid;
     justify-items: center;
@@ -7173,6 +7183,7 @@ body::before {
         font-size: 11px;
     }
 }
+
 /* ──────────────────────────────────────────────────────────────────────────
    LIFE DUEL 2.2 · composición móvil propia
    No es una versión encogida del escritorio: es una lectura de juego distinta
@@ -7317,7 +7328,10 @@ body::before {
 }
 
 @keyframes mobile-pulse {
-    50% { opacity: .4; box-shadow: 0 0 0 5px #e4c77a10; }
+    50% {
+        opacity: .4;
+        box-shadow: 0 0 0 5px #e4c77a10;
+    }
 }
 
 .mobile-exit {
@@ -7344,7 +7358,7 @@ body::before {
     min-width: 0;
 }
 
-.mobile-age > span {
+.mobile-age>span {
     display: block;
     margin-bottom: 2px;
     color: #cddac9;
@@ -7404,7 +7418,7 @@ body::before {
     cursor: pointer;
 }
 
-.mobile-cash-main > span {
+.mobile-cash-main>span {
     display: block;
     color: #cbd8c8;
     font-size: 8px;
@@ -7412,7 +7426,7 @@ body::before {
     text-transform: uppercase;
 }
 
-.mobile-cash-main > strong {
+.mobile-cash-main>strong {
     display: block;
     margin: 4px 0 5px;
     color: #fff7e3;
@@ -7667,7 +7681,7 @@ body::before {
     margin-bottom: 10px;
 }
 
-.mobile-card-head > div {
+.mobile-card-head>div {
     min-width: 0;
 }
 
@@ -7726,7 +7740,7 @@ body::before {
     overflow: hidden;
 }
 
-.mobile-v22 .mobile-family .pixel-scene > svg {
+.mobile-v22 .mobile-family .pixel-scene>svg {
     display: block;
     width: 100%;
     height: auto;
@@ -7928,7 +7942,7 @@ body::before {
     height: 15px;
 }
 
-.mobile-focus-option > span:last-child {
+.mobile-focus-option>span:last-child {
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -8007,7 +8021,7 @@ body::before {
     height: 16px;
 }
 
-.mobile-spend > span:last-child {
+.mobile-spend>span:last-child {
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -8064,16 +8078,27 @@ body::before {
     color: #6e8266;
 }
 
-.mobile-vital-happiness .mobile-vital-icon { background: #f7eed6; color: #a4823e; }
-.mobile-vital-knowledge .mobile-vital-icon { background: #e6edf3; color: #5e7d96; }
-.mobile-vital-relationships .mobile-vital-icon { background: #f6e9e5; color: #a4736a; }
+.mobile-vital-happiness .mobile-vital-icon {
+    background: #f7eed6;
+    color: #a4823e;
+}
+
+.mobile-vital-knowledge .mobile-vital-icon {
+    background: #e6edf3;
+    color: #5e7d96;
+}
+
+.mobile-vital-relationships .mobile-vital-icon {
+    background: #f6e9e5;
+    color: #a4736a;
+}
 
 .mobile-vital-icon svg {
     width: 14px;
     height: 14px;
 }
 
-.mobile-vital > div:nth-child(2) {
+.mobile-vital>div:nth-child(2) {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
@@ -8081,7 +8106,7 @@ body::before {
     min-width: 0;
 }
 
-.mobile-vital > div:nth-child(2) > span {
+.mobile-vital>div:nth-child(2)>span {
     color: #7d887a;
     font-size: 9px;
     white-space: nowrap;
@@ -8089,7 +8114,7 @@ body::before {
     text-overflow: ellipsis;
 }
 
-.mobile-vital > div:nth-child(2) > strong {
+.mobile-vital>div:nth-child(2)>strong {
     color: #354a3c;
     font: 500 20px/.9 "Fraunces Variable", Georgia, serif;
     font-variant-numeric: tabular-nums;
@@ -8112,9 +8137,17 @@ body::before {
     transition: width .55s ease;
 }
 
-.mobile-vital-happiness .mobile-vital-bar i { background: #d9b05c; }
-.mobile-vital-knowledge .mobile-vital-bar i { background: #7fa1bd; }
-.mobile-vital-relationships .mobile-vital-bar i { background: #c3887c; }
+.mobile-vital-happiness .mobile-vital-bar i {
+    background: #d9b05c;
+}
+
+.mobile-vital-knowledge .mobile-vital-bar i {
+    background: #7fa1bd;
+}
+
+.mobile-vital-relationships .mobile-vital-bar i {
+    background: #c3887c;
+}
 
 /* Life record: cuatro escenas, no un archivo infinito. */
 .mobile-record {
@@ -8162,7 +8195,7 @@ body::before {
     padding: 8px 0;
 }
 
-.mobile-record-entry + .mobile-record-entry {
+.mobile-record-entry+.mobile-record-entry {
     border-top: 1px dashed #eeeade;
 }
 
@@ -8221,7 +8254,7 @@ body::before {
     letter-spacing: .06em;
 }
 
-.mobile-record-copy > p:last-of-type {
+.mobile-record-copy>p:last-of-type {
     margin: 0;
     color: #4a5b4e;
     font-size: 11px;
@@ -8229,7 +8262,7 @@ body::before {
     white-space: pre-line;
 }
 
-.mobile-record-copy > p.mobile-record-excerpt {
+.mobile-record-copy>p.mobile-record-excerpt {
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -8315,24 +8348,24 @@ body::before {
     gap: 8px;
 }
 
-.mobile-full-stat > svg {
+.mobile-full-stat>svg {
     width: 15px;
     height: 15px;
     color: #819078;
 }
 
-.mobile-full-stat > div {
+.mobile-full-stat>div {
     min-width: 0;
 }
 
-.mobile-full-stat > div > span {
+.mobile-full-stat>div>span {
     display: block;
     margin-bottom: 4px;
     color: #667661;
     font-size: 9px;
 }
 
-.mobile-full-stat > strong {
+.mobile-full-stat>strong {
     color: #3d5142;
     font: 500 14px/1 "Fraunces Variable", Georgia, serif;
     text-align: right;
@@ -8354,9 +8387,17 @@ body::before {
     transition: width .55s ease;
 }
 
-.mobile-full-stat-happiness .mobile-full-bar i { background: #d8ae59; }
-.mobile-full-stat-knowledge .mobile-full-bar i { background: #7b9ebb; }
-.mobile-full-stat-relationships .mobile-full-bar i { background: #c18479; }
+.mobile-full-stat-happiness .mobile-full-bar i {
+    background: #d8ae59;
+}
+
+.mobile-full-stat-knowledge .mobile-full-bar i {
+    background: #7b9ebb;
+}
+
+.mobile-full-stat-relationships .mobile-full-bar i {
+    background: #c18479;
+}
 
 .mobile-health-grid {
     display: grid;
@@ -8405,7 +8446,7 @@ body::before {
     border-top: 1px dashed #e4dfd0;
 }
 
-.mobile-money-grid > div {
+.mobile-money-grid>div {
     min-width: 0;
     padding: 7px 8px;
     border-radius: 10px;
@@ -8450,7 +8491,7 @@ body::before {
     margin-top: 9px;
 }
 
-.mobile-chronic > span {
+.mobile-chronic>span {
     color: #8c917f;
     font-size: 8px;
 }
@@ -8506,20 +8547,20 @@ body::before {
     background: #faf7ee;
 }
 
-.mobile-medical li > span {
+.mobile-medical li>span {
     display: block;
     color: #9a9380;
     font-size: 7px;
 }
 
-.mobile-medical li > strong {
+.mobile-medical li>strong {
     display: block;
     margin: 1px 0;
     color: #4d5f4f;
     font-size: 9px;
 }
 
-.mobile-medical li > p {
+.mobile-medical li>p {
     margin: 0;
     color: #7f8877;
     font-size: 8px;
@@ -8606,7 +8647,7 @@ body::before {
     min-width: 0;
 }
 
-.mobile-passport-name > span {
+.mobile-passport-name>span {
     display: block;
     color: #9b8c6d;
     font-size: 7px;
@@ -8645,7 +8686,7 @@ body::before {
     border-top: 1px dashed #cbbd9b;
 }
 
-.mobile-passport-grid > div {
+.mobile-passport-grid>div {
     min-width: 0;
 }
 
@@ -8780,7 +8821,7 @@ body::before {
     background: #fff6dd;
 }
 
-.mobile-alert > div {
+.mobile-alert>div {
     min-width: 0;
 }
 
@@ -8838,7 +8879,7 @@ body::before {
     background: #eef4e6;
 }
 
-.mobile-duel > div {
+.mobile-duel>div {
     display: flex;
     flex-direction: column;
     gap: 1px;
@@ -8862,7 +8903,7 @@ body::before {
     font-size: 8px;
 }
 
-.mobile-duel > a {
+.mobile-duel>a {
     display: inline-flex;
     align-items: center;
     gap: 2px;
@@ -8872,7 +8913,7 @@ body::before {
     text-decoration: none;
 }
 
-.mobile-duel > a svg {
+.mobile-duel>a svg {
     width: 11px;
     height: 11px;
 }
@@ -8882,7 +8923,7 @@ body::before {
     margin: 8px 5px 0;
 }
 
-.mobile-section-title > span {
+.mobile-section-title>span {
     color: #9a927b;
     font: 600 8px/1.4 "Inter Variable", sans-serif;
     letter-spacing: .14em;
@@ -8902,7 +8943,7 @@ body::before {
     overflow: hidden;
 }
 
-.mobile-accordion > summary {
+.mobile-accordion>summary {
     display: flex;
     align-items: center;
     gap: 9px;
@@ -8912,7 +8953,7 @@ body::before {
     cursor: pointer;
 }
 
-.mobile-accordion > summary::-webkit-details-marker {
+.mobile-accordion>summary::-webkit-details-marker {
     display: none;
 }
 
@@ -8932,20 +8973,20 @@ body::before {
     height: 15px;
 }
 
-.mobile-accordion > summary > span:nth-child(2) {
+.mobile-accordion>summary>span:nth-child(2) {
     display: flex;
     flex-direction: column;
     gap: 2px;
     min-width: 0;
 }
 
-.mobile-accordion > summary strong {
+.mobile-accordion>summary strong {
     color: #415546;
     font-size: 10px;
     font-weight: 650;
 }
 
-.mobile-accordion > summary small {
+.mobile-accordion>summary small {
     color: #8e927f;
     font-size: 8px;
     white-space: nowrap;
@@ -8971,7 +9012,7 @@ body::before {
     border-top: 1px solid #efebe0;
 }
 
-.mobile-acc-body > .mobile-acc-panel {
+.mobile-acc-body>.mobile-acc-panel {
     margin-top: 11px;
     padding: 11px;
     border: 1px solid #e8e3d5;
@@ -9016,12 +9057,12 @@ body::before {
     line-height: 1.6;
 }
 
-.mobile-acc-body > .mobile-acc-plain {
+.mobile-acc-body>.mobile-acc-plain {
     padding-top: 10px;
 }
 
 .mobile-acc-plain .story-panel,
-.mobile-acc-body > .year-echo {
+.mobile-acc-body>.year-echo {
     padding: 0;
     border: 0;
     border-radius: 0;
@@ -9034,7 +9075,7 @@ body::before {
     font-size: 16px;
 }
 
-.mobile-acc-plain .story-panel > p,
+.mobile-acc-plain .story-panel>p,
 .mobile-acc-plain .story-panel dt,
 .mobile-acc-plain .story-panel dd {
     font-size: 9px;
@@ -9103,7 +9144,7 @@ body::before {
     border-top: 1px solid #eeeade;
 }
 
-.mobile-relative > span {
+.mobile-relative>span {
     color: #929382;
     font-size: 7px;
     line-height: 1.4;
@@ -9134,7 +9175,7 @@ body::before {
     border-top: 1px solid #eeeade;
 }
 
-.mobile-pets > div {
+.mobile-pets>div {
     display: flex;
     align-items: center;
     gap: 7px;
@@ -9222,7 +9263,7 @@ body::before {
     margin: 9px 0;
 }
 
-.mobile-business-grid > div {
+.mobile-business-grid>div {
     padding: 6px 7px;
     border-radius: 8px;
     background: #f2f4ea;
@@ -9242,8 +9283,13 @@ body::before {
     font-variant-numeric: tabular-nums;
 }
 
-.mobile-business-grid b.positive { color: #4e8258; }
-.mobile-business-grid b.negative { color: #a45d51; }
+.mobile-business-grid b.positive {
+    color: #4e8258;
+}
+
+.mobile-business-grid b.negative {
+    color: #a45d51;
+}
 
 .mobile-lifemap {
     display: grid;
@@ -9373,6 +9419,7 @@ body::before {
 }
 
 @media (prefers-reduced-motion: reduce) {
+
     .mobile-v22 *,
     .mobile-v22 *::before,
     .mobile-v22 *::after {
@@ -9401,4 +9448,277 @@ body::before {
 
 .spend-minor-note strong {
     color: #5b4d2f;
+}
+
+/* 2.3 · PC: la barra deja de ser sticky y el diario no empuja el scroll al cargar. */
+.story-dashboard .story-toolbar {
+    position: relative;
+    top: auto;
+    padding: 12px 20px 10px;
+}
+
+.story-dashboard .story-title {
+    gap: 16px;
+    margin-bottom: 10px;
+}
+
+.story-dashboard .story-title h1 strong {
+    font-size: 34px;
+}
+
+.story-dashboard .story-controls {
+    gap: 5px;
+}
+
+.story-dashboard .story-button {
+    padding: 8px 10px;
+    font-size: 10px;
+}
+
+.story-dashboard .story-speeds button {
+    padding: 7px 8px;
+}
+
+.story-dashboard .journal-scroll {
+    min-height: 160px;
+}
+
+.story-dashboard .life-journal:not([open]) .journal-scroll {
+    min-height: 0;
+}
+
+.story-dashboard .life-journal>summary {
+    cursor: pointer;
+}
+
+
+/* 2.3 · cabecera móvil compacta: tres filas y una sola acción principal. */
+.mobile-v22 .mobile-topbar {
+    padding: max(9px, env(safe-area-inset-top)) 12px 8px;
+    border-radius: 0 0 20px 20px;
+}
+
+.mobile-v22 .mobile-topline {
+    gap: 6px;
+}
+
+.mobile-v22 .mobile-wordmark {
+    font-size: 17px;
+}
+
+.mobile-v22 .mobile-live {
+    padding: 3px 7px;
+    font-size: 7px;
+}
+
+.mobile-v22 .mobile-exit {
+    padding: 5px 7px;
+    font-size: 8px;
+}
+
+.mobile-v22 .mobile-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.mobile-v22 .mobile-age {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.mobile-v22 .mobile-age h1 {
+    gap: 3px;
+    font-size: 12px;
+}
+
+.mobile-v22 .mobile-age h1 strong {
+    font-size: 40px;
+    line-height: .8;
+}
+
+.mobile-v22 .mobile-age h1 span {
+    color: #cddac9;
+    font-size: 10px;
+    letter-spacing: .04em;
+}
+
+.mobile-v22 .mobile-age p {
+    margin: 0;
+    max-width: 100%;
+    font-size: 10px;
+}
+
+.mobile-v22 .mobile-cash {
+    width: auto;
+    min-width: 0;
+    flex: 0 1 auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 8px;
+    border-radius: 10px;
+}
+
+.mobile-v22 .mobile-cash-main>span {
+    display: none;
+}
+
+.mobile-v22 .mobile-cash-main>strong {
+    margin: 0;
+    font-size: 15px;
+}
+
+.mobile-v22 .mobile-cash-debt {
+    padding: 0 0 0 7px;
+    border-top: 0;
+    border-left: 1px solid #f2e6c224;
+    font-size: 8px;
+    white-space: nowrap;
+}
+
+.mobile-v22 .mobile-context {
+    flex-wrap: nowrap;
+    overflow: hidden;
+    margin-top: 6px;
+    gap: 4px 8px;
+    font-size: 8px;
+    white-space: nowrap;
+}
+
+.mobile-v22 .mobile-context span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mobile-v22 .mobile-controls {
+    margin-top: 7px;
+    gap: 4px;
+}
+
+.mobile-v22 .mobile-control {
+    min-height: 30px;
+    padding: 0 7px;
+    border-radius: 8px;
+    font-size: 9px;
+    gap: 4px;
+}
+
+.mobile-v22 .mobile-control svg {
+    width: 12px;
+    height: 12px;
+}
+
+.mobile-v22 .mobile-speeds {
+    gap: 1px;
+    padding: 1px;
+    border-radius: 8px;
+}
+
+.mobile-v22 .mobile-speeds button {
+    min-width: 26px;
+    min-height: 28px;
+    padding: 0 3px;
+    border-radius: 6px;
+    font-size: 8px;
+}
+
+.mobile-v22 .mobile-next-compact {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: auto;
+    min-height: 30px;
+    padding: 0 9px;
+    border: 1px solid #e2d3ae;
+    border-radius: 8px;
+    background: #f2e4be;
+    color: #263d34;
+    font: 700 9px/1 "Inter Variable", sans-serif;
+    white-space: nowrap;
+}
+
+.mobile-v22 .mobile-next-compact svg {
+    width: 12px;
+    height: 12px;
+}
+
+.mobile-v22 .mobile-next-compact:disabled {
+    opacity: .5;
+}
+
+.mobile-v22 .mobile-decision-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    margin-top: 7px;
+    padding: 7px 9px;
+    border: 1px solid #e5c278;
+    border-radius: 10px;
+    background: #f7e4b4;
+    color: #2c4137;
+    text-align: left;
+}
+
+.mobile-v22 .mobile-decision-strip span {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.mobile-v22 .mobile-decision-strip small {
+    color: #8a6b2f;
+    font-size: 7px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.mobile-v22 .mobile-decision-strip strong {
+    overflow: hidden;
+    font: 600 11px/1.25 "Fraunces Variable", Georgia, serif;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mobile-v22 .mobile-decision-strip b {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 9px;
+    white-space: nowrap;
+}
+
+.mobile-v22 .mobile-decision-strip svg {
+    width: 12px;
+    height: 12px;
+}
+
+.mobile-v22 .mobile-progress {
+    margin-top: 5px;
+}
+
+@media (max-width: 370px) {
+    .mobile-v22 .mobile-control-label {
+        display: none;
+    }
+
+    .mobile-v22 .mobile-control {
+        padding: 0 6px;
+    }
+
+    .mobile-v22 .mobile-speeds button {
+        min-width: 23px;
+    }
+
+    .mobile-v22 .mobile-age h1 strong {
+        font-size: 36px;
+    }
 }

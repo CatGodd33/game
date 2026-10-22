@@ -140,7 +140,7 @@ export function MobileLifeDashboard({
     const prompt = game.turn.prompt;
     const pendingFuneral = c.pendingFunerals?.[0];
     const businessProfit = c.business ? c.business.annualRevenue - c.business.annualCosts : 0;
-    const nextLabel = prompt ? "Decidir" : paused ? "Reanudar" : "Avanzar";
+    const nextLabel = prompt ? "Decidir" : paused ? "Continuar" : "Avanzar";
     const nextAction = prompt ? onOpenDecision : paused ? () => onPause(false) : onAdvance;
     const nextTitle = prompt?.title ?? (paused ? "La vida espera tu señal" : "El próximo año está por escribir");
     const nextCopy = prompt
@@ -165,15 +165,14 @@ export function MobileLifeDashboard({
                     </Link>
                 </div>
 
-                <div className="mobile-identity">
+                <div className="mobile-summary">
                     <div className="mobile-age">
-                        <span>Año de vida</span>
-                        <h1>Edad <strong>{c.age}</strong></h1>
+                        <h1 aria-label={`Edad ${c.age} años`}><strong>{c.age}</strong><span>años</span></h1>
                         <p>{b.givenName} {b.surname}</p>
                     </div>
                     <div className="mobile-cash">
                         <button type="button" className="mobile-cash-main" onClick={onOpenMoney} aria-label="Abrir economía y movimientos">
-                            <span>Disponible ahora</span>
+                            <span>Disponible</span>
                             <strong><MoneyText value={c.finance.money} compact /></strong>
                         </button>
                         <button type="button" className="mobile-cash-debt" onClick={onOpenDebt}>
@@ -197,7 +196,7 @@ export function MobileLifeDashboard({
                         aria-label={paused ? "Reanudar" : "Pausar"}
                     >
                         {paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}
-                        <span>{paused ? "Reanudar" : "Pausar"}</span>
+                        <span className="mobile-control-label">{paused ? "Reanudar" : "Pausar"}</span>
                     </button>
                     <button
                         type="button"
@@ -205,9 +204,10 @@ export function MobileLifeDashboard({
                         disabled={busy}
                         aria-pressed={auto}
                         onClick={() => onAuto(!auto)}
+                        aria-label="Alternar estrategia automática"
                     >
                         <Zap aria-hidden="true" />
-                        <span>Auto</span>
+                        <span className="mobile-control-label">Auto</span>
                     </button>
                     <div className="mobile-speeds" aria-label="Velocidad del tiempo">
                         {GAME_SPEEDS.map((speed) => (
@@ -223,29 +223,28 @@ export function MobileLifeDashboard({
                             </button>
                         ))}
                     </div>
-                </div>
-
-                <button
-                    type="button"
-                    className={`mobile-next ${prompt ? "is-decision" : paused ? "is-paused" : ""}`}
-                    disabled={busy || (!prompt && !paused && game.status === "finished")}
-                    onClick={nextAction}
-                >
-                    <span className="mobile-next-copy">
-                        <small>{prompt ? "Una decisión importante" : paused ? "Partida en pausa" : "Siguiente paso"}</small>
-                        <strong>{nextTitle}</strong>
-                        <em>{nextCopy}</em>
-                    </span>
-                    <span className="mobile-next-cta">
-                        {nextLabel}
+                    <button
+                        type="button"
+                        className="mobile-next-compact"
+                        disabled={busy || (!prompt && !paused && game.status === "finished")}
+                        onClick={nextAction}
+                        title={`${nextTitle}. ${nextCopy}`}
+                    >
+                        <span>{nextLabel}</span>
                         <ArrowRight aria-hidden="true" />
-                    </span>
-                </button>
-
-                <div className="mobile-clock">
-                    <span>{prompt ? "El reloj espera tu decisión" : paused ? "Reloj detenido" : auto ? "Estrategia automática activa" : "Cierre de mes en curso"}</span>
-                    <span>{game.config.monthlyMode ? `Mes ${(game.turn.month ?? 0) + 1} de 12` : "Ciclo anual"}</span>
+                    </button>
                 </div>
+
+                {prompt ? (
+                    <button type="button" className="mobile-decision-strip" onClick={onOpenDecision}>
+                        <span>
+                            <small>Decisión pendiente</small>
+                            <strong>{prompt.title}</strong>
+                        </span>
+                        <b>Decidir <ArrowRight aria-hidden="true" /></b>
+                    </button>
+                ) : null}
+
                 <div className="mobile-progress" aria-hidden="true">
                     <span
                         key={`${game.turn.number}-${game.turn.month}-${game.clock.speed}-${paused}-${game.clock.deadlineAt}`}

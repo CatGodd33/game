@@ -55,7 +55,7 @@ Si un personaje murió, no bloquea al superviviente. En duelo, el primero en mor
 
 ## 5. Decisiones
 
-Hay **186 decisiones** y **594 opciones** en el catálogo actual, agrupadas por etapa. Cada pregunta muestra varios caminos visibles y las nuevas incorporan consecuencias presentes y futuras. Las opciones específicas se filtran por edad, dinero, educación, empleo, país, familia, religión, sexo, vivienda, migración y banderas de decisiones previas. Las decisiones de evento tienen cooldown propio y un intervalo global de tres años.
+Hay **196 decisiones** y **624 opciones** en el catálogo actual, agrupadas por etapa. Cada pregunta muestra varios caminos visibles y las nuevas incorporan consecuencias presentes y futuras. Las opciones específicas se filtran por edad, dinero, educación, empleo, país, familia, religión, sexo, vivienda, migración y banderas de decisiones previas. Las decisiones de evento tienen cooldown propio y un intervalo global de tres años.
 
 - **Infancia:** hábitos, juego, apoyo escolar, salud, recursos familiares, vivienda y primera oportunidad de aprendizaje.
 - **Adolescencia:** continuar estudios, formación profesional, primer trabajo, habilidades, amistades y responsabilidades.

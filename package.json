@@ -1,6 +1,6 @@
 {
     "name": "life-duel",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "private": true,
     "type": "module",
     "description": "Simulador de vidas determinista para un jugador y duelos online para dos jugadores.",

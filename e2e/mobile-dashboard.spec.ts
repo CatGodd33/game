@@ -77,6 +77,8 @@ test.describe("dashboard móvil 2.2", () => {
         if (await funeralLater.isVisible().catch(() => false)) await funeralLater.click();
 
         await expect(page.getByTestId("mobile-toolbar")).toBeVisible();
+        const toolbarHeight = await page.getByTestId("mobile-toolbar").evaluate((element) => element.getBoundingClientRect().height);
+        expect(toolbarHeight).toBeLessThan(240);
         expect(await page.locator(".story-columns").count()).toBe(0);
 
         const order = await page.evaluate(() =>
