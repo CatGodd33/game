@@ -11,7 +11,7 @@
         "typecheck": "tsc --noEmit"
     },
     "dependencies": {
-        "@life-duel/shared": "^1.0.0",
+        "@life-duel/shared": "^2.2.0",
         "@prisma/adapter-pg": "^7.10.1",
         "@prisma/client": "^7.10.1",
         "cors": "^2.8.6",
