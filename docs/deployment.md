@@ -159,6 +159,25 @@ DATABASE_URL="postgresql://...neon.tech/neondb?sslmode=require" npx prisma migra
 
 Después reinicia el servicio en Render: **Manual Deploy** → **Deploy latest commit** o **Restart**.
 
+### El código está en GitHub, pero la web sirve la versión anterior
+
+Comprueba primero que el commit está en `main`:
+
+```bash
+git log origin/main -1 --oneline
+```
+
+Si el health responde pero la portada conserva el bundle antiguo, el webhook de autoDeploy no ha lanzado el build. En Render:
+
+1. Abre el servicio **life-duel**.
+2. Entra en **Manual Deploy**.
+3. Pulsa **Deploy latest commit**.
+4. Espera a que el estado vuelva a **Live**; el primer build gratuito puede tardar varios minutos.
+5. Fuerza una recarga sin caché y comprueba que el HTML referencia un `assets/index-*.js` nuevo.
+
+El push a `main` no sustituye un despliegue que Render no ha recibido. No hace falta volver a crear el servicio ni cambiar `DATABASE_URL`.
+
+
 ### Error de CORS
 
 - Abre la consola del navegador y mira el origen exacto que aparece.
