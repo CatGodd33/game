@@ -1,0 +1,170 @@
+{
+  "version": "2024.1-provisional",
+  "status": "provisional",
+  "description": "Modelo de mortalidad paramétrico de LIFE DUEL. NO es una tabla de mortalidad oficial. La esperanza de vida al nacer y la mortalidad infantil por país provienen de Naciones Unidas / UN IGME; el resto son parámetros de simulación calibrados para reproducir una longevidad plausible y permitir que los hábitos y las decisiones influyan.",
+  "sources": [
+    "UN World Population Prospects 2024 (esperanza de vida al nacer por país y sexo)",
+    "UN IGME 2024 (mortalidad infantil)"
+  ],
+  "gompertz": {
+    "adultHazardA": 0.000045,
+    "adultHazardB": 0.088,
+    "calibrationMin": 0.35,
+    "calibrationMax": 2.6,
+    "calibrationIterations": 48,
+    "ageCap": 120,
+    "infantHazardFactor": 1
+  },
+  "healthRisk": {
+    "perHealthPointBelow": 0.015,
+    "minHealthMultiplier": 0.55,
+    "maxHealthMultiplier": 3.2,
+    "chronicConditionMultiplier": 1.18,
+    "maxChronicMultiplier": 2.4,
+    "healthcareAccessBenefit": 0.0035,
+    "povertyMultiplier": 1.15,
+    "difficultyMultiplier": 1,
+    "frailtyOnsetAge": 80,
+    "frailtyPerYear": 0.012
+  },
+  "causeWeights": [
+    {
+      "group": "infancia",
+      "minAge": 0,
+      "maxAge": 4,
+      "causes": [
+        {
+          "name": "Complicaciones perinatales",
+          "weight": 32
+        },
+        {
+          "name": "Infección respiratoria",
+          "weight": 24
+        },
+        {
+          "name": "Enfermedad congénita",
+          "weight": 18
+        },
+        {
+          "name": "Enfermedad prevenible por vacunación",
+          "weight": 14
+        },
+        {
+          "name": "Accidente doméstico",
+          "weight": 12
+        }
+      ]
+    },
+    {
+      "group": "juventud",
+      "minAge": 5,
+      "maxAge": 39,
+      "causes": [
+        {
+          "name": "Accidente de tráfico",
+          "weight": 26
+        },
+        {
+          "name": "Cáncer",
+          "weight": 18
+        },
+        {
+          "name": "Enfermedad cardiovascular",
+          "weight": 14
+        },
+        {
+          "name": "Infección respiratoria",
+          "weight": 12
+        },
+        {
+          "name": "Complicaciones del embarazo o parto",
+          "weight": 8
+        },
+        {
+          "name": "Accidente laboral",
+          "weight": 8
+        },
+        {
+          "name": "Violencia interpersonal",
+          "weight": 7
+        },
+        {
+          "name": "Enfermedad crónica",
+          "weight": 7
+        }
+      ]
+    },
+    {
+      "group": "adultez",
+      "minAge": 40,
+      "maxAge": 64,
+      "causes": [
+        {
+          "name": "Enfermedad cardiovascular",
+          "weight": 28
+        },
+        {
+          "name": "Cáncer",
+          "weight": 26
+        },
+        {
+          "name": "Enfermedad respiratoria crónica",
+          "weight": 12
+        },
+        {
+          "name": "Diabetes y complicaciones metabólicas",
+          "weight": 10
+        },
+        {
+          "name": "Accidente de tráfico",
+          "weight": 8
+        },
+        {
+          "name": "Infección grave",
+          "weight": 8
+        },
+        {
+          "name": "Enfermedad hepática",
+          "weight": 8
+        }
+      ]
+    },
+    {
+      "group": "vejez",
+      "minAge": 65,
+      "maxAge": 120,
+      "causes": [
+        {
+          "name": "Enfermedad cardiovascular",
+          "weight": 32
+        },
+        {
+          "name": "Cáncer",
+          "weight": 24
+        },
+        {
+          "name": "Enfermedad respiratoria crónica",
+          "weight": 14
+        },
+        {
+          "name": "Demencia",
+          "weight": 12
+        },
+        {
+          "name": "Infección grave",
+          "weight": 10
+        },
+        {
+          "name": "Complicaciones por caída",
+          "weight": 8
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "La esperanza de vida social se calibra numéricamente por país y sexo.",
+    "La salud autopercibida (0-100) modula el riesgo anual de mortalidad.",
+    "La mortalidad infantil se aplica una sola vez, en el primer año de vida.",
+    "La longevidad no está limitada por un temporizador fijo; el riesgo se recalcula cada año."
+  ]
+}

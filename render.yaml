@@ -1,0 +1,39 @@
+# LIFE DUEL — Blueprint gratuito de Render.
+#
+# Un único servicio web sirve el frontend compilado, la API y Socket.IO.
+# La persistencia usa PostgreSQL de Neon (plan gratuito) mediante Prisma.
+#
+# Al aplicar el Blueprint, Render pedirá DATABASE_URL (secreto) y generará
+# SESSION_SECRET automáticamente. No hay secretos en este archivo.
+services:
+  - type: web
+    name: life-duel
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeploy: true
+    healthCheckPath: /api/health
+    # NODE_ENV=production hace que npm omita devDependencies; el flag
+    # --include=dev garantiza TypeScript, Vite, Prisma CLI y tsup en el build.
+    buildCommand: npm ci --include=dev && npm run prisma:generate && npm run build
+    # scripts/start-production.mjs aplica `prisma migrate deploy` si
+    # PERSISTENCE=postgres y después arranca server/dist/index.js.
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: PERSISTENCE
+        value: postgres
+      - key: TRUST_PROXY
+        value: "1"
+      - key: LOG_LEVEL
+        value: info
+      - key: SESSION_SECRET
+        generateValue: true
+      # Cadena de conexión DIRECTA de Neon, con sslmode=require.
+      # Se introduce en el dashboard durante la creación del Blueprint.
+      - key: DATABASE_URL
+        sync: false

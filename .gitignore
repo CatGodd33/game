@@ -1,0 +1,21 @@
+node_modules/
+dist/
+dist-server/
+generated/
+server/generated/
+server/.data/
+data/private/
+replays/
+coverage/
+playwright-report/
+test-results/
+artifacts/
+*.log
+.DS_Store
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Archivos locales temporales
+.tmp-*

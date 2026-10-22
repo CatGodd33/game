@@ -1,0 +1,760 @@
+{
+  "version": "2026.1-modelo-v2",
+  "status": "provisional",
+  "description": "Parámetros del modelo de hogar, género, religión y ocupaciones de LIFE DUEL. Son reglas de simulación calibradas de forma aproximada, no microdatos oficiales ni predicciones individuales. Las personas y familias generadas son ficticias.",
+  "sources": [
+    {
+      "id": "wb-wdi",
+      "name": "Banco Mundial, World Development Indicators",
+      "url": "https://databank.worldbank.org/source/world-development-indicators",
+      "license": "CC BY 4.0",
+      "use": "PIB, participación laboral femenina y diferencias salariales como referencias de calibración."
+    },
+    {
+      "id": "ilostat",
+      "name": "ILOSTAT, International Labour Organization",
+      "url": "https://ilostat.ilo.org/",
+      "license": "CC BY 4.0",
+      "use": "Estructura de ocupaciones, informalidad y participación laboral."
+    },
+    {
+      "id": "un-wpp",
+      "name": "Naciones Unidas, World Population Prospects 2024",
+      "url": "https://population.un.org/wpp/",
+      "license": "CC BY 3.0 IGO",
+      "use": "Estructura por edad y mortalidad de referencia."
+    },
+    {
+      "id": "worldbank-wbl",
+      "name": "World Bank, Women, Business and the Law",
+      "url": "https://wbl.worldbank.org/",
+      "license": "CC BY 4.0",
+      "use": "Contexto legal de matrimonio y capacidad económica de las mujeres."
+    },
+    {
+      "id": "pew-religion",
+      "name": "Pew Research Center, Religious Landscape / Global Religious Futures",
+      "url": "https://www.pewresearch.org/religion/",
+      "license": "Uso académico y periodístico según términos de Pew Research Center",
+      "use": "Composición religiosa aproximada para contexto narrativo, redondeada y agrupada."
+    },
+    {
+      "id": "oecd-family",
+      "name": "OECD Family Database",
+      "url": "https://www.oecd.org/els/family/database.htm",
+      "license": "OECD terms; datos reutilizables con atribución",
+      "use": "Hogares, empleo femenino y cuidado."
+    }
+  ],
+  "notes": [
+    "Los porcentajes de religión, brecha salarial, participación laboral y poligamia son parámetros aproximados del juego. No deben citarse como estadísticas oficiales.",
+    "El modelo no simula personas reales ni pretende predecir la vida de una persona concreta.",
+    "La poligamia solo aparece cuando el contexto legal o consuetudinario del país la contempla y la religión declarada lo permite en el modelo; su frecuencia se mantiene baja y se explica en la interfaz.",
+    "La brecha salarial se aplica como una penalización estructural de ingresos, no como una diferencia de mérito o capacidad.",
+    "Los costes funerarios son múltiplos del ingreso mensual del hogar y no una tarifa oficial de ningún país."
+  ],
+  "household": {
+    "quintileIncomeMultipliers": {
+      "1": 0.16,
+      "2": 0.38,
+      "3": 0.7,
+      "4": 1.2,
+      "5": 2.6
+    },
+    "expenseShareByTier": {
+      "1": 0.82,
+      "2": 0.76,
+      "3": 0.7,
+      "4": 0.64,
+      "5": 0.58
+    },
+    "savingsMonthsByTier": {
+      "1": 0.15,
+      "2": 0.55,
+      "3": 1.4,
+      "4": 3.2,
+      "5": 7.5
+    },
+    "debtMonthsByTier": {
+      "1": 0.8,
+      "2": 0.45,
+      "3": 0.6,
+      "4": 1.2,
+      "5": 1.8
+    },
+    "assetYearsByTier": {
+      "1": 0.4,
+      "2": 1.2,
+      "3": 2.8,
+      "4": 6.0,
+      "5": 12.0
+    },
+    "housingTenureWeights": {
+      "1": {
+        "informal": 38,
+        "compartida": 30,
+        "alquiler": 26,
+        "propiedad": 4,
+        "hipoteca": 2
+      },
+      "2": {
+        "informal": 12,
+        "compartida": 25,
+        "alquiler": 38,
+        "propiedad": 15,
+        "hipoteca": 10
+      },
+      "3": {
+        "informal": 4,
+        "compartida": 10,
+        "alquiler": 35,
+        "propiedad": 28,
+        "hipoteca": 23
+      },
+      "4": {
+        "informal": 1,
+        "compartida": 4,
+        "alquiler": 22,
+        "propiedad": 35,
+        "hipoteca": 38
+      },
+      "5": {
+        "informal": 0,
+        "compartida": 2,
+        "alquiler": 12,
+        "propiedad": 43,
+        "hipoteca": 43
+      }
+    },
+    "structureWeights": {
+      "nuclear": 62,
+      "extendida": 24,
+      "monoparental": 12,
+      "compuesta": 2
+    },
+    "funeralMonthsOfIncomeByTier": {
+      "1": 0.8,
+      "2": 1.1,
+      "3": 1.6,
+      "4": 2.4,
+      "5": 3.2
+    },
+    "funeralCostOfLivingMultiplier": 1.6,
+    "supportLevelByTier": {
+      "1": 22,
+      "2": 42,
+      "3": 60,
+      "4": 76,
+      "5": 88
+    },
+    "maxFamilyLoanMonthsOfIncome": 3,
+    "parentSupportDisposableShare": 0.12,
+    "householdOtherIncomeShare": 0.06,
+    "coWifeProbabilityPct": 7,
+    "grandparentInHouseholdProbabilityPct": 32
+  },
+  "occupations": [
+    {
+      "id": "agricultural-laborer",
+      "label": "trabajo agrícola",
+      "sector": "agricultura",
+      "minEducation": "none",
+      "salaryIndex": 0.2,
+      "formality": 0.2,
+      "risk": 55,
+      "tiers": [
+        1,
+        2,
+        3
+      ],
+      "sexAffinity": "neutral",
+      "ruralOnly": true
+    },
+    {
+      "id": "farm-owner",
+      "label": "pequeña explotación agrícola",
+      "sector": "agricultura",
+      "minEducation": "primary",
+      "salaryIndex": 0.34,
+      "formality": 0.35,
+      "risk": 45,
+      "tiers": [
+        1,
+        2,
+        3
+      ],
+      "sexAffinity": "neutral",
+      "ruralOnly": true
+    },
+    {
+      "id": "market-vendor",
+      "label": "venta en el mercado",
+      "sector": "comercio",
+      "minEducation": "none",
+      "salaryIndex": 0.24,
+      "formality": 0.25,
+      "risk": 32,
+      "tiers": [
+        1,
+        2,
+        3
+      ],
+      "sexAffinity": "female",
+      "ruralOnly": false
+    },
+    {
+      "id": "domestic-worker",
+      "label": "trabajo doméstico remunerado",
+      "sector": "servicios",
+      "minEducation": "none",
+      "salaryIndex": 0.2,
+      "formality": 0.18,
+      "risk": 25,
+      "tiers": [
+        1,
+        2,
+        3
+      ],
+      "sexAffinity": "female",
+      "ruralOnly": false
+    },
+    {
+      "id": "cleaner",
+      "label": "limpieza",
+      "sector": "servicios",
+      "minEducation": "primary",
+      "salaryIndex": 0.22,
+      "formality": 0.4,
+      "risk": 28,
+      "tiers": [
+        1,
+        2,
+        3
+      ],
+      "sexAffinity": "neutral",
+      "ruralOnly": false
+    },
+    {
+      "id": "construction-worker",
+      "label": "construcción",
+      "sector": "construcción",
+      "minEducation": "primary",
+      "salaryIndex": 0.31,
+      "formality": 0.45,
+      "risk": 70,
+      "tiers": [
+        1,
+        2,
+        3
+      ],
+      "sexAffinity": "male",
+      "ruralOnly": false
+    },
+    {
+      "id": "factory-worker",
+      "label": "trabajo en una fábrica",
+      "sector": "industria",
+      "minEducation": "primary",
+      "salaryIndex": 0.34,
+      "formality": 0.7,
+      "risk": 42,
+      "tiers": [
+        1,
+        2,
+        3
+      ],
+      "sexAffinity": "neutral",
+      "ruralOnly": false
+    },
+    {
+      "id": "driver",
+      "label": "transporte",
+      "sector": "transporte",
+      "minEducation": "secondary",
+      "salaryIndex": 0.37,
+      "formality": 0.55,
+      "risk": 58,
+      "tiers": [
+        1,
+        2,
+        3
+      ],
+      "sexAffinity": "male",
+      "ruralOnly": false
+    },
+    {
+      "id": "mechanic",
+      "label": "taller mecánico",
+      "sector": "servicios",
+      "minEducation": "vocational",
+      "salaryIndex": 0.46,
+      "formality": 0.62,
+      "risk": 48,
+      "tiers": [
+        2,
+        3,
+        4
+      ],
+      "sexAffinity": "male",
+      "ruralOnly": false
+    },
+    {
+      "id": "retail-clerk",
+      "label": "comercio minorista",
+      "sector": "comercio",
+      "minEducation": "secondary",
+      "salaryIndex": 0.36,
+      "formality": 0.6,
+      "risk": 28,
+      "tiers": [
+        1,
+        2,
+        3
+      ],
+      "sexAffinity": "female",
+      "ruralOnly": false
+    },
+    {
+      "id": "admin-assistant",
+      "label": "administración",
+      "sector": "servicios",
+      "minEducation": "secondary",
+      "salaryIndex": 0.44,
+      "formality": 0.78,
+      "risk": 18,
+      "tiers": [
+        2,
+        3,
+        4
+      ],
+      "sexAffinity": "female",
+      "ruralOnly": false
+    },
+    {
+      "id": "civil-servant",
+      "label": "empleo público",
+      "sector": "administración",
+      "minEducation": "secondary",
+      "salaryIndex": 0.54,
+      "formality": 0.96,
+      "risk": 12,
+      "tiers": [
+        2,
+        3,
+        4
+      ],
+      "sexAffinity": "neutral",
+      "ruralOnly": false
+    },
+    {
+      "id": "teacher",
+      "label": "docencia",
+      "sector": "educación",
+      "minEducation": "university",
+      "salaryIndex": 0.58,
+      "formality": 0.9,
+      "risk": 12,
+      "tiers": [
+        2,
+        3,
+        4
+      ],
+      "sexAffinity": "female",
+      "ruralOnly": false
+    },
+    {
+      "id": "nurse",
+      "label": "enfermería",
+      "sector": "salud",
+      "minEducation": "vocational",
+      "salaryIndex": 0.54,
+      "formality": 0.88,
+      "risk": 35,
+      "tiers": [
+        2,
+        3,
+        4
+      ],
+      "sexAffinity": "female",
+      "ruralOnly": false
+    },
+    {
+      "id": "accountant",
+      "label": "contabilidad",
+      "sector": "servicios",
+      "minEducation": "university",
+      "salaryIndex": 0.72,
+      "formality": 0.9,
+      "risk": 15,
+      "tiers": [
+        3,
+        4,
+        5
+      ],
+      "sexAffinity": "neutral",
+      "ruralOnly": false
+    },
+    {
+      "id": "software-developer",
+      "label": "desarrollo de software",
+      "sector": "tecnología",
+      "minEducation": "university",
+      "salaryIndex": 0.98,
+      "formality": 0.9,
+      "risk": 15,
+      "tiers": [
+        3,
+        4,
+        5
+      ],
+      "sexAffinity": "neutral",
+      "ruralOnly": false
+    },
+    {
+      "id": "engineer",
+      "label": "ingeniería",
+      "sector": "industria",
+      "minEducation": "university",
+      "salaryIndex": 0.94,
+      "formality": 0.92,
+      "risk": 22,
+      "tiers": [
+        3,
+        4,
+        5
+      ],
+      "sexAffinity": "neutral",
+      "ruralOnly": false
+    },
+    {
+      "id": "lawyer",
+      "label": "abogacía",
+      "sector": "servicios",
+      "minEducation": "university",
+      "salaryIndex": 1.02,
+      "formality": 0.92,
+      "risk": 18,
+      "tiers": [
+        4,
+        5
+      ],
+      "sexAffinity": "neutral",
+      "ruralOnly": false
+    },
+    {
+      "id": "doctor",
+      "label": "medicina",
+      "sector": "salud",
+      "minEducation": "university",
+      "salaryIndex": 1.35,
+      "formality": 0.94,
+      "risk": 28,
+      "tiers": [
+        4,
+        5
+      ],
+      "sexAffinity": "neutral",
+      "ruralOnly": false
+    },
+    {
+      "id": "manager",
+      "label": "dirección de una empresa",
+      "sector": "servicios",
+      "minEducation": "university",
+      "salaryIndex": 1.28,
+      "formality": 0.9,
+      "risk": 20,
+      "tiers": [
+        4,
+        5
+      ],
+      "sexAffinity": "male",
+      "ruralOnly": false
+    },
+    {
+      "id": "university-professor",
+      "label": "docencia universitaria",
+      "sector": "educación",
+      "minEducation": "postgraduate",
+      "salaryIndex": 1.14,
+      "formality": 0.95,
+      "risk": 10,
+      "tiers": [
+        4,
+        5
+      ],
+      "sexAffinity": "neutral",
+      "ruralOnly": false
+    },
+    {
+      "id": "artist",
+      "label": "música y artes",
+      "sector": "cultura",
+      "minEducation": "vocational",
+      "salaryIndex": 0.5,
+      "formality": 0.45,
+      "risk": 20,
+      "tiers": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "sexAffinity": "neutral",
+      "ruralOnly": false
+    },
+    {
+      "id": "shop-owner",
+      "label": "pequeño negocio propio",
+      "sector": "comercio",
+      "minEducation": "secondary",
+      "salaryIndex": 0.62,
+      "formality": 0.55,
+      "risk": 35,
+      "tiers": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "sexAffinity": "neutral",
+      "ruralOnly": false
+    }
+  ],
+  "countries": {
+    "ESP": {
+      "femaleLaborParticipationPct": 69,
+      "genderWageGapPct": 9,
+      "marriageSystem": "monogamia-legal",
+      "polygynyLegal": false,
+      "religionShares": {
+        "Cristianismo": 58,
+        "Sin afiliación religiosa": 37,
+        "Islam": 4,
+        "Otra religión": 1
+      },
+      "religiosity": 38,
+      "contextSource": "ILOSTAT/World Bank, valores redondeados para simulación",
+      "provisional": true
+    },
+    "MEX": {
+      "femaleLaborParticipationPct": 46,
+      "genderWageGapPct": 13,
+      "marriageSystem": "monogamia-legal",
+      "polygynyLegal": false,
+      "religionShares": {
+        "Cristianismo": 85,
+        "Sin afiliación religiosa": 10,
+        "Otra religión": 5
+      },
+      "religiosity": 62,
+      "contextSource": "ILOSTAT/World Bank, valores redondeados para simulación",
+      "provisional": true
+    },
+    "ARG": {
+      "femaleLaborParticipationPct": 50,
+      "genderWageGapPct": 11,
+      "marriageSystem": "monogamia-legal",
+      "polygynyLegal": false,
+      "religionShares": {
+        "Cristianismo": 78,
+        "Sin afiliación religiosa": 18,
+        "Otra religión": 4
+      },
+      "religiosity": 52,
+      "contextSource": "ILOSTAT/World Bank, valores redondeados para simulación",
+      "provisional": true
+    },
+    "BRA": {
+      "femaleLaborParticipationPct": 54,
+      "genderWageGapPct": 20,
+      "marriageSystem": "monogamia-legal",
+      "polygynyLegal": false,
+      "religionShares": {
+        "Cristianismo": 83,
+        "Sin afiliación religiosa": 11,
+        "Otra religión": 6
+      },
+      "religiosity": 63,
+      "contextSource": "ILOSTAT/World Bank, valores redondeados para simulación",
+      "provisional": true
+    },
+    "USA": {
+      "femaleLaborParticipationPct": 56,
+      "genderWageGapPct": 17,
+      "marriageSystem": "monogamia-legal",
+      "polygynyLegal": false,
+      "religionShares": {
+        "Cristianismo": 63,
+        "Sin afiliación religiosa": 29,
+        "Judaísmo": 2,
+        "Islam": 1,
+        "Otra religión": 5
+      },
+      "religiosity": 53,
+      "contextSource": "ILOSTAT/World Bank/Pew, valores redondeados para simulación",
+      "provisional": true
+    },
+    "NGA": {
+      "femaleLaborParticipationPct": 48,
+      "genderWageGapPct": 24,
+      "marriageSystem": "poligamia-legal",
+      "polygynyLegal": true,
+      "religionShares": {
+        "Islam": 51,
+        "Cristianismo": 46,
+        "Otra religión": 3
+      },
+      "religiosity": 86,
+      "contextSource": "ILOSTAT/World Bank/Pew, valores redondeados para simulación",
+      "provisional": true
+    },
+    "IND": {
+      "femaleLaborParticipationPct": 37,
+      "genderWageGapPct": 25,
+      "marriageSystem": "poligamia-restringida",
+      "polygynyLegal": false,
+      "religionShares": {
+        "Hinduismo": 79,
+        "Islam": 14,
+        "Cristianismo": 2,
+        "Sijismo": 2,
+        "Otra religión": 3
+      },
+      "religiosity": 78,
+      "contextSource": "ILOSTAT/World Bank/Pew, valores redondeados para simulación",
+      "provisional": true
+    },
+    "JPN": {
+      "femaleLaborParticipationPct": 55,
+      "genderWageGapPct": 22,
+      "marriageSystem": "monogamia-legal",
+      "polygynyLegal": false,
+      "religionShares": {
+        "Budismo": 36,
+        "Sintoísmo": 30,
+        "Sin afiliación religiosa": 30,
+        "Otra religión": 4
+      },
+      "religiosity": 28,
+      "contextSource": "ILOSTAT/World Bank, valores redondeados para simulación",
+      "provisional": true
+    },
+    "DEU": {
+      "femaleLaborParticipationPct": 56,
+      "genderWageGapPct": 14,
+      "marriageSystem": "monogamia-legal",
+      "polygynyLegal": false,
+      "religionShares": {
+        "Cristianismo": 52,
+        "Sin afiliación religiosa": 40,
+        "Islam": 6,
+        "Otra religión": 2
+      },
+      "religiosity": 34,
+      "contextSource": "ILOSTAT/World Bank/Pew, valores redondeados para simulación",
+      "provisional": true
+    },
+    "FRA": {
+      "femaleLaborParticipationPct": 52,
+      "genderWageGapPct": 12,
+      "marriageSystem": "monogamia-legal",
+      "polygynyLegal": false,
+      "religionShares": {
+        "Cristianismo": 47,
+        "Sin afiliación religiosa": 40,
+        "Islam": 9,
+        "Otra religión": 4
+      },
+      "religiosity": 33,
+      "contextSource": "ILOSTAT/World Bank/Pew, valores redondeados para simulación",
+      "provisional": true
+    },
+    "ZAF": {
+      "femaleLaborParticipationPct": 54,
+      "genderWageGapPct": 18,
+      "marriageSystem": "poligamia-consuetudinaria",
+      "polygynyLegal": true,
+      "religionShares": {
+        "Cristianismo": 78,
+        "Sin afiliación religiosa": 15,
+        "Otra religión": 7
+      },
+      "religiosity": 68,
+      "contextSource": "ILOSTAT/World Bank/Pew, valores redondeados para simulación",
+      "provisional": true
+    },
+    "IDN": {
+      "femaleLaborParticipationPct": 54,
+      "genderWageGapPct": 15,
+      "marriageSystem": "poligamia-legal",
+      "polygynyLegal": true,
+      "religionShares": {
+        "Islam": 87,
+        "Cristianismo": 10,
+        "Hinduismo": 2,
+        "Otra religión": 1
+      },
+      "religiosity": 84,
+      "contextSource": "ILOSTAT/World Bank/Pew, valores redondeados para simulación",
+      "provisional": true
+    },
+    "EGY": {
+      "femaleLaborParticipationPct": 18,
+      "genderWageGapPct": 25,
+      "marriageSystem": "poligamia-legal",
+      "polygynyLegal": true,
+      "religionShares": {
+        "Islam": 90,
+        "Cristianismo": 10
+      },
+      "religiosity": 89,
+      "contextSource": "ILOSTAT/World Bank/Pew, valores redondeados para simulación",
+      "provisional": true
+    },
+    "SWE": {
+      "femaleLaborParticipationPct": 63,
+      "genderWageGapPct": 7,
+      "marriageSystem": "monogamia-legal",
+      "polygynyLegal": false,
+      "religionShares": {
+        "Cristianismo": 55,
+        "Sin afiliación religiosa": 40,
+        "Otra religión": 5
+      },
+      "religiosity": 24,
+      "contextSource": "ILOSTAT/World Bank/Pew, valores redondeados para simulación",
+      "provisional": true
+    },
+    "CHN": {
+      "femaleLaborParticipationPct": 61,
+      "genderWageGapPct": 18,
+      "marriageSystem": "monogamia-legal",
+      "polygynyLegal": false,
+      "religionShares": {
+        "Sin afiliación religiosa": 60,
+        "Tradiciones populares": 25,
+        "Budismo": 10,
+        "Otra religión": 5
+      },
+      "religiosity": 35,
+      "contextSource": "Distribución cultural y parámetros de juego provisionales; no constituyen una estimación estadística oficial",
+      "provisional": true
+    },
+    "ITA": {
+      "femaleLaborParticipationPct": 69,
+      "genderWageGapPct": 9,
+      "marriageSystem": "monogamia-legal",
+      "polygynyLegal": false,
+      "religionShares": {
+        "Cristianismo": 58,
+        "Sin afiliación religiosa": 37,
+        "Islam": 4,
+        "Otra religión": 1
+      },
+      "religiosity": 38,
+      "contextSource": "Parámetros de juego provisionales basados en el perfil regional; no constituyen estadísticas oficiales",
+      "provisional": true
+    }
+  }
+}

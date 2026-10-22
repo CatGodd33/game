@@ -1,0 +1,115 @@
+{
+  "version": "2024.1-provisional",
+  "status": "provisional",
+  "description": "Parámetros económicos de LIFE DUEL. Son reglas de juego, no estadísticas oficiales. Los ingresos se calculan en dólares internacionales (PPP) a partir del PIB per cápita y se muestran convertidos a la moneda local de forma aproximada.",
+  "currencyNote": "Las conversiones a moneda local usan factores de poder adquisitivo aproximados del conjunto demográfico; no son tipos de cambio de mercado.",
+  "expenseWeights": {
+    "food": 0.3,
+    "housing": 0.28,
+    "transport": 0.11,
+    "health": 0.08,
+    "education": 0.06,
+    "other": 0.17
+  },
+  "housingQualityExpense": {
+    "min": 0.72,
+    "max": 2.4
+  },
+  "income": {
+    "baseShareOfGdpPerCapita": 0.62,
+    "educationMultipliers": {
+      "none": 0.55,
+      "primary": 0.72,
+      "secondary": 0.9,
+      "vocational": 1.08,
+      "university": 1.45,
+      "postgraduate": 1.8
+    },
+    "experienceBonusPerYear": 0.012,
+    "experienceBonusCap": 0.32,
+    "agePeak": 48,
+    "ageDeclinePerYearAfterPeak": 0.006,
+    "ageDeclineCap": 0.25,
+    "minimumIncomeShare": 0.35,
+    "selfEmploymentVolatility": 0.16,
+    "unemploymentSupportShare": 0.28,
+    "pensionReplacementRate": 0.46,
+    "retirementAge": 65,
+    "childCostShareOfEssentials": 0.22,
+    "partnerCostShareOfEssentials": 0.12
+  },
+  "tax": {
+    "model": "simplificado-progresivo",
+    "personalAllowanceShareOfGdp": 0.28,
+    "brackets": [
+      {
+        "upToGdpMultiple": 0.7,
+        "rate": 0.08
+      },
+      {
+        "upToGdpMultiple": 1.5,
+        "rate": 0.17
+      },
+      {
+        "upToGdpMultiple": 3,
+        "rate": 0.26
+      },
+      {
+        "upToGdpMultiple": 99,
+        "rate": 0.34
+      }
+    ],
+    "socialContributionRate": 0.06
+  },
+  "debt": {
+    "annualInterestRate": 0.12,
+    "maxDebtToIncomeRatio": 2.5,
+    "debtReliefAfterYears": 9,
+    "debtReliefForgivenessShare": 0.22,
+    "stressHappinessPenaltyPerDebtShare": 6
+  },
+  "healthCare": {
+    "basicAnnualCostShareOfEssentials": 0.05,
+    "premiumAnnualCostShareOfEssentials": 0.16,
+    "premiumHealthBonus": 0.035,
+    "premiumMortalityReduction": 0.08,
+    "freeCareThresholdAccess": 80
+  },
+  "family": {
+    "initialMoneyByTier": {
+      "1": 80,
+      "2": 420,
+      "3": 1300,
+      "4": 3400,
+      "5": 9000
+    },
+    "housingQualityByTier": {
+      "1": 22,
+      "2": 38,
+      "3": 55,
+      "4": 72,
+      "5": 88
+    },
+    "parentSupportByTier": {
+      "1": 0,
+      "2": 90,
+      "3": 260,
+      "4": 520,
+      "5": 900
+    }
+  },
+  "livingStandard": {
+    "floor": 8,
+    "ceiling": 97,
+    "incomeToGdpRatioWeight": 32,
+    "housingWeight": 18,
+    "savingsMonthsWeight": 1.6,
+    "debtPenalty": 0.42
+  },
+  "notes": [
+    "Los impuestos son una simplificación progresiva sobre el ingreso bruto.",
+    "La deuda se paga automáticamente con excedentes y devenga intereses anuales.",
+    "El nivel de vida resume ingresos, vivienda, ahorro y deuda en una escala 0-100.",
+    "Las decisiones pueden modificar ingresos y gastos mediante multiplicadores documentados."
+  ]
+}

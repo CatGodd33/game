@@ -1,0 +1,46 @@
+{
+    "name": "life-duel",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "description": "Simulador de vidas determinista para un jugador y duelos online para dos jugadores.",
+    "workspaces": [
+        "shared",
+        "server",
+        "client"
+    ],
+    "scripts": {
+        "dev": "concurrently -n servidor,cliente -c green,cyan \"npm:dev:server\" \"npm:dev:client\"",
+        "dev:server": "npm run dev -w server",
+        "dev:client": "npm run dev -w client",
+        "build": "npm run build -w server && npm run build -w client",
+        "start": "node scripts/start-production.mjs",
+        "typecheck": "tsc -p shared/tsconfig.json --noEmit && tsc -p server/tsconfig.json --noEmit && tsc -p client/tsconfig.json --noEmit",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:ui": "vitest --ui",
+        "e2e": "playwright test",
+        "e2e:install": "playwright install chromium",
+        "prisma:generate": "prisma generate",
+        "prisma:validate": "prisma validate",
+        "prisma:migrate": "prisma migrate dev --name life_duel",
+        "prisma:deploy": "prisma migrate deploy",
+        "sim:demo": "tsx scripts/demo-life.ts",
+        "audit:pacing": "tsx scripts/audit-pacing.ts"
+    },
+    "engines": {
+        "node": ">=20"
+    },
+    "devDependencies": {
+        "@playwright/test": "^1.64.1",
+        "@types/node": "^26.6.5",
+        "@types/supertest": "^7.2.1",
+        "concurrently": "^10.0.6",
+        "prisma": "^7.10.1",
+        "socket.io-client": "^4.8.4",
+        "supertest": "^7.3.1",
+        "tsx": "^4.23.15",
+        "typescript": "^7.0.2",
+        "vitest": "^4.1.12"
+    }
+}

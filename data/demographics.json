@@ -1,0 +1,1281 @@
+{
+  "datasetVersion": "2024.1-demo",
+  "retrievedAt": "2024-11-15",
+  "description": "Subconjunto demográfico de demostración para LIFE DUEL. Los valores están redondeados a partir de fuentes públicas y se usan para ponderar nacimientos y calibrar el modelo. No son una réplica exacta de las bases de datos originales.",
+  "sources": [
+    {
+      "id": "un-wpp-2024",
+      "name": "Naciones Unidas, World Population Prospects 2024",
+      "url": "https://population.un.org/wpp/",
+      "license": "Datos de Naciones Unidas; CC BY 3.0 IGO",
+      "accessed": "2024-11-15"
+    },
+    {
+      "id": "wb-wdi",
+      "name": "Banco Mundial, World Development Indicators",
+      "url": "https://databank.worldbank.org/source/world-development-indicators",
+      "license": "CC BY 4.0",
+      "accessed": "2024-11-15"
+    },
+    {
+      "id": "un-igme-2024",
+      "name": "UN IGME, Levels & Trends in Child Mortality 2024",
+      "url": "https://childmortality.org/",
+      "license": "CC BY 3.0 IGO",
+      "accessed": "2024-11-15"
+    },
+    {
+      "id": "who-gho",
+      "name": "Organización Mundial de la Salud, Global Health Observatory",
+      "url": "https://www.who.int/data/gho",
+      "license": "CC BY-NC-SA 3.0 IGO",
+      "accessed": "2024-11-15"
+    },
+    {
+      "id": "unesco-uis",
+      "name": "UNESCO Institute for Statistics",
+      "url": "https://uis.unesco.org/",
+      "license": "CC BY-SA 3.0 IGO",
+      "accessed": "2024-11-15"
+    },
+    {
+      "id": "undp-hdr-2024",
+      "name": "PNUD, Human Development Report 2024",
+      "url": "https://hdr.undp.org/",
+      "license": "CC BY 3.0 IGO",
+      "accessed": "2024-11-15"
+    },
+    {
+      "id": "nbs-china-2024",
+      "name": "NBS China, comunicado nacional 2024",
+      "url": "https://www.stats.gov.cn/english/PressRelease/202502/t20250228_1958822.html",
+      "license": "Estadísticas públicas; consultar condiciones de la fuente",
+      "accessed": "2026-10-21"
+    },
+    {
+      "id": "nhc-china-2024",
+      "name": "NHC China: mortalidad infantil 2024",
+      "url": "https://en.nhc.gov.cn/2025-06/01/c_86485.htm",
+      "license": "Información pública; consultar condiciones de la fuente",
+      "accessed": "2026-10-21"
+    },
+    {
+      "id": "istat-2024",
+      "name": "ISTAT: indicadores demográficos 2024",
+      "url": "https://www.istat.it/wp-content/uploads/2025/03/DEMOGRAPHIC-INDICATORS_YEAR-2024.pdf",
+      "license": "Estadísticas públicas de ISTAT; consultar condiciones de reutilización",
+      "accessed": "2026-10-21"
+    },
+    {
+      "id": "imf-italy-2026",
+      "name": "IMF DataMapper: Italia, WEO abril 2026",
+      "url": "https://www.imf.org/external/datamapper/profile/ITA",
+      "license": "Datos públicos del FMI; consultar condiciones de la fuente",
+      "accessed": "2026-10-21"
+    }
+  ],
+  "indicators": {
+    "populationMillions": {
+      "sourceId": "un-wpp-2024",
+      "year": 2023,
+      "units": "millones de personas"
+    },
+    "birthsThousands": {
+      "sourceId": "un-wpp-2024",
+      "year": 2023,
+      "units": "miles de nacimientos al año"
+    },
+    "lifeExpectancy": {
+      "sourceId": "un-wpp-2024",
+      "year": 2023,
+      "units": "años al nacer"
+    },
+    "infantMortalityPer1000": {
+      "sourceId": "un-igme-2024",
+      "year": 2023,
+      "units": "muertes por 1000 nacidos vivos"
+    },
+    "gdpPerCapitaPpp": {
+      "sourceId": "wb-wdi",
+      "year": 2023,
+      "units": "dólares internacionales corrientes"
+    },
+    "gini": {
+      "sourceId": "wb-wdi",
+      "year": 2014,
+      "units": "índice 0-100; año variable según país"
+    },
+    "unemploymentRate": {
+      "sourceId": "wb-wdi",
+      "year": 2023,
+      "units": "porcentaje de la población activa"
+    },
+    "meanYearsSchooling": {
+      "sourceId": "undp-hdr-2024",
+      "year": 2022,
+      "units": "años medios de escolarización"
+    },
+    "fertilityRate": {
+      "sourceId": "un-wpp-2024",
+      "year": 2023,
+      "units": "hijos por mujer"
+    },
+    "urbanShare": {
+      "sourceId": "un-wpp-2024",
+      "year": 2023,
+      "units": "porcentaje de población urbana"
+    }
+  },
+  "notes": [
+    "Los valores se han redondeado; consulta las fuentes enlazadas para cifras oficiales.",
+    "Los índices de coste de vida, acceso sanitario y calidad educativa son parámetros de simulación provisionales derivados de PIB per cápita, Gini y datos de salud; no son indicadores oficiales.",
+    "Las tasas de cambio locales por dólar internacional son aproximaciones de poder adquisitivo para mostrar cifras; no son tipos de cambio de mercado.",
+    "La selección de país usa nacimientos anuales (birthsThousands) o población según la configuración.",
+    "Los datos de Gini corresponden al último año disponible, que varía por país.",
+    "Los nombres y apellidos son listas culturales de ejemplo, no datos estadísticos.",
+    "China: población, nacimientos, urbanización y desempleo urbano 2024 (NBS); mortalidad infantil 2024 (NHC); PIB PPP 2024 (WDI/UNdata, redondeado). Esperanza de vida por sexo: referencia censal 2020 (80,88 / 75,37), no dato 2024. Gini, escolaridad, fecundidad y parámetros derivados: aproximaciones de juego provisionales.",
+    "Italia: natalidad, fecundidad y esperanza de vida 2024 (ISTAT). PIB PPP, población, desempleo y factor PPP: referencia WEO abril 2026 del FMI. Mortalidad infantil, Gini, escolaridad, urbanización y parámetros derivados: aproximaciones de juego provisionales. Las referencias de diferentes años no constituyen una serie homogénea."
+  ],
+  "countries": [
+    {
+      "code": "ESP",
+      "name": "España",
+      "region": "Europa",
+      "incomeGroup": "alto",
+      "populationMillions": 48.4,
+      "birthsThousands": 330,
+      "lifeExpectancy": {
+        "female": 86.7,
+        "male": 81.3
+      },
+      "infantMortalityPer1000": 2.5,
+      "gdpPerCapitaPpp": 50500,
+      "gini": 33.9,
+      "unemploymentRate": 12.2,
+      "meanYearsSchooling": 10.6,
+      "fertilityRate": 1.2,
+      "urbanShare": 81,
+      "currency": {
+        "code": "EUR",
+        "symbol": "€",
+        "localPerIntlDollar": 0.65,
+        "provisional": true
+      },
+      "cities": [
+        "Madrid",
+        "Barcelona",
+        "Valencia",
+        "Sevilla"
+      ],
+      "names": {
+        "female": [
+          "Lucía",
+          "Martina",
+          "Sofía",
+          "Paula",
+          "Julia",
+          "Alba",
+          "Carmen",
+          "Inés"
+        ],
+        "male": [
+          "Hugo",
+          "Mateo",
+          "Daniel",
+          "Pablo",
+          "Álvaro",
+          "Adrián",
+          "Javier",
+          "Sergio"
+        ],
+        "surnames": [
+          "García",
+          "Fernández",
+          "González",
+          "Rodríguez",
+          "López",
+          "Martínez",
+          "Sánchez",
+          "Pérez"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 10800,
+        "healthcareAccess": 92,
+        "educationQuality": 78,
+        "environmentRisk": 34,
+        "socialSafetyNet": 78,
+        "provisional": true
+      }
+    },
+    {
+      "code": "MEX",
+      "name": "México",
+      "region": "América",
+      "incomeGroup": "medio-alto",
+      "populationMillions": 128.5,
+      "birthsThousands": 2000,
+      "lifeExpectancy": {
+        "female": 77.8,
+        "male": 72.2
+      },
+      "infantMortalityPer1000": 11.7,
+      "gdpPerCapitaPpp": 24000,
+      "gini": 43.5,
+      "unemploymentRate": 3.0,
+      "meanYearsSchooling": 9.2,
+      "fertilityRate": 1.8,
+      "urbanShare": 81,
+      "currency": {
+        "code": "MXN",
+        "symbol": "$",
+        "localPerIntlDollar": 9.5,
+        "provisional": true
+      },
+      "cities": [
+        "Ciudad de México",
+        "Guadalajara",
+        "Monterrey",
+        "Puebla"
+      ],
+      "names": {
+        "female": [
+          "Ximena",
+          "Valentina",
+          "Camila",
+          "Regina",
+          "Renata",
+          "Fernanda",
+          "Guadalupe",
+          "Itzel"
+        ],
+        "male": [
+          "Santiago",
+          "Mateo",
+          "Emiliano",
+          "Leonardo",
+          "Diego",
+          "Sebastián",
+          "Rodrigo",
+          "Alejandro"
+        ],
+        "surnames": [
+          "Hernández",
+          "García",
+          "Martínez",
+          "López",
+          "Ramírez",
+          "Flores",
+          "Cruz",
+          "Morales"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 6200,
+        "healthcareAccess": 62,
+        "educationQuality": 58,
+        "environmentRisk": 48,
+        "socialSafetyNet": 42,
+        "provisional": true
+      }
+    },
+    {
+      "code": "ARG",
+      "name": "Argentina",
+      "region": "América",
+      "incomeGroup": "medio-alto",
+      "populationMillions": 46.0,
+      "birthsThousands": 500,
+      "lifeExpectancy": {
+        "female": 80.5,
+        "male": 73.5
+      },
+      "infantMortalityPer1000": 7.7,
+      "gdpPerCapitaPpp": 27000,
+      "gini": 40.7,
+      "unemploymentRate": 6.2,
+      "meanYearsSchooling": 11.1,
+      "fertilityRate": 1.9,
+      "urbanShare": 92,
+      "currency": {
+        "code": "ARS",
+        "symbol": "$",
+        "localPerIntlDollar": 180,
+        "provisional": true
+      },
+      "cities": [
+        "Buenos Aires",
+        "Córdoba",
+        "Rosario",
+        "Mendoza"
+      ],
+      "names": {
+        "female": [
+          "Valentina",
+          "Martina",
+          "Sofía",
+          "Catalina",
+          "Julieta",
+          "Agustina",
+          "Malena",
+          "Lucía"
+        ],
+        "male": [
+          "Mateo",
+          "Bautista",
+          "Santiago",
+          "Benjamín",
+          "Joaquín",
+          "Thiago",
+          "Lautaro",
+          "Tomás"
+        ],
+        "surnames": [
+          "González",
+          "Rodríguez",
+          "Fernández",
+          "López",
+          "Martínez",
+          "Pérez",
+          "Gómez",
+          "Díaz"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 7000,
+        "healthcareAccess": 68,
+        "educationQuality": 65,
+        "environmentRisk": 38,
+        "socialSafetyNet": 55,
+        "provisional": true
+      }
+    },
+    {
+      "code": "BRA",
+      "name": "Brasil",
+      "region": "América",
+      "incomeGroup": "medio-alto",
+      "populationMillions": 216.4,
+      "birthsThousands": 2600,
+      "lifeExpectancy": {
+        "female": 79.4,
+        "male": 72.4
+      },
+      "infantMortalityPer1000": 11.6,
+      "gdpPerCapitaPpp": 20000,
+      "gini": 52.0,
+      "unemploymentRate": 8.0,
+      "meanYearsSchooling": 8.3,
+      "fertilityRate": 1.6,
+      "urbanShare": 87,
+      "currency": {
+        "code": "BRL",
+        "symbol": "R$",
+        "localPerIntlDollar": 2.5,
+        "provisional": true
+      },
+      "cities": [
+        "São Paulo",
+        "Río de Janeiro",
+        "Brasilia",
+        "Salvador"
+      ],
+      "names": {
+        "female": [
+          "Alice",
+          "Sophia",
+          "Helena",
+          "Valentina",
+          "Laura",
+          "Isadora",
+          "Manuela",
+          "Beatriz"
+        ],
+        "male": [
+          "Miguel",
+          "Arthur",
+          "Heitor",
+          "Bernardo",
+          "Davi",
+          "Théo",
+          "Gabriel",
+          "Pedro"
+        ],
+        "surnames": [
+          "Silva",
+          "Santos",
+          "Oliveira",
+          "Souza",
+          "Pereira",
+          "Costa",
+          "Almeida",
+          "Ferreira"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 5400,
+        "healthcareAccess": 58,
+        "educationQuality": 52,
+        "environmentRisk": 46,
+        "socialSafetyNet": 45,
+        "provisional": true
+      }
+    },
+    {
+      "code": "USA",
+      "name": "Estados Unidos",
+      "region": "América",
+      "incomeGroup": "alto",
+      "populationMillions": 341.8,
+      "birthsThousands": 3700,
+      "lifeExpectancy": {
+        "female": 81.9,
+        "male": 76.7
+      },
+      "infantMortalityPer1000": 5.6,
+      "gdpPerCapitaPpp": 82000,
+      "gini": 41.3,
+      "unemploymentRate": 3.6,
+      "meanYearsSchooling": 13.7,
+      "fertilityRate": 1.6,
+      "urbanShare": 83,
+      "currency": {
+        "code": "USD",
+        "symbol": "$",
+        "localPerIntlDollar": 1,
+        "provisional": false
+      },
+      "cities": [
+        "Nueva York",
+        "Los Ángeles",
+        "Chicago",
+        "Houston"
+      ],
+      "names": {
+        "female": [
+          "Emma",
+          "Olivia",
+          "Ava",
+          "Sophia",
+          "Isabella",
+          "Mia",
+          "Harper",
+          "Amelia"
+        ],
+        "male": [
+          "Liam",
+          "Noah",
+          "Oliver",
+          "Elijah",
+          "James",
+          "Benjamin",
+          "Lucas",
+          "Henry"
+        ],
+        "surnames": [
+          "Smith",
+          "Johnson",
+          "Williams",
+          "Brown",
+          "Jones",
+          "García",
+          "Miller",
+          "Davis"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 14500,
+        "healthcareAccess": 82,
+        "educationQuality": 74,
+        "environmentRisk": 42,
+        "socialSafetyNet": 35,
+        "provisional": true
+      }
+    },
+    {
+      "code": "NGA",
+      "name": "Nigeria",
+      "region": "África",
+      "incomeGroup": "medio-bajo",
+      "populationMillions": 223.8,
+      "birthsThousands": 7500,
+      "lifeExpectancy": {
+        "female": 55.5,
+        "male": 54.3
+      },
+      "infantMortalityPer1000": 69.6,
+      "gdpPerCapitaPpp": 6000,
+      "gini": 35.1,
+      "unemploymentRate": 3.1,
+      "meanYearsSchooling": 7.2,
+      "fertilityRate": 5.1,
+      "urbanShare": 54,
+      "currency": {
+        "code": "NGN",
+        "symbol": "₦",
+        "localPerIntlDollar": 500,
+        "provisional": true
+      },
+      "cities": [
+        "Lagos",
+        "Abuja",
+        "Kano",
+        "Ibadán"
+      ],
+      "names": {
+        "female": [
+          "Amina",
+          "Chioma",
+          "Zainab",
+          "Ngozi",
+          "Funmilayo",
+          "Aisha",
+          "Adaeze",
+          "Yetunde"
+        ],
+        "male": [
+          "Chinedu",
+          "Ibrahim",
+          "Emeka",
+          "Tunde",
+          "Musa",
+          "Obinna",
+          "Femi",
+          "Sani"
+        ],
+        "surnames": [
+          "Okafor",
+          "Adeyemi",
+          "Bello",
+          "Eze",
+          "Ibrahim",
+          "Okonkwo",
+          "Abubakar",
+          "Balogun"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 2800,
+        "healthcareAccess": 25,
+        "educationQuality": 32,
+        "environmentRisk": 64,
+        "socialSafetyNet": 20,
+        "provisional": true
+      }
+    },
+    {
+      "code": "IND",
+      "name": "India",
+      "region": "Asia",
+      "incomeGroup": "medio-bajo",
+      "populationMillions": 1428.6,
+      "birthsThousands": 23000,
+      "lifeExpectancy": {
+        "female": 73.6,
+        "male": 70.4
+      },
+      "infantMortalityPer1000": 25.0,
+      "gdpPerCapitaPpp": 10000,
+      "gini": 32.8,
+      "unemploymentRate": 4.2,
+      "meanYearsSchooling": 6.7,
+      "fertilityRate": 2.0,
+      "urbanShare": 36,
+      "currency": {
+        "code": "INR",
+        "symbol": "₹",
+        "localPerIntlDollar": 25,
+        "provisional": true
+      },
+      "cities": [
+        "Delhi",
+        "Mumbai",
+        "Bengaluru",
+        "Kolkata"
+      ],
+      "names": {
+        "female": [
+          "Aanya",
+          "Aaradhya",
+          "Diya",
+          "Ishaani",
+          "Kavya",
+          "Meera",
+          "Priya",
+          "Ananya"
+        ],
+        "male": [
+          "Aarav",
+          "Vivaan",
+          "Aditya",
+          "Arjun",
+          "Rohan",
+          "Kabir",
+          "Ishaan",
+          "Reyansh"
+        ],
+        "surnames": [
+          "Sharma",
+          "Patel",
+          "Singh",
+          "Kumar",
+          "Gupta",
+          "Reddy",
+          "Nair",
+          "Iyer"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 3600,
+        "healthcareAccess": 38,
+        "educationQuality": 48,
+        "environmentRisk": 58,
+        "socialSafetyNet": 25,
+        "provisional": true
+      }
+    },
+    {
+      "code": "JPN",
+      "name": "Japón",
+      "region": "Asia",
+      "incomeGroup": "alto",
+      "populationMillions": 124.5,
+      "birthsThousands": 750,
+      "lifeExpectancy": {
+        "female": 87.9,
+        "male": 81.5
+      },
+      "infantMortalityPer1000": 1.7,
+      "gdpPerCapitaPpp": 51000,
+      "gini": 32.9,
+      "unemploymentRate": 2.6,
+      "meanYearsSchooling": 13.4,
+      "fertilityRate": 1.2,
+      "urbanShare": 92,
+      "currency": {
+        "code": "JPY",
+        "symbol": "¥",
+        "localPerIntlDollar": 100,
+        "provisional": true
+      },
+      "cities": [
+        "Tokio",
+        "Osaka",
+        "Yokohama",
+        "Sapporo"
+      ],
+      "names": {
+        "female": [
+          "Yui",
+          "Aoi",
+          "Hana",
+          "Sakura",
+          "Mei",
+          "Rin",
+          "Aiko",
+          "Yuna"
+        ],
+        "male": [
+          "Haruto",
+          "Ren",
+          "Sota",
+          "Yuto",
+          "Kaito",
+          "Riku",
+          "Daiki",
+          "Takumi"
+        ],
+        "surnames": [
+          "Sato",
+          "Suzuki",
+          "Takahashi",
+          "Tanaka",
+          "Watanabe",
+          "Ito",
+          "Yamamoto",
+          "Nakamura"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 10500,
+        "healthcareAccess": 90,
+        "educationQuality": 82,
+        "environmentRisk": 48,
+        "socialSafetyNet": 72,
+        "provisional": true
+      }
+    },
+    {
+      "code": "DEU",
+      "name": "Alemania",
+      "region": "Europa",
+      "incomeGroup": "alto",
+      "populationMillions": 84.7,
+      "birthsThousands": 700,
+      "lifeExpectancy": {
+        "female": 83.8,
+        "male": 78.6
+      },
+      "infantMortalityPer1000": 3.0,
+      "gdpPerCapitaPpp": 63000,
+      "gini": 31.7,
+      "unemploymentRate": 3.0,
+      "meanYearsSchooling": 14.1,
+      "fertilityRate": 1.5,
+      "urbanShare": 78,
+      "currency": {
+        "code": "EUR",
+        "symbol": "€",
+        "localPerIntlDollar": 0.7,
+        "provisional": true
+      },
+      "cities": [
+        "Berlín",
+        "Múnich",
+        "Hamburgo",
+        "Colonia"
+      ],
+      "names": {
+        "female": [
+          "Mia",
+          "Emma",
+          "Hannah",
+          "Lina",
+          "Lea",
+          "Lena",
+          "Sophie",
+          "Marie"
+        ],
+        "male": [
+          "Leon",
+          "Finn",
+          "Paul",
+          "Felix",
+          "Lukas",
+          "Jonas",
+          "Maximilian",
+          "Elias"
+        ],
+        "surnames": [
+          "Müller",
+          "Schmidt",
+          "Schneider",
+          "Fischer",
+          "Weber",
+          "Meyer",
+          "Wagner",
+          "Becker"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 11200,
+        "healthcareAccess": 90,
+        "educationQuality": 80,
+        "environmentRisk": 32,
+        "socialSafetyNet": 82,
+        "provisional": true
+      }
+    },
+    {
+      "code": "FRA",
+      "name": "Francia",
+      "region": "Europa",
+      "incomeGroup": "alto",
+      "populationMillions": 66.5,
+      "birthsThousands": 680,
+      "lifeExpectancy": {
+        "female": 86.0,
+        "male": 80.7
+      },
+      "infantMortalityPer1000": 3.9,
+      "gdpPerCapitaPpp": 58000,
+      "gini": 31.5,
+      "unemploymentRate": 7.3,
+      "meanYearsSchooling": 11.6,
+      "fertilityRate": 1.8,
+      "urbanShare": 82,
+      "currency": {
+        "code": "EUR",
+        "symbol": "€",
+        "localPerIntlDollar": 0.68,
+        "provisional": true
+      },
+      "cities": [
+        "París",
+        "Lyon",
+        "Marsella",
+        "Toulouse"
+      ],
+      "names": {
+        "female": [
+          "Emma",
+          "Léa",
+          "Chloé",
+          "Manon",
+          "Camille",
+          "Juliette",
+          "Louise",
+          "Sophie"
+        ],
+        "male": [
+          "Gabriel",
+          "Louis",
+          "Raphaël",
+          "Arthur",
+          "Hugo",
+          "Lucas",
+          "Jules",
+          "Adam"
+        ],
+        "surnames": [
+          "Martin",
+          "Bernard",
+          "Dubois",
+          "Thomas",
+          "Robert",
+          "Petit",
+          "Durand",
+          "Leroy"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 10600,
+        "healthcareAccess": 91,
+        "educationQuality": 77,
+        "environmentRisk": 30,
+        "socialSafetyNet": 84,
+        "provisional": true
+      }
+    },
+    {
+      "code": "ZAF",
+      "name": "Sudáfrica",
+      "region": "África",
+      "incomeGroup": "medio-alto",
+      "populationMillions": 61.0,
+      "birthsThousands": 1200,
+      "lifeExpectancy": {
+        "female": 68.6,
+        "male": 62.0
+      },
+      "infantMortalityPer1000": 26.0,
+      "gdpPerCapitaPpp": 15000,
+      "gini": 63.0,
+      "unemploymentRate": 32.1,
+      "meanYearsSchooling": 10.2,
+      "fertilityRate": 2.3,
+      "urbanShare": 68,
+      "currency": {
+        "code": "ZAR",
+        "symbol": "R",
+        "localPerIntlDollar": 7.5,
+        "provisional": true
+      },
+      "cities": [
+        "Johannesburgo",
+        "Ciudad del Cabo",
+        "Durban",
+        "Pretoria"
+      ],
+      "names": {
+        "female": [
+          "Thandiwe",
+          "Nomvula",
+          "Lerato",
+          "Zanele",
+          "Amahle",
+          "Naledi",
+          "Ayanda",
+          "Palesa"
+        ],
+        "male": [
+          "Sipho",
+          "Thabo",
+          "Andile",
+          "Bongani",
+          "Sibusiso",
+          "Kagiso",
+          "Tshepo",
+          "Lwazi"
+        ],
+        "surnames": [
+          "Dlamini",
+          "Nkosi",
+          "Botha",
+          "Pretorius",
+          "Khumalo",
+          "Mokoena",
+          "Van der Merwe",
+          "Ndlovu"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 5200,
+        "healthcareAccess": 52,
+        "educationQuality": 48,
+        "environmentRisk": 45,
+        "socialSafetyNet": 32,
+        "provisional": true
+      }
+    },
+    {
+      "code": "IDN",
+      "name": "Indonesia",
+      "region": "Asia",
+      "incomeGroup": "medio-bajo",
+      "populationMillions": 279.1,
+      "birthsThousands": 4400,
+      "lifeExpectancy": {
+        "female": 71.2,
+        "male": 66.8
+      },
+      "infantMortalityPer1000": 16.6,
+      "gdpPerCapitaPpp": 15000,
+      "gini": 37.9,
+      "unemploymentRate": 5.3,
+      "meanYearsSchooling": 8.6,
+      "fertilityRate": 2.1,
+      "urbanShare": 58,
+      "currency": {
+        "code": "IDR",
+        "symbol": "Rp",
+        "localPerIntlDollar": 5500,
+        "provisional": true
+      },
+      "cities": [
+        "Yakarta",
+        "Surabaya",
+        "Bandung",
+        "Medan"
+      ],
+      "names": {
+        "female": [
+          "Putri",
+          "Ayu",
+          "Siti",
+          "Dewi",
+          "Rina",
+          "Sari",
+          "Indah",
+          "Lestari"
+        ],
+        "male": [
+          "Budi",
+          "Agus",
+          "Made",
+          "Rizky",
+          "Fajar",
+          "Dimas",
+          "Arif",
+          "Hendra"
+        ],
+        "surnames": [
+          "Wijaya",
+          "Santoso",
+          "Saputra",
+          "Hidayat",
+          "Nugroho",
+          "Suryadi",
+          "Pratama",
+          "Kusuma"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 4300,
+        "healthcareAccess": 45,
+        "educationQuality": 52,
+        "environmentRisk": 60,
+        "socialSafetyNet": 30,
+        "provisional": true
+      }
+    },
+    {
+      "code": "EGY",
+      "name": "Egipto",
+      "region": "África",
+      "incomeGroup": "medio-bajo",
+      "populationMillions": 114.5,
+      "birthsThousands": 2200,
+      "lifeExpectancy": {
+        "female": 72.8,
+        "male": 68.8
+      },
+      "infantMortalityPer1000": 16.0,
+      "gdpPerCapitaPpp": 17000,
+      "gini": 31.5,
+      "unemploymentRate": 7.3,
+      "meanYearsSchooling": 9.6,
+      "fertilityRate": 2.8,
+      "urbanShare": 43,
+      "currency": {
+        "code": "EGP",
+        "symbol": "E£",
+        "localPerIntlDollar": 8,
+        "provisional": true
+      },
+      "cities": [
+        "El Cairo",
+        "Alejandría",
+        "Giza",
+        "Port Said"
+      ],
+      "names": {
+        "female": [
+          "Mariam",
+          "Aya",
+          "Salma",
+          "Nour",
+          "Farida",
+          "Yasmin",
+          "Hana",
+          "Layla"
+        ],
+        "male": [
+          "Omar",
+          "Ahmed",
+          "Youssef",
+          "Karim",
+          "Mahmoud",
+          "Ali",
+          "Hassan",
+          "Tarek"
+        ],
+        "surnames": [
+          "Hassan",
+          "Ibrahim",
+          "Mahmoud",
+          "Mostafa",
+          "Ali",
+          "Adel",
+          "Fahmy",
+          "Nasser"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 3800,
+        "healthcareAccess": 48,
+        "educationQuality": 50,
+        "environmentRisk": 55,
+        "socialSafetyNet": 32,
+        "provisional": true
+      }
+    },
+    {
+      "code": "SWE",
+      "name": "Suecia",
+      "region": "Europa",
+      "incomeGroup": "alto",
+      "populationMillions": 10.6,
+      "birthsThousands": 110,
+      "lifeExpectancy": {
+        "female": 85.4,
+        "male": 81.4
+      },
+      "infantMortalityPer1000": 2.1,
+      "gdpPerCapitaPpp": 66000,
+      "gini": 28.9,
+      "unemploymentRate": 7.7,
+      "meanYearsSchooling": 12.6,
+      "fertilityRate": 1.5,
+      "urbanShare": 88,
+      "currency": {
+        "code": "SEK",
+        "symbol": "kr",
+        "localPerIntlDollar": 8.2,
+        "provisional": true
+      },
+      "cities": [
+        "Estocolmo",
+        "Gotemburgo",
+        "Malmö",
+        "Upsala"
+      ],
+      "names": {
+        "female": [
+          "Elsa",
+          "Astrid",
+          "Freja",
+          "Maja",
+          "Alma",
+          "Vera",
+          "Saga",
+          "Selma"
+        ],
+        "male": [
+          "William",
+          "Oscar",
+          "Hugo",
+          "Axel",
+          "Elias",
+          "Liam",
+          "Noah",
+          "Erik"
+        ],
+        "surnames": [
+          "Andersson",
+          "Johansson",
+          "Karlsson",
+          "Nilsson",
+          "Eriksson",
+          "Larsson",
+          "Olsson",
+          "Persson"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 11800,
+        "healthcareAccess": 93,
+        "educationQuality": 83,
+        "environmentRisk": 25,
+        "socialSafetyNet": 90,
+        "provisional": true
+      }
+    },
+    {
+      "code": "CHN",
+      "name": "China",
+      "region": "Asia",
+      "incomeGroup": "medio-alto",
+      "populationMillions": 1408.28,
+      "birthsThousands": 9540,
+      "lifeExpectancy": {
+        "female": 80.88,
+        "male": 75.37
+      },
+      "infantMortalityPer1000": 4,
+      "gdpPerCapitaPpp": 27105,
+      "gini": 38,
+      "unemploymentRate": 5.1,
+      "meanYearsSchooling": 9.2,
+      "fertilityRate": 1.0,
+      "urbanShare": 67,
+      "currency": {
+        "code": "CNY",
+        "symbol": "¥",
+        "localPerIntlDollar": 3.5,
+        "provisional": true
+      },
+      "cities": [
+        "Pekín",
+        "Shanghái",
+        "Shenzhen",
+        "Chengdu",
+        "Guangzhou",
+        "Wuhan"
+      ],
+      "names": {
+        "female": [
+          "Mei",
+          "Xinyi",
+          "Yue",
+          "Yating",
+          "Jing",
+          "Xiaoyu",
+          "Wen",
+          "Lili"
+        ],
+        "male": [
+          "Wei",
+          "Jun",
+          "Hao",
+          "Yichen",
+          "Tao",
+          "Ming",
+          "Bo",
+          "Jian"
+        ],
+        "surnames": [
+          "Wang",
+          "Li",
+          "Zhang",
+          "Liu",
+          "Chen",
+          "Yang",
+          "Huang",
+          "Zhao"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 6900,
+        "healthcareAccess": 76,
+        "educationQuality": 78,
+        "environmentRisk": 40,
+        "socialSafetyNet": 55,
+        "provisional": true
+      }
+    },
+    {
+      "code": "ITA",
+      "name": "Italia",
+      "region": "Europa",
+      "incomeGroup": "alto",
+      "populationMillions": 58.88,
+      "birthsThousands": 369.944,
+      "lifeExpectancy": {
+        "female": 85.5,
+        "male": 81.4
+      },
+      "infantMortalityPer1000": 2.5,
+      "gdpPerCapitaPpp": 65760,
+      "gini": 34,
+      "unemploymentRate": 6.0,
+      "meanYearsSchooling": 11,
+      "fertilityRate": 1.18,
+      "urbanShare": 72,
+      "currency": {
+        "code": "EUR",
+        "symbol": "€",
+        "localPerIntlDollar": 0.6,
+        "provisional": true
+      },
+      "cities": [
+        "Roma",
+        "Milán",
+        "Nápoles",
+        "Turín",
+        "Palermo",
+        "Bolonia"
+      ],
+      "names": {
+        "female": [
+          "Giulia",
+          "Sofia",
+          "Aurora",
+          "Alice",
+          "Ginevra",
+          "Emma",
+          "Chiara",
+          "Beatrice"
+        ],
+        "male": [
+          "Leonardo",
+          "Francesco",
+          "Alessandro",
+          "Lorenzo",
+          "Matteo",
+          "Andrea",
+          "Marco",
+          "Luca"
+        ],
+        "surnames": [
+          "Rossi",
+          "Russo",
+          "Ferrari",
+          "Esposito",
+          "Bianchi",
+          "Romano",
+          "Colombo",
+          "Ricci"
+        ]
+      },
+      "derived": {
+        "costOfLivingIndex": 10800,
+        "healthcareAccess": 92,
+        "educationQuality": 78,
+        "environmentRisk": 34,
+        "socialSafetyNet": 78,
+        "provisional": true
+      }
+    }
+  ]
+}

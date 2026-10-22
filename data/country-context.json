@@ -1,0 +1,441 @@
+{
+  "version": "2026.1-contexto-pais",
+  "status": "provisional",
+  "description": "Parámetros de contexto económico, familiar y migratorio por país para LIFE DUEL. Son aproximaciones de simulación, no tipos oficiales ni predicciones individuales. Cada valor debe contrastarse con la fuente indicada antes de usarse como dato público.",
+  "sources": [
+    {
+      "id": "wb-wdi",
+      "name": "Banco Mundial, World Development Indicators",
+      "url": "https://databank.worldbank.org/source/world-development-indicators",
+      "license": "CC BY 4.0",
+      "use": "Nivel de precios, PIB, urbanización e indicadores laborales de referencia."
+    },
+    {
+      "id": "un-wpp",
+      "name": "Naciones Unidas, World Population Prospects 2024",
+      "url": "https://population.un.org/wpp/",
+      "license": "CC BY 3.0 IGO",
+      "use": "Fecundidad y estructura familiar de referencia."
+    },
+    {
+      "id": "worldbank-wbl",
+      "name": "World Bank, Women, Business and the Law",
+      "url": "https://wbl.worldbank.org/",
+      "license": "CC BY 4.0",
+      "use": "Marco legal de matrimonio, herencia y participación económica."
+    },
+    {
+      "id": "oecd-housing",
+      "name": "OECD Affordable Housing Database",
+      "url": "https://www.oecd.org/housing/data/affordable-housing-database/",
+      "license": "OECD terms; reutilización con atribución",
+      "use": "Referencias de tenencia y costes de vivienda en países de la OCDE."
+    },
+    {
+      "id": "un-desa-migration",
+      "name": "United Nations DESA, International Migrant Stock",
+      "url": "https://www.un.org/development/desa/pd/content/international-migrant-stock",
+      "license": "CC BY 3.0 IGO",
+      "use": "Corredores migratorios y proporciones de población migrante."
+    }
+  ],
+  "notes": [
+    "Los tipos hipotecarios, visados, alquileres y presiones familiares son parámetros de juego con origen aproximado, no ofertas ni requisitos legales vigentes.",
+    "Las presiones sociales se representan como probabilidades y opciones; ninguna persona queda obligada por su país, sexo o religión.",
+    "Las decisiones de migración exigen costes y pueden fallar. No garantizan mejores ingresos.",
+    "Los costes mensuales se expresan como proporción del gasto esencial anual y se ajustan al nivel de vida."
+  ],
+  "defaults": {
+    "monthlyShares": {
+      "housing": 0.33,
+      "food": 0.28,
+      "utilities": 0.07,
+      "transport": 0.1,
+      "health": 0.07,
+      "education": 0.05,
+      "other": 0.1
+    },
+    "mortgageRatePct": 4.5,
+    "rentDepositMonths": 2,
+    "visaDifficulty": 50,
+    "migrationCostGdp": 0.35,
+    "socialPressure": {
+      "education": 40,
+      "marriage": 40,
+      "children": 40
+    },
+    "expectedChildren": 2,
+    "inheritanceNorm": "partible",
+    "provisional": true
+  },
+  "countries": {
+    "ESP": {
+      "monthlyShares": {
+        "housing": 0.34,
+        "food": 0.27,
+        "utilities": 0.07,
+        "transport": 0.1,
+        "health": 0.06,
+        "education": 0.05,
+        "other": 0.11
+      },
+      "mortgageRatePct": 3.2,
+      "rentDepositMonths": 2,
+      "visaDifficulty": 25,
+      "migrationCostGdp": 0.28,
+      "socialPressure": {
+        "education": 18,
+        "marriage": 22,
+        "children": 30
+      },
+      "expectedChildren": 1.3,
+      "inheritanceNorm": "partible",
+      "provisional": true
+    },
+    "MEX": {
+      "monthlyShares": {
+        "housing": 0.3,
+        "food": 0.31,
+        "utilities": 0.07,
+        "transport": 0.11,
+        "health": 0.06,
+        "education": 0.05,
+        "other": 0.1
+      },
+      "mortgageRatePct": 9.5,
+      "rentDepositMonths": 2,
+      "visaDifficulty": 55,
+      "migrationCostGdp": 0.45,
+      "socialPressure": {
+        "education": 38,
+        "marriage": 42,
+        "children": 48
+      },
+      "expectedChildren": 1.8,
+      "inheritanceNorm": "partible",
+      "provisional": true
+    },
+    "ARG": {
+      "monthlyShares": {
+        "housing": 0.31,
+        "food": 0.3,
+        "utilities": 0.06,
+        "transport": 0.11,
+        "health": 0.06,
+        "education": 0.06,
+        "other": 0.1
+      },
+      "mortgageRatePct": 8.5,
+      "rentDepositMonths": 2,
+      "visaDifficulty": 45,
+      "migrationCostGdp": 0.4,
+      "socialPressure": {
+        "education": 25,
+        "marriage": 35,
+        "children": 38
+      },
+      "expectedChildren": 1.9,
+      "inheritanceNorm": "partible",
+      "provisional": true
+    },
+    "BRA": {
+      "monthlyShares": {
+        "housing": 0.3,
+        "food": 0.3,
+        "utilities": 0.07,
+        "transport": 0.12,
+        "health": 0.06,
+        "education": 0.05,
+        "other": 0.1
+      },
+      "mortgageRatePct": 10.5,
+      "rentDepositMonths": 3,
+      "visaDifficulty": 58,
+      "migrationCostGdp": 0.48,
+      "socialPressure": {
+        "education": 38,
+        "marriage": 42,
+        "children": 46
+      },
+      "expectedChildren": 1.7,
+      "inheritanceNorm": "partible",
+      "provisional": true
+    },
+    "USA": {
+      "monthlyShares": {
+        "housing": 0.36,
+        "food": 0.22,
+        "utilities": 0.08,
+        "transport": 0.12,
+        "health": 0.1,
+        "education": 0.04,
+        "other": 0.08
+      },
+      "mortgageRatePct": 6.4,
+      "rentDepositMonths": 1,
+      "visaDifficulty": 78,
+      "migrationCostGdp": 0.72,
+      "socialPressure": {
+        "education": 25,
+        "marriage": 25,
+        "children": 32
+      },
+      "expectedChildren": 1.7,
+      "inheritanceNorm": "testamentaria",
+      "provisional": true
+    },
+    "NGA": {
+      "monthlyShares": {
+        "housing": 0.27,
+        "food": 0.36,
+        "utilities": 0.07,
+        "transport": 0.11,
+        "health": 0.07,
+        "education": 0.05,
+        "other": 0.07
+      },
+      "mortgageRatePct": 17,
+      "rentDepositMonths": 3,
+      "visaDifficulty": 82,
+      "migrationCostGdp": 0.8,
+      "socialPressure": {
+        "education": 55,
+        "marriage": 66,
+        "children": 70
+      },
+      "expectedChildren": 4.9,
+      "inheritanceNorm": "mixta",
+      "provisional": true
+    },
+    "IND": {
+      "monthlyShares": {
+        "housing": 0.27,
+        "food": 0.35,
+        "utilities": 0.07,
+        "transport": 0.11,
+        "health": 0.07,
+        "education": 0.06,
+        "other": 0.07
+      },
+      "mortgageRatePct": 8.8,
+      "rentDepositMonths": 3,
+      "visaDifficulty": 80,
+      "migrationCostGdp": 0.75,
+      "socialPressure": {
+        "education": 62,
+        "marriage": 68,
+        "children": 72
+      },
+      "expectedChildren": 2.0,
+      "inheritanceNorm": "mixta",
+      "provisional": true
+    },
+    "JPN": {
+      "monthlyShares": {
+        "housing": 0.3,
+        "food": 0.27,
+        "utilities": 0.08,
+        "transport": 0.11,
+        "health": 0.07,
+        "education": 0.05,
+        "other": 0.12
+      },
+      "mortgageRatePct": 1.8,
+      "rentDepositMonths": 4,
+      "visaDifficulty": 45,
+      "migrationCostGdp": 0.45,
+      "socialPressure": {
+        "education": 38,
+        "marriage": 35,
+        "children": 40
+      },
+      "expectedChildren": 1.2,
+      "inheritanceNorm": "partible",
+      "provisional": true
+    },
+    "DEU": {
+      "monthlyShares": {
+        "housing": 0.32,
+        "food": 0.26,
+        "utilities": 0.09,
+        "transport": 0.1,
+        "health": 0.07,
+        "education": 0.04,
+        "other": 0.12
+      },
+      "mortgageRatePct": 3.8,
+      "rentDepositMonths": 3,
+      "visaDifficulty": 35,
+      "migrationCostGdp": 0.32,
+      "socialPressure": {
+        "education": 22,
+        "marriage": 20,
+        "children": 25
+      },
+      "expectedChildren": 1.5,
+      "inheritanceNorm": "partible",
+      "provisional": true
+    },
+    "FRA": {
+      "monthlyShares": {
+        "housing": 0.33,
+        "food": 0.27,
+        "utilities": 0.08,
+        "transport": 0.1,
+        "health": 0.06,
+        "education": 0.04,
+        "other": 0.12
+      },
+      "mortgageRatePct": 3.4,
+      "rentDepositMonths": 2,
+      "visaDifficulty": 32,
+      "migrationCostGdp": 0.3,
+      "socialPressure": {
+        "education": 24,
+        "marriage": 22,
+        "children": 28
+      },
+      "expectedChildren": 1.8,
+      "inheritanceNorm": "partible",
+      "provisional": true
+    },
+    "ZAF": {
+      "monthlyShares": {
+        "housing": 0.28,
+        "food": 0.32,
+        "utilities": 0.08,
+        "transport": 0.12,
+        "health": 0.06,
+        "education": 0.05,
+        "other": 0.09
+      },
+      "mortgageRatePct": 11.5,
+      "rentDepositMonths": 2,
+      "visaDifficulty": 65,
+      "migrationCostGdp": 0.55,
+      "socialPressure": {
+        "education": 45,
+        "marriage": 50,
+        "children": 52
+      },
+      "expectedChildren": 2.4,
+      "inheritanceNorm": "mixta",
+      "provisional": true
+    },
+    "IDN": {
+      "monthlyShares": {
+        "housing": 0.28,
+        "food": 0.33,
+        "utilities": 0.07,
+        "transport": 0.11,
+        "health": 0.06,
+        "education": 0.06,
+        "other": 0.09
+      },
+      "mortgageRatePct": 9.2,
+      "rentDepositMonths": 2,
+      "visaDifficulty": 68,
+      "migrationCostGdp": 0.58,
+      "socialPressure": {
+        "education": 45,
+        "marriage": 55,
+        "children": 58
+      },
+      "expectedChildren": 2.2,
+      "inheritanceNorm": "mixta",
+      "provisional": true
+    },
+    "EGY": {
+      "monthlyShares": {
+        "housing": 0.27,
+        "food": 0.35,
+        "utilities": 0.07,
+        "transport": 0.1,
+        "health": 0.07,
+        "education": 0.06,
+        "other": 0.08
+      },
+      "mortgageRatePct": 18,
+      "rentDepositMonths": 3,
+      "visaDifficulty": 75,
+      "migrationCostGdp": 0.65,
+      "socialPressure": {
+        "education": 55,
+        "marriage": 62,
+        "children": 65
+      },
+      "expectedChildren": 2.9,
+      "inheritanceNorm": "mixta",
+      "provisional": true
+    },
+    "SWE": {
+      "monthlyShares": {
+        "housing": 0.32,
+        "food": 0.25,
+        "utilities": 0.09,
+        "transport": 0.1,
+        "health": 0.06,
+        "education": 0.04,
+        "other": 0.14
+      },
+      "mortgageRatePct": 3.6,
+      "rentDepositMonths": 1,
+      "visaDifficulty": 30,
+      "migrationCostGdp": 0.28,
+      "socialPressure": {
+        "education": 15,
+        "marriage": 15,
+        "children": 20
+      },
+      "expectedChildren": 1.5,
+      "inheritanceNorm": "partible",
+      "provisional": true
+    },
+    "CHN": {
+      "monthlyShares": {
+        "housing": 0.33,
+        "food": 0.28,
+        "utilities": 0.07,
+        "transport": 0.1,
+        "health": 0.07,
+        "education": 0.05,
+        "other": 0.1
+      },
+      "mortgageRatePct": 4.5,
+      "rentDepositMonths": 2,
+      "visaDifficulty": 50,
+      "migrationCostGdp": 0.35,
+      "socialPressure": {
+        "education": 85,
+        "marriage": 70,
+        "children": 60
+      },
+      "expectedChildren": 1.5,
+      "inheritanceNorm": "partible",
+      "provisional": true
+    },
+    "ITA": {
+      "monthlyShares": {
+        "housing": 0.34,
+        "food": 0.27,
+        "utilities": 0.07,
+        "transport": 0.1,
+        "health": 0.06,
+        "education": 0.05,
+        "other": 0.11
+      },
+      "mortgageRatePct": 3.2,
+      "rentDepositMonths": 2,
+      "visaDifficulty": 25,
+      "migrationCostGdp": 0.28,
+      "socialPressure": {
+        "education": 18,
+        "marriage": 22,
+        "children": 30
+      },
+      "expectedChildren": 1.3,
+      "inheritanceNorm": "partible",
+      "provisional": true
+    }
+  }
+}

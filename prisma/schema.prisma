@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Persistencia de una partida completa (individual o sala de duelo).
+/// `data` contiene el snapshot autoritativo del motor; los campos de columna
+/// permiten localizar salas y filtrar por estado sin desnormalizar el juego.
+model GameRecord {
+  id        String   @id
+  mode      String
+  code      String?  @unique
+  status    String
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([mode])
+}
