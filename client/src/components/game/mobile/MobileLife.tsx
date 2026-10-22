@@ -532,7 +532,7 @@ export function MobileLifeDashboard({
 
                 <footer className="mobile-footer">
                     <Sparkles aria-hidden="true" />
-                    <p>LIFE DUEL <b>2.2</b><br /><span>La misma vida. Tus decisiones.</span></p>
+                    <p>LIFE DUEL <b>2.4</b><br /><span>La misma vida. Tus decisiones.</span></p>
                 </footer>
             </main>
         </div>

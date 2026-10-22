@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { parse } from '@babel/parser';
-const root = '/Users/angel/Desktop/Juego';
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const files = [];
 for (const dir of ['client/src', 'server/src', 'shared/src']) {
     const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else if (/\.(ts|tsx)$/.test(e.name) && !e.name.endsWith('.d.ts') && !p.endsWith('shared/src/i18n/zh.ts')) files.push(p); } };

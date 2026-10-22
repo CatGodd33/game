@@ -45,13 +45,13 @@ export function PassportCard({
         <section className="mobile-passport" aria-labelledby="mobile-passport-title" data-testid="mobile-passport">
             <div className="mobile-passport-band">
                 <span>LIFE DUEL · PASAPORTE DE VIDA</span>
-                <span>2.2</span>
+                <span>2.4</span>
             </div>
             <div className="mobile-passport-body">
                 <div className="mobile-passport-ident">
                     <div className="mobile-passport-photo">
                         <PixelPortrait birth={birth} age={character.age} />
-                        <span className="mobile-passport-stamp" aria-hidden="true">VIDA<br />2.2</span>
+                        <span className="mobile-passport-stamp" aria-hidden="true">VIDA<br />2.4</span>
                     </div>
                     <div className="mobile-passport-name">
                         <span>Nombre de la vida</span>
