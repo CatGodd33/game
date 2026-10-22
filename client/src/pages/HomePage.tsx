@@ -89,7 +89,10 @@ export function HomePage() {
 
       <p className="home-footnote">
         Inspirado en la idea de una vida entre ocho mil millones. LIFE DUEL es una implementación
-        original con datos demográficos abiertos y modelos de simulación identificados.
+        original con datos demográficos abiertos y modelos de simulación identificados.{" "}
+        <a className="home-map-link" href="/mapa-decisiones.html">
+          Ver el mapa de decisiones ↗
+        </a>
       </p>
     </div>
   );

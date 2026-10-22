@@ -13,7 +13,7 @@
         "dev": "concurrently -n servidor,cliente -c green,cyan \"npm:dev:server\" \"npm:dev:client\"",
         "dev:server": "npm run dev -w server",
         "dev:client": "npm run dev -w client",
-        "build": "npm run build -w server && npm run build -w client",
+        "build": "npm run map:build && npm run build -w server && npm run build -w client",
         "start": "node scripts/start-production.mjs",
         "typecheck": "tsc -p shared/tsconfig.json --noEmit && tsc -p server/tsconfig.json --noEmit && tsc -p client/tsconfig.json --noEmit",
         "test": "vitest run",
@@ -26,6 +26,7 @@
         "prisma:migrate": "prisma migrate dev --name life_duel",
         "prisma:deploy": "prisma migrate deploy",
         "sim:demo": "tsx scripts/demo-life.ts",
+        "map:build": "tsx scripts/build-decision-map.ts",
         "audit:pacing": "tsx scripts/audit-pacing.ts"
     },
     "engines": {

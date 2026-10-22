@@ -13,6 +13,7 @@ No se afirma que estén verificadas las integraciones que requieren infraestruct
 | Motor determinista | Completo | Vitest, demo. |
 | Nacimiento compartido | Completo | Vitest, sockets, e2e. |
 | Decisiones y elegibilidad | Completo (171 decisiones, opciones por edad, variantes narrativas y cooldowns) | Vitest, servicio, e2e. |
+| Atlas espacial de decisiones | Completo | Vitest del catálogo y e2e de ramas, constelación y 390 px. |
 | Salidas ante crisis | Completo | 10 pruebas de recuperación, infancia y selector; 3 decisiones `recovery`. |
 | Eventos compartidos | Completo (30) | Vitest, e2e. |
 | Economía y ledger | Completo | Vitest, auditoría manual. |
@@ -99,6 +100,7 @@ No se afirma que estén verificadas las integraciones que requieren infraestruct
 - **Docker:** `Dockerfile` y `docker-compose.yml` están preparados, pero Docker no está disponible en el entorno de desarrollo. No se ejecutó el compose.
 - **Escala:** JSON es un único archivo y está pensado para desarrollo/pruebas. Para carga real, usar PostgreSQL y un despliegue con múltiples instancias compartiendo la misma base.
 - **Render + Neon:** desplegado en `https://life-duel.onrender.com` con servicio free de Render y PostgreSQL de Neon. `/api/health` responde con `persistence: postgres`. El plan gratuito de Render duerme el servicio tras inactividad y Neon puede suspenderse; el primer acceso puede tardar 30–60 s. El autoDeploy puede no lanzar el build aunque el push llegue a `main`: en la comprobación del 22/10/2026 el HTML público seguía apuntando al bundle anterior. En ese caso hay que usar **Manual Deploy → Deploy latest commit** y verificar que el `assets/index-*.js` cambia. Ver [`docs/deployment.md`](deployment.md).
+- **Atlas de decisiones:** `client/public/mapa-decisiones.html` es una página estática generada en el build. No consulta partidas ni sustituye al servidor: sirve para explorar el catálogo y el algoritmo. Las estadísticas que muestra al abrir una rama son aproximadas y no se guardan. Si cambia una decisión, hay que ejecutar `npm run map:build`; las pruebas detectan enlaces de guía muertos y datos desincronizados.
 - **Sesiones:** no hay recuperación de cuenta; si se borra `localStorage` o cambia el secreto, se pierde el acceso a las partidas asociadas.
 - **Bundle:** el cliente genera un aviso de ~877 kB (265 kB gzip). Se puede dividir con lazy routes y manual chunks.
 - **i18n:** todos los textos están en español; no hay selector de idioma ni extracción a catálogos.

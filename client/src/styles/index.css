@@ -3127,6 +3127,19 @@ body {
     line-height: 1.8;
 }
 
+.home-map-link {
+    color: #527a67;
+    font-weight: 550;
+    text-decoration: underline;
+    text-decoration-color: #b8c6b7;
+    text-underline-offset: 3px;
+}
+
+.home-map-link:hover {
+    color: #315444;
+    text-decoration-color: #527a67;
+}
+
 /* ── LIFE DUEL v5 · nueva vida ───────────────────────────────────────── */
 .new-life-v5 {
     width: min(1060px, calc(100% - 32px));

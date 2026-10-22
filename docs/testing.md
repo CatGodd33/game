@@ -4,6 +4,7 @@
 
 ```bash
 npm test              # Vitest, sin navegador
+npm run map:build     # regenera el atlas estático desde el catálogo
 npm run typecheck     # shared + server + client
 npm run build         # tsup + tsc + vite
 npm run e2e           # Playwright con Chrome del sistema
@@ -26,8 +27,8 @@ El `webServer` de Playwright reutiliza un `npm run dev` ya activo. Si no existe,
 
 ### Resultado de la última ejecución
 
-- Vitest: **21 archivos, 174 pruebas, 174 correctas** (incluye `tests/coherence-v9.test.ts`: edad de la epidemia, relaciones sin país fijo, migración visible, variedad de arcos y presión patrimonial).
-- Playwright: **4 pruebas, 4 correctas** (vida individual completa, duelo en dos contextos, acciones económicas manuales y deudas con pago dirigido). Ejecución final: 3,1 min.
+- Vitest: **22 archivos, 177 pruebas, 177 correctas** (incluye `tests/coherence-v9.test.ts` y `tests/decision-map.test.ts`: catálogo, guía de entradas y marcadores del atlas).
+- Playwright: **5 pruebas, 5 correctas** (vida individual completa, duelo en dos contextos, acciones económicas manuales, deudas con pago dirigido y atlas espacial con dos entradas, ramas acumulativas, constelación y móvil).
 - `npm run typecheck`: correcto.
 - `npm run build`: correcto; aviso no bloqueante de chunk de ~877 kB (265 kB gzip).
 - Reinicio real del servidor compilado: sesión y partida recuperadas con la misma huella de semilla, nacimiento y turno.
@@ -51,6 +52,15 @@ Motor puro:
 - rechazo de decisiones tras finalizar y de claves duplicadas;
 - historial con categoría y economía;
 - la semilla completa no se expone.
+
+### `tests/decision-map.test.ts`
+Atlas espacial estático:
+
+- el HTML generado contiene las 171 decisiones, 543 opciones y 30 sucesos del catálogo real;
+- no quedan los marcadores `__DECISION_MAP_DATA__` ni `__DECISION_MAP_APP__`;
+- la plantilla incluye el lienzo (`map-viewport`) y la constelación;
+- todas las entradas de la guía (`story_first_encounter`, `tiempo_propio`, rutas de infancia, adultez y curso) apuntan a decisiones existentes;
+- cada decisión publicada conserva título, descripción, etapa, rango de edad, opciones y narrativa de éxito.
 
 ### `tests/story.test.ts`
 Flujo narrativo y reloj manual:
@@ -147,6 +157,16 @@ Servidor HTTP real + Socket.IO + dos clientes:
 
 
 ## 3. Playwright
+
+### `e2e/decision-map.spec.ts` → atlas espacial
+1. Dos raíces visibles: Infancia y Adultez, con contadores en 2/0.
+2. La opción `observe` abre `infancia_ruta_curioso` y la raíz anterior permanece.
+3. `explore` abre una segunda rama; las dos siguen en el mapa.
+4. La rama guiada llega a `tiempo_propio`, `ruta_curso_proyecto` y `ruta_beca_exterior`.
+5. Zoom real, reinicio a 100 %, inspector y cierre del panel.
+6. Constelación con 171 nodos, búsqueda de “epidemia” y adición de `respuesta_epidemia`.
+7. Recarga limpia y layout de 390 px sin overflow horizontal.
+8. Sin errores de página.
 
 ### `e2e/life-duel.spec.ts` → vida individual
 1. Inicio.

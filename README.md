@@ -39,12 +39,34 @@ Sin `SESSION_SECRET`, el servidor de desarrollo crea una clave local en `server/
 | `npm start` | Sirve la compilación desde el servidor (producción) y aplica migraciones si `PERSISTENCE=postgres`. |
 | `npm run e2e` | Playwright sobre los flujos reales. |
 | `npm run sim:demo` | Simula una vida completa por consola. |
+| `npm run map:build` | Regenera el atlas espacial estático desde las 171 decisiones y los 30 sucesos reales. |
 | `npm run prisma:validate` | Valida el esquema Prisma. |
 | `npm run prisma:generate` | Genera el cliente Prisma. |
 | `npm run prisma:migrate` | Crea/aplica migraciones de desarrollo. |
 | `npm run prisma:deploy` | Aplica migraciones existentes (producción/Neon). |
 
 Para usar Playwright con el Chrome instalado no hace falta descargar navegadores; `playwright.config.ts` usa `channel: "chrome"`. En CI: `npx playwright install chromium` y define `E2E_CHANNEL=chromium`.
+
+### Atlas espacial de decisiones
+
+Abre **http://localhost:5173/mapa-decisiones.html** (también enlazado desde la portada). No es una maqueta ni un artículo: es un lienzo navegable generado desde el catálogo real del motor (171 decisiones, 543 opciones y 30 sucesos).
+
+- Dos entradas simultáneas: **Infancia · 2 años** y **Adultez · 18+**.
+- Al pulsar una opción se abre su consecuencia y la siguiente pregunta; **las ramas anteriores no se borran**. Puedes abrir varias respuestas de la misma pregunta y comparar caminos.
+- Zoom con rueda/pinza, paneo, encuadre, inspector de requisitos y efectos, minimapa y toast de estado.
+- **Constelación completa** con las 171 preguntas agrupadas por etapa, buscador y adición de cualquier pregunta al mapa.
+- Navegación por teclado (`/` abre el buscador, `+`/`-` zoom, `0` encuadra, `Esc` cierra). Diseño responsive verificado a 1440 y 390 px.
+- La página es estática y autocontenida: ideal para explorar el algoritmo. Las estadísticas de una rama son una **aproximación visual** del estado, no una partida guardada ni una segunda autoridad de simulación.
+
+Regeneración tras cambiar el catálogo:
+
+```bash
+npm run map:build   # escribe client/public/mapa-decisiones.html
+npm test -- --run   # valida datos y marcadores
+npx playwright test e2e/decision-map.spec.ts
+```
+
+Detalle: [`docs/decision-map.md`](docs/decision-map.md).
 
 ---
 
@@ -70,6 +92,7 @@ Para usar Playwright con el Chrome instalado no hace falta descargar navegadores
 ### Iteración actual: coherencia, variedad y patrimonio
 
 - **Decisiones coherentes con la edad.** La epidemia ya no ofrece «mantener el trabajo» a un niño: hay opciones de infancia (6–12), adolescencia (13–17) y adultez (18+). El evento sigue siendo compartido; lo que cambia es la pregunta que puede responder cada edad.
+- **Atlas espacial de decisiones.** Nuevo mapa navegable en `/mapa-decisiones.html`, generado desde el catálogo real: dos entradas simultáneas, ramas acumulativas, inspector, zoom, minimapa, constelación completa y buscador. Se recompila con `npm run map:build` y tiene pruebas Vitest + Playwright propias.
 - **Relaciones reescritas.** Cada escena tiene opciones propias y breves. La amistad internacional ya no está fijada en Italia: el país de la pareja se sortea con la semilla y se comprueba que sea distinto del actual.
 - **Arcos con mazo limitado.** Se corrigió el avance de capítulos (antes podía repetir el mismo) y se limita la vida a un máximo de tres arcos, sin iniciar otro mientras haya uno activo. Cada capítulo avanza como máximo una vez por año. La deuda familiar exige un hogar de nivel bajo/medio-bajo y empieza a los 10 años.
 - **Diario breve.** El panel muestra cinco escenas relevantes, oculta las líneas de continuidad y resume el texto a dos líneas con «Leer completo». En móvil desaparece el scroll interno.
@@ -399,7 +422,7 @@ npm run audit:pacing   # métricas de repetición y ritmo narrativo
 ```
 
 Cobertura actual:
-- **174 pruebas Vitest** distribuidas en 21 archivos, incluidas coherencia de edad, arcos y presión patrimonial (`tests/coherence-v9.test.ts`), la experiencia de vida (`tests/new-life-experience.test.ts`), ritmo narrativo v8 (`tests/pacing-v8.test.ts`), presentación del banco (`tests/bank-presentation.test.ts`), deudas, funerales y diario (`tests/debts-funerals-diary.test.ts`), determinismo, economía mensual, empresa, familia y recuperación. Todas pasan.
+- **177 pruebas Vitest** distribuidas en 22 archivos, incluidas coherencia de edad, arcos y presión patrimonial (`tests/coherence-v9.test.ts`), la experiencia de vida (`tests/new-life-experience.test.ts`), ritmo narrativo v8 (`tests/pacing-v8.test.ts`), presentación del banco (`tests/bank-presentation.test.ts`), deudas, funerales y diario (`tests/debts-funerals-diary.test.ts`), el atlas (`tests/decision-map.test.ts`), determinismo, economía mensual, empresa, familia y recuperación. Todas pasan.
 - Determinismo por semilla, igualdad de nacimiento, igualdad de sucesos compartidos, independencia de decisiones.
 - Límites 0–100, libro mayor, economía, probabilidades, muerte y continuación del superviviente.
 - Puntuación, empate, idempotencia, historial, vistas privadas.
@@ -407,7 +430,7 @@ Cobertura actual:
 - Persistencia JSON tras reiniciar el almacén, recuperación de corrupción, validación HTTP, acceso ajeno, epílogo local.
 - Servicio de salas, presencia, abandono y revancha; reconstrucción del servicio con el mismo almacén.
 - Socket.IO real con dos clientes: privacidad, resolución, rechazo de entrada inválida, desconexión y reconexión.
-- **4 pruebas Playwright**: vida individual completa (incluye final y hitos de 4/6 años), duelo entre dos contextos de navegador con nacimiento/eventos idénticos y decisiones privadas, acciones económicas manuales y pago dirigido de deudas con comprobación del saldo del servidor y layout móvil.
+- **5 pruebas Playwright**: vida individual completa (incluye final y hitos de 4/6 años), duelo entre dos contextos de navegador con nacimiento/eventos idénticos y decisiones privadas, acciones económicas manuales, pago dirigido de deudas con comprobación del saldo del servidor y atlas espacial en escritorio y 390 px.
 
 Detalle y mapeo a criterios de aceptación: [`docs/testing.md`](docs/testing.md).
 
@@ -453,6 +476,7 @@ Lista completa: [`docs/limitations.md`](docs/limitations.md).
 - [`docs/demographics.md`](docs/demographics.md): fuentes, campos, parámetros provisionales y ampliación.
 - [`docs/api.md`](docs/api.md): endpoints, sockets, validación, errores y ejemplos.
 - [`docs/testing.md`](docs/testing.md): suites, comandos y criterios de aceptación.
+- [`docs/decision-map.md`](docs/decision-map.md): atlas espacial, generación, interacción, datos y límites.
 - [`docs/limitations.md`](docs/limitations.md): estado real, riesgos y siguientes pasos.
 - [`docs/narrative-life.md`](docs/narrative-life.md): experiencia narrativa individual, familia, hogar y límites del modelo.
 - [`docs/life-story-and-mobility.md`](docs/life-story-and-mobility.md): nacimiento presente, relato canónico, arcos, escenas y movilidad internacional.
