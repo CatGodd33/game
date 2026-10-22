@@ -33,7 +33,7 @@ El `webServer` de Playwright reutiliza un `npm run dev` ya activo. Si no existe,
 - `npm run build`: correcto; cliente de 1.581,91 kB (554,48 kB gzip), CSS de 163,93 kB (35,20 kB gzip) y aviso no bloqueante de chunk por el catálogo chino.
 - Reinicio real del servidor compilado: sesión y partida recuperadas con la misma huella de semilla, nacimiento y turno.
 - Arranque de producción (`node server/dist/index.js`) en el puerto 4105: `GET /api/health` devuelve `status: ok`, persistencia JSON y modo IA local.
-- Producción: el health local y el arranque compilado devuelven `version: 2.4.0`; el despliegue de Render se verifica después del push (`/api/health` y portada con «versión 2.4»).
+- Producción: el health local y el arranque compilado devuelven `version: 2.4.0`; Render sigue en `2.2.0` y requiere un **Manual Deploy** del commit `8c2ff43` (el autoDeploy no se disparó).
 - Inicio y panel de vida sin overflow horizontal en 390, 768 y 1440 px.
 - Banco compacto: máximo de cinco filas y sin overflow interno en 390 px; la animación del saldo termina en el importe autoritativo.
 
