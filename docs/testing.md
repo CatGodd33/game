@@ -30,7 +30,7 @@ El `webServer` de Playwright reutiliza un `npm run dev` ya activo. Si no existe,
 - Vitest: **27 archivos, 214 pruebas, 214 correctas** (incluye `tests/i18n.test.ts` y las suites anteriores de coherencia, relación, país, atlas y móvil).
 - Playwright: **10 pruebas, 10 correctas** (vida individual completa, duelo en dos contextos, acciones económicas manuales, deudas con pago dirigido, atlas espacial, estabilidad de escritorio, dashboard móvil y tres flujos de chino: portada/partida, decisión/historial y pantallas secundarias con final).
 - `npm run typecheck`: correcto.
-- `npm run build`: correcto; cliente de 1.581,91 kB (554,48 kB gzip), CSS de 163,93 kB (35,20 kB gzip) y aviso no bloqueante de chunk por el catálogo chino.
+- `npm run build`: correcto; cliente de 1.582,05 kB (554,54 kB gzip), CSS de 163,93 kB (35,20 kB gzip) y aviso no bloqueante de chunk por el catálogo chino.
 - Reinicio real del servidor compilado: sesión y partida recuperadas con la misma huella de semilla, nacimiento y turno.
 - Arranque de producción (`node server/dist/index.js`) en el puerto 4105: `GET /api/health` devuelve `status: ok`, persistencia JSON y modo IA local.
 - Producción: el health local y el arranque compilado devuelven `version: 2.4.0`; Render sigue en `2.2.0` y requiere un **Manual Deploy** del commit `8c2ff43` (el autoDeploy no se disparó).
