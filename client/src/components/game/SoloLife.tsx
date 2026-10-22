@@ -71,6 +71,7 @@ export function SoloLife({
     const [birthOpen, setBirthOpen] = useState(false);
     const [spendOpen, setSpendOpen] = useState(false);
     const [mobilityOpen, setMobilityOpen] = useState(false);
+    const [expandedEntry, setExpandedEntry] = useState<string | null>(null);
     const resumeAfterSpending = useRef(false);
     async function openSpending() {
         if (game.status === "playing") {
@@ -163,7 +164,11 @@ export function SoloLife({
 
     const recentEntries = useMemo(() => {
         if (moments.length) {
-            return moments.slice(-9).reverse().map((moment) => ({
+            const interesting = moments.filter((moment) =>
+                !/^Continuidad\b/.test(moment.title) &&
+                !/Este año no trajo una encrucijada|El entorno evoluciona|La vida siguió su curso/.test(moment.text),
+            );
+            return (interesting.length ? interesting : moments).slice(-5).reverse().map((moment) => ({
                 id: moment.id,
                 age: moment.age,
                 year: moment.year,
@@ -299,6 +304,16 @@ export function SoloLife({
                         <button className="story-button full" onClick={() => setMoneyOpen(true)}>Economía y movimientos ↗</button>
                         <button className="story-button full" onClick={() => setDebtOpen(true)}>Ver todas mis deudas{c.finance.debt > 0 ? ` · ${dollars(c.finance.debt)}` : ""} ↗</button>
                     </section>
+                    <section className={`story-panel wealth-panel ${game.me.wealthPressure.tier}`}>
+                        <h2>Presión patrimonial <small>{game.me.wealthPressure.tier.replace("-", " ")}</small></h2>
+                        <div className="wealth-meter" aria-label={`Presión patrimonial ${game.me.wealthPressure.pressure} de 100`}><i style={{ width: `${game.me.wealthPressure.pressure}%` }} /></div>
+                        <div className="wealth-facts">
+                            <span>Patrimonio neto <b>{dollars(game.me.wealthPressure.netWorth)}</b></span>
+                            <span>Liquidez <b>{game.me.wealthPressure.monthsOfRunway} meses</b></span>
+                            <span>Mantenimiento anual <b>{dollars(game.me.wealthPressure.annualUpkeep)}</b></span>
+                        </div>
+                        <p className="story-muted">{game.me.wealthPressure.notes[0]}</p>
+                    </section>
 
                     <button className="story-button primary full" disabled={busy} onClick={() => void openSpending()}>Gastar e invertir ↗</button>
                     <button className="story-button full" disabled={busy || c.age < 17} title={c.age < 17 ? "Disponible a partir de los 17 años" : undefined} onClick={() => setMobilityOpen(true)}>Irme al extranjero · estudiar, trabajar o vivir fuera ↗</button>
@@ -331,14 +346,24 @@ export function SoloLife({
                             {recentEntries.map((e) => (
                                 <article key={e.id} className={`journal-entry ${e.decision ? "decision-entry" : /falleci|murió|muerte/i.test(e.text) ? "loss-entry" : /nació|llegó a la familia|hijo|pareja/i.test(e.text) ? "family-entry" : /deuda|perdió|despido|enferm/i.test(e.text) ? "warning-entry" : ""}`}>
                                     <span>Edad {e.age}<small>{e.year} · {e.month === 12 ? "cierre anual" : `mes ${e.month}`}</small></span>
-                                    <p>{e.text}</p>
+                                    <p className={e.text.length > 170 && expandedEntry !== e.id ? "journal-excerpt" : undefined}>{e.text}</p>
+                                    {e.text.length > 170 ? (
+                                        <button
+                                            type="button"
+                                            className="journal-toggle"
+                                            aria-expanded={expandedEntry === e.id}
+                                            onClick={() => setExpandedEntry(expandedEntry === e.id ? null : e.id)}
+                                        >
+                                            {expandedEntry === e.id ? "Leer menos" : "Leer completo"}
+                                        </button>
+                                    ) : null}
                                 </article>
                             ))}
                             {!recentEntries.length ? <p className="story-muted journal-wait">Tu historia acaba de empezar. El mundo continúa mientras creces.</p> : null}
                         </div>
                         <Link to={`/partida/${game.id}/historial`} className="journal-link">Historial completo y exportación ↗</Link>
                     </details>
-                    {latestTurn ? <details className="yearly-review"><summary>Balance del último año · {latestTurn.year}</summary><YearEcho record={latestTurn} slot={game.me.slot} currency={c.currentCurrency} /></details> : null}
+                    {latestTurn ? <details className="yearly-review" open><summary>Balance del último año · {latestTurn.year}</summary><YearEcho record={latestTurn} slot={game.me.slot} currency={c.currentCurrency} /></details> : null}
                 </main>
 
                 <aside className="story-right">

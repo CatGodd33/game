@@ -26,10 +26,10 @@ El `webServer` de Playwright reutiliza un `npm run dev` ya activo. Si no existe,
 
 ### Resultado de la última ejecución
 
-- Vitest: **20 archivos, 166 pruebas, 166 correctas** (incluye `tests/new-life-experience.test.ts`: relato canónico, privacidad, arcos, movilidad y residencia).
-- Playwright: **4 pruebas, 4 correctas** (vida individual, duelo en dos contextos, acciones económicas manuales y deudas con pago dirigido).
+- Vitest: **21 archivos, 174 pruebas, 174 correctas** (incluye `tests/coherence-v9.test.ts`: edad de la epidemia, relaciones sin país fijo, migración visible, variedad de arcos y presión patrimonial).
+- Playwright: **4 pruebas, 4 correctas** (vida individual completa, duelo en dos contextos, acciones económicas manuales y deudas con pago dirigido). Ejecución final: 3,1 min.
 - `npm run typecheck`: correcto.
-- `npm run build`: correcto; aviso no bloqueante de chunk de ~849 kB (258 kB gzip).
+- `npm run build`: correcto; aviso no bloqueante de chunk de ~877 kB (265 kB gzip).
 - Reinicio real del servidor compilado: sesión y partida recuperadas con la misma huella de semilla, nacimiento y turno.
 - Arranque de producción (`node server/dist/index.js`) en el puerto 4105: `GET /api/health` devuelve `status: ok`, persistencia JSON y modo IA local.
 - Inicio y panel de vida sin overflow horizontal en 390, 768 y 1440 px.
@@ -103,7 +103,7 @@ Modelo de vida realista v2:
 - ingresos y costes de empresa en el libro mayor;
 - herencia liquidada una sola vez;
 - funeral pendiente que solo se cobra al elegir ceremonia y no admite doble cobro;
-- 166 decisiones, identificadores únicos y al menos dos opciones base por decisión (la interfaz garantiza varios caminos);
+- 171 decisiones, identificadores únicos y al menos dos opciones base por decisión (la interfaz garantiza varios caminos);
 - resultado final con psicología, empresa, hogar y saldo de préstamos.
 
 ### `tests/context-v3.test.ts`
@@ -137,6 +137,14 @@ Servidor HTTP real + Socket.IO + dos clientes:
 - entrada inválida rechazada con `VALIDATION_ERROR`;
 - desconexión, presencia actualizada y reconexión;
 - clave duplicada devuelve `duplicate: true`.
+
+### `tests/coherence-v9.test.ts`
+- La epidemia compartida ofrece a los 8 años solo opciones infantiles, a los 15 las adolescentes y a los 25 las adultas.
+- Las escenas de relación no fijan Italia; el país de la pareja se sortea con la semilla y nunca coincide con el actual.
+- `primer_billete` aparece a los 17–19 con cuatro caminos y destino aleatorio reproducible.
+- Los arcos no encadenan más de tres por vida ni repiten capítulos; la deuda familiar exige nivel socioeconómico bajo/medio-bajo, empieza a los 10 y no aparece en todas las vidas.
+- El patrimonio alto genera mantenimiento registrado y una vista `wealthPressure` visible para cada jugador, sin filtrar la decisión privada del rival.
+
 
 ## 3. Playwright
 
@@ -230,4 +238,4 @@ Ejecuta siempre `npm run typecheck` y `npm run build` además de las pruebas.
 
 `tests/v5.test.ts` verifica que las variantes narrativas conservan exactamente los mismos identificadores de opción, que la selección es determinista por semilla/turno, que `cooldownYears` bloquea una decisión de empresa reciente, que `parentsAlive` funciona con el registro de nacimiento cuando no hay historia familiar, que `hasPet` acepta mascotas reales y banderas heredadas, que el automático elige una apertura de negocio con liquidez, que una empresa genera ingresos y puede venderse, que las mascotas envejecen dentro de 0–100 y que las decisiones manuales son el valor por defecto (`autoDecisions=false`). `tests/pacing-v8.test.ts` añade variantes ligadas al suceso, cooldowns de evento, intervalo global, calendario de infancia/adolescencia y pool de empresa.
 
-Los flujos Playwright cubren la vida individual completa, con registro de nacimiento, decisión, historial, comparador y final, y un duelo real entre dos contextos con nacimiento/eventos idénticos, decisiones privadas y sincronización. El flujo individual avanza con «Siguiente decisión» y confirma cada elección; el duelo activa sus decisiones desde la interfaz y comprueba que solo el anfitrión controla el modo automático.
+Los flujos Playwright cubren la vida individual completa, con registro de nacimiento, decisión, historial, comparador y final, y un duelo real entre dos contextos con nacimiento/eventos idénticos, decisiones privadas y sincronización. El flujo individual avanza con «Siguiente decisión» y elige sin diálogo de confirmación; el balance anual queda abierto bajo el diario. El avance final usa el contexto de peticiones de Playwright para no bloquear la pestaña con una vida larga. El duelo activa sus decisiones desde la interfaz y comprueba que solo el anfitrión controla el modo automático.

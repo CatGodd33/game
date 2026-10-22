@@ -1,22 +1,11 @@
 import { Link } from "react-router-dom";
-import {
-  ArrowRight,
-  BookOpen,
-  History,
-  LogIn,
-  Settings,
-  Sparkles,
-  Swords,
-  UsersRound,
-} from "lucide-react";
+import { ArrowRight, BookOpen, Compass, LogIn, Sparkles, Swords, UsersRound } from "lucide-react";
 import { LogoMark } from "../components/art/Logo";
 import { LifeScene } from "../components/art/LifeScene";
 
 const secondary = [
-  { to: "/duelo?modo=unirse", label: "Unirse a una partida", icon: LogIn },
-  { to: "/partidas", label: "Continuar partida", icon: BookOpen },
-  { to: "/historial", label: "Historial de vidas", icon: History },
-  { to: "/ajustes", label: "Configuración", icon: Settings },
+  { to: "/duelo?modo=unirse", label: "Tengo un código", icon: LogIn },
+  { to: "/partidas", label: "Continuar una vida", icon: BookOpen },
 ];
 
 export function HomePage() {
@@ -24,15 +13,15 @@ export function HomePage() {
     <div className="home-v5">
       <section className="home-hero">
         <div className="home-hero-copy">
-          <p className="eyebrow">Dos vidas · un mismo mundo</p>
+          <p className="eyebrow">Un mundo · dos vidas</p>
           <h1 className="mt-4">
             La misma vida.
             <br />
-            <em>Dos decisiones.</em>
+            <em>Tus decisiones.</em>
           </h1>
           <p className="home-lead">
-            Naces con una semilla, una familia y un país que no eliges. Vivirás los mismos
-            acontecimientos que otra persona. Lo que cambie será lo que hagas con ellos.
+            Naces con un país, una familia y una época que no eliges. En duelo, dos personas
+            reciben exactamente el mismo mundo. Lo que cambie será lo que cada una haga con él.
           </p>
           <div className="home-actions">
             <Link className="home-cta primary" to="/nueva-vida">
@@ -53,6 +42,10 @@ export function HomePage() {
               </Link>
             ))}
           </div>
+          <p className="home-micro">
+            <Compass className="h-3.5 w-3.5" aria-hidden="true" />
+            Sin registro. Una vida nueva empieza en menos de un minuto.
+          </p>
         </div>
 
         <div className="home-art" aria-hidden="true">

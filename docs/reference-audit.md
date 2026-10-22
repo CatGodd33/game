@@ -28,7 +28,7 @@ El original prioriza la biografía. Presenta un registro de nacimiento antes del
 
 | Área | Original observado | Estado del proyecto |
 | --- | --- | --- |
-| Países | 172 países y numerosos indicadores | 14 países de demostración |
+| Países | 172 países y numerosos indicadores | 16 países de demostración |
 | País al azar | Ponderación por nacimientos o población | Nacimientos, población, uniforme o fijo |
 | Ingresos | Distribución con Gini y quintiles | Nivel familiar ponderado por grupo nacional; ingresos aproximados por nivel |
 | Padres y hermanos | Envejecen y participan en acontecimientos | Familia dinámica con edades, nacimientos y fallecimientos en nuevas vidas narrativas |
@@ -44,4 +44,4 @@ El original prioriza la biografía. Presenta un registro de nacimiento antes del
 | Final | Registro, tarjeta, reflexión y memorial | Final, resumen y exportación ya existentes; sin memorial público |
 | Música y temas | Música, claro/oscuro | Sin música equivalente; estética propia oscura |
 
-No se deben anunciar probabilidades mundiales a partir de los 14 países: la ficha identifica expresamente que la proporción se refiere al conjunto disponible. Los ingresos y profesiones familiares son estimaciones ficticias, no indicadores oficiales. Para una equivalencia estadística será necesario ampliar y validar los datos con fuentes públicas, además de reproducir los sistemas de progresión pendientes.
+No se deben anunciar probabilidades mundiales a partir de los 16 países: la ficha identifica expresamente que la proporción se refiere al conjunto disponible. Los ingresos y profesiones familiares son estimaciones ficticias, no indicadores oficiales. Para una equivalencia estadística será necesario ampliar y validar los datos con fuentes públicas, además de reproducir los sistemas de progresión pendientes.

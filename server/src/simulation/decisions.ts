@@ -1,4 +1,6 @@
 import { COMPANY_DECISIONS } from "./company-decisions.js";
+import { WEALTH_DECISIONS } from "./wealth-decisions.js";
+import { MOBILITY_DECISIONS } from "./mobility-decisions.js";
 import { HOUSEHOLD_DECISIONS } from "./household-decisions.js";
 import { COUNTRY_PATHS } from "./country-paths.js";
 import { FAMILY_SCENARIOS } from "./family-scenarios.js";
@@ -2278,7 +2280,9 @@ const BASE_DECISIONS: DecisionDefinition[] = [
         id: "respuesta_epidemia",
         title: "Una epidemia cambia las reglas",
         description:
-            "El país se cierra y los hospitales se llenan. Cada persona decide cómo protegerse y a quién proteger.",
+            "El país se cierra y los hospitales se llenan. La situación es la misma para todos, pero la pregunta cambia según la edad y el lugar que ocupas en tu familia.",
+        contextNote:
+            "Un niño no decide sobre un empleo ni una nómina. Las opciones se adaptan a lo que realmente está en tus manos a esta edad.",
         category: "salud",
         priority: "event",
         eventId: "epidemia",
@@ -2288,9 +2292,103 @@ const BASE_DECISIONS: DecisionDefinition[] = [
         once: false,
         options: [
             {
+                id: "quedarse_en_casa",
+                label: "Quedarte en casa y dibujar",
+                description: "Las clases se cancelan. Pasas los días entre dibujos, deberes y la ventana.",
+                requirements: { minAge: 6, maxAge: 12 },
+                outcomes: {
+                    success: {
+                        narrative:
+                            "Convertiste el salón en un refugio. Dibujaste a los que no podías ver y aprendiste a esperar sin entenderlo todo.",
+                        stats: { health: 3, happiness: -1, knowledge: 1 },
+                    },
+                },
+            },
+            {
+                id: "amigos_a_escondidas",
+                label: "Ver a tus amigos a escondidas",
+                description: "Quedáis en el patio aunque las normas digan que no. La amistad puede pesar más que el miedo.",
+                requirements: { minAge: 6, maxAge: 12 },
+                check: { type: "social", base: 45 },
+                outcomes: {
+                    success: {
+                        narrative:
+                            "Jugasteis como si el mundo no estuviera en pausa. Volviste a casa con barro en los zapatos y una risa que no cabía en la habitación.",
+                        stats: { health: -3, happiness: 4, relationships: 4 },
+                    },
+                    failure: {
+                        narrative:
+                            "Os descubrieron y hubo una discusión. La tarde terminó antes de tiempo; el susto, mucho después.",
+                        stats: { health: -5, happiness: -2, relationships: 1 },
+                    },
+                },
+            },
+            {
+                id: "recados_vecino",
+                label: "Llevar recados a un vecino",
+                description: "Alguien mayor no puede salir. Tus padres te dejan ayudarle con la compra.",
+                requirements: { minAge: 6, maxAge: 12 },
+                outcomes: {
+                    success: {
+                        narrative:
+                            "Llamaste a una puerta y dejaste una bolsa en el suelo. No fue un gesto heroico, pero alguien dejó de estar solo una tarde.",
+                        stats: { health: -1, happiness: 2, relationships: 4 },
+                        milestone: "Ayudó a un vecino durante una crisis",
+                    },
+                },
+            },
+            {
+                id: "clases_a_distancia",
+                label: "Seguir las clases desde tu habitación",
+                description: "Pantallas, tareas y silencios. Estudiar se vuelve más solitario, pero no se detiene.",
+                requirements: { minAge: 13, maxAge: 17 },
+                outcomes: {
+                    success: {
+                        narrative:
+                            "Aprendiste a estudiar sin el ruido del aula. Echaste de menos a la gente y descubriste que podías sostener el ritmo.",
+                        stats: { knowledge: 3, happiness: -1, relationships: -1 },
+                    },
+                },
+            },
+            {
+                id: "cuidar_familiar",
+                label: "Cuidar a un familiar enfermo",
+                description: "En casa alguien necesita ayuda. Tú puedes poner la comida, las medicinas y la compañía.",
+                requirements: { minAge: 13, maxAge: 17 },
+                outcomes: {
+                    success: {
+                        narrative:
+                            "Aprendiste a tomar la temperatura y a callar cuando hacía falta. Nadie te dio un diploma; tu familia supo que estabas.",
+                        stats: { health: -2, happiness: -2, relationships: 6 },
+                        psychology: { stress: 4, resilience: 2 },
+                    },
+                },
+            },
+            {
+                id: "salir_con_amigos",
+                label: "Salir con tus amigos",
+                description: "La adolescencia no espera. Quedáis al aire libre, con la distancia justa y la cabeza en otra parte.",
+                requirements: { minAge: 13, maxAge: 17 },
+                check: { type: "social", base: 50 },
+                outcomes: {
+                    success: {
+                        narrative:
+                            "Durante unas horas todo pareció normal. Volviste a casa con la sensación de que la vida seguía siendo tuya.",
+                        stats: { health: -3, happiness: 5, relationships: 4 },
+                    },
+                    failure: {
+                        narrative:
+                            "La salida terminó en una discusión con tus padres. El enfado duró más que la tarde y nadie tenía del todo razón.",
+                        stats: { health: -5, happiness: -2, relationships: 2 },
+                        psychology: { stress: 2 },
+                    },
+                },
+            },
+            {
                 id: "aislarse",
                 label: "Aislarte en casa",
                 description: "Reducir contactos al mínimo y proteger tu salud.",
+                requirements: { minAge: 18 },
                 outcomes: {
                     success: {
                         narrative:
@@ -2303,6 +2401,7 @@ const BASE_DECISIONS: DecisionDefinition[] = [
                 id: "seguir_rutina",
                 label: "Seguir con tu rutina",
                 description: "Mantener el trabajo y la vida social con precauciones.",
+                requirements: { minAge: 18 },
                 outcomes: {
                     success: {
                         narrative:
@@ -2315,6 +2414,7 @@ const BASE_DECISIONS: DecisionDefinition[] = [
                 id: "cuidar_otros",
                 label: "Cuidar de otros",
                 description: "Ayudar a vecinos y familiares, aun con riesgo.",
+                requirements: { minAge: 18 },
                 check: { type: "social", base: 60 },
                 outcomes: {
                     success: {
@@ -4418,6 +4518,8 @@ export const DECISIONS: DecisionDefinition[] = [
     ...HOUSEHOLD_DECISIONS,
     ...COMPANY_DECISIONS,
     ...COUNTRY_PATHS,
+    ...MOBILITY_DECISIONS,
+    ...WEALTH_DECISIONS,
 ];
 
 const decisionById = new Map(DECISIONS.map((decision) => [decision.id, decision]));

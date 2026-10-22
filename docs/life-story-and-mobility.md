@@ -34,22 +34,25 @@ Reglas:
 - El cierre anual de cada jugador se coloca en diciembre (`month: 11`), después de las escenas mensuales de ese año.
 - Se deduplican por tipo, jugador, año, mes, título y comienzo del texto.
 - El observador ve sus propias acciones del año en curso. Las del rival se ocultan hasta que el mes avanza; en una partida terminada se revela todo.
-- El diario de la portada muestra los **9 momentos más recientes**. La página de historial muestra la corriente completa y el archivo anual.
+- El diario de la portada muestra las **5 escenas relevantes más recientes**, con las líneas rutinarias filtradas y las largas resumidas. La página de historial muestra la corriente completa y el archivo anual.
 
 La respuesta de `GET /api/games/:id/history` incluye `moments` y `totalMoments` además de los turnos. El cliente no reconstruye la historia a partir de contadores ni de `manualActions`.
 
 ## 3. Arcos serializados
 
-`server/src/narrative/arcs.ts` define ocho arcos de tres capítulos:
+`server/src/narrative/arcs.ts` define once arcos de tres capítulos. Una vida activa como máximo tres y cada capítulo avanza una vez por año:
 
 1. El sobre bajo la cama (deuda familiar).
 2. Lo que queda de la abuela (herencia).
 3. La grieta de la confianza (pareja).
 4. El ascenso que no era tuyo (trabajo).
-5. El préstamo de toda la vida (amistad y dinero).
-6. Lo que se dice en la escalera (rumor de barrio).
-7. El año en que todo se detuvo (cuidados familiares).
-8. El país que dejaste atrás (retorno tras migrar).
+5. El país que dejaste atrás (retorno tras migrar).
+6. El turno que nadie quería (primer empleo).
+7. La silla junto a la ventana (cuidados y pérdida).
+8. La llave que no era de casa (independencia y vivienda).
+9. El mensaje que no contestaste (amistad).
+10. Lo que dejaste de hacer (vocación tardía).
+11. La nómina que no llega (presión de negocio).
 
 Un arco:
 
@@ -104,7 +107,7 @@ residenceHistory: {
 
 ### Oferta
 
-`server/src/simulation/mobility.ts` genera 42 proyectos: 14 países × 3 propósitos (`study`, `work`, `live`). Excluye el país actual. Cada oferta contiene:
+`server/src/simulation/mobility.ts` genera 48 proyectos: 16 países × 3 propósitos (`study`, `work`, `live`). Excluye el país actual. Cada oferta contiene:
 
 - País, ciudad, propósito y moneda.
 - Vuelo, visado/tasas, seguro, depósito, primer mes, instalación, matrícula (solo estudios) y colchón de tres meses.

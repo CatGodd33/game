@@ -67,14 +67,24 @@ Para usar Playwright con el Chrome instalado no hace falta descargar navegadores
 
 ## 3. Funcionalidades implementadas
 
-### Última iteración: vida presente, relato y movilidad
+### Iteración actual: coherencia, variedad y patrimonio
+
+- **Decisiones coherentes con la edad.** La epidemia ya no ofrece «mantener el trabajo» a un niño: hay opciones de infancia (6–12), adolescencia (13–17) y adultez (18+). El evento sigue siendo compartido; lo que cambia es la pregunta que puede responder cada edad.
+- **Relaciones reescritas.** Cada escena tiene opciones propias y breves. La amistad internacional ya no está fijada en Italia: el país de la pareja se sortea con la semilla y se comprueba que sea distinto del actual.
+- **Arcos con mazo limitado.** Se corrigió el avance de capítulos (antes podía repetir el mismo) y se limita la vida a un máximo de tres arcos, sin iniciar otro mientras haya uno activo. Cada capítulo avanza como máximo una vez por año. La deuda familiar exige un hogar de nivel bajo/medio-bajo y empieza a los 10 años.
+- **Diario breve.** El panel muestra cinco escenas relevantes, oculta las líneas de continuidad y resume el texto a dos líneas con «Leer completo». En móvil desaparece el scroll interno.
+- **Migración visible.** La decisión `primer_billete` aparece a los 17–19 años con estudiar fuera, trabajar fuera, prepararlo o quedarse; el destino se sortea con la semilla. El panel manual sigue disponible como ejecución posterior.
+- **Presión patrimonial.** El servidor calcula patrimonio neto, liquidez, obligaciones y mantenimiento. Un patrimonio superior a cuatro veces la capacidad económica anual paga un mantenimiento registrado en el libro mayor. Cuatro decisiones de alto patrimonio (fiscalidad, socio, seguridad y familia) pueden aumentar costes o crear deuda. No se castiga solo por tener dinero: se modelan las obligaciones que aparecen con él.
+- **Inicio más directo.** La portada prioriza dos acciones —Nueva vida y Duelo para dos— y deja «Tengo un código» y «Continuar» como accesos secundarios.
+
+### Base anterior: vida presente, relato y movilidad
 
 - **Nacimiento siempre hoy.** Se eliminaron la época, el año y la duración configurable. La vida empieza en el año actual y termina cuando lo determina el modelo de mortalidad; `maxAge` queda como límite técnico de seguridad.
 - **Decisiones manuales por defecto.** El reloj avanza y se detiene en cada encrucijada. En un duelo, solo el anfitrión puede activar o desactivar la estrategia automática; el invitado no puede cambiar esa regla.
 - **Dónde estás ahora.** Panel de residencia con ciudad, país, moneda local, equivalencia del saldo y trayectoria de migraciones.
-- **Irte al extranjero.** 42 proyectos (14 países × estudiar, trabajar o vivir), con presupuesto de vuelo, visado, seguro, depósito, instalación, matrícula y manutención; modalidades solo, pareja o familia; moneda local y probabilidad orientativa. Se ejecuta en el servidor, con idempotencia y sin permitir saldos negativos.
+- **Irte al extranjero.** 48 proyectos (16 países × estudiar, trabajar o vivir), con presupuesto de vuelo, visado, seguro, depósito, instalación, matrícula y manutención; modalidades solo, pareja o familia; moneda local y probabilidad orientativa. Se ejecuta en el servidor, con idempotencia y sin permitir saldos negativos.
 - **Relato canónico.** El diario y el historial se construyen desde `LifeMoment`: nacimiento, sucesos del mundo, decisiones, crónica mensual, hitos, salud y migración. El diario se actualiza con cada mes y no revela acciones privadas del rival antes de tiempo.
-- **Arcos y variedad.** Ocho arcos de tres capítulos (deuda familiar, herencia, confianza, trabajo, amistad, vecindario, cuidados y retorno) y bancos de escenas ampliados por etapa. El selector evita repetir la última escena y, si se agotan, recupera la menos reciente.
+- **Arcos y variedad.** Once arcos de tres capítulos (deuda familiar, herencia, confianza, trabajo, retorno, primer empleo, cuidados, vivienda, amistad, vocación tardía y negocio). Una vida activa como máximo tres; cada capítulo avanza una vez por año. El selector evita repetir la última escena y, si se agotan, recupera la menos reciente.
 
 ### Modo individual
 - Nacimiento aleatorio reproducible con semilla.
@@ -134,7 +144,7 @@ Para usar Playwright con el Chrome instalado no hace falta descargar navegadores
 - **Salidas ante la crisis.** Cuando el empleo, las deudas o la salud se rompen, el selector prioriza tres decisiones de recuperación (`reconstruir_empleo`, `renegociar_deudas`, `recuperar_salud`). Ofrecen caminos modestos y verificables —empleo temporal, formación pública, renegociación, apoyo familiar— sin regalar grandes sumas de dinero. Después se puede volver a las decisiones mayores.
 - **Economía sostenible.** La infancia no genera gastos ni deuda personal; la cesta esencial se ajusta a la capacidad real de gasto y el crédito se ancla a los ingresos del personaje. Una mala racha puede doler, pero no se convierte en una espiral infinita.
 - **Automático competente.** La política automática ordena por utilidad esperada y elige de forma ponderada entre las tres mejores opciones (90 % / 8 % / 2 %), con más peso para salud, empleo y liquidez cuando están en riesgo. Juega bien sin ser infalible.
-- **Catálogo ampliado:** **166 decisiones** y **30 sucesos compartidos**, con decisiones de infancia, adolescencia, empresa, familia, migración, salud, vivienda y recuperación.
+- **Catálogo ampliado:** **171 decisiones** y **30 sucesos compartidos**, con decisiones de infancia, adolescencia, empresa, familia, migración, salud, vivienda, patrimonio y recuperación.
 - La interfaz del diario usa un lenguaje más editorial y muestra la crónica como una vida que se lee, no como un panel de métricas.
 
 
@@ -153,7 +163,7 @@ Para usar Playwright con el Chrome instalado no hace falta descargar navegadores
 - **Vista completa de deudas.** «Tus deudas» desglosa préstamos, hipotecas y deuda residual, con acreedor, interés y cuota. Permite pagar un importe parcial o total contra una deuda concreta; el servidor valida saldo, saldo pendiente e idempotencia y registra cada pago en el libro mayor. También está disponible en duelo para deudas personales.
 - **Despedidas con consecuencias.** La muerte de un pariente encola una decisión de funeral. Una ceremonia íntima cuesta menos y sostiene los vínculos; una despedida grande mejora el apoyo pero puede generar deuda; renunciar a la ceremonia ahorra dinero y pesa en felicidad, relaciones y estrés. En la infancia el coste lo asume el hogar.
 - **Diario narrativo, no contable.** El diario mensual cuenta escenas de escuela, trabajo, pareja, salud, duelo, deuda o vejez, con variedad determinista y sin resúmenes automáticos de ingresos/gastos. Las cifras viven en el banco y en la vista de deudas.
-- **Catálogo de 166 decisiones.** Incluye infancia, adolescencia, empresa, familia, migración, salud, vivienda y recuperación. La cobertura incluye varios caminos visibles cuando faltan opciones específicas.
+- **Catálogo de 171 decisiones.** Incluye infancia, adolescencia, empresa, familia, migración, salud, vivienda, patrimonio y recuperación. La cobertura incluye varios caminos visibles cuando faltan opciones específicas.
 
 ### Modelo de vida y ritmo v8 (Fase 0)
 
@@ -363,13 +373,13 @@ El juego funciona sin IA. Si `DEEPSEEK_API_KEY` está definida, el **backend** s
 
 ## 11. Datos demográficos
 
-`data/demographics.json` es un subconjunto de demostración de 14 países (España, México, Argentina, Brasil, Estados Unidos, Nigeria, India, Japón, Alemania, Francia, Sudáfrica, Indonesia, Egipto y Suecia).
+`data/demographics.json` es un subconjunto de demostración de 16 países (España, México, Argentina, Brasil, Estados Unidos, Nigeria, India, Japón, Alemania, Francia, Sudáfrica, Indonesia, Egipto, Suecia, China e Italia).
 
 Incluye país/región, población, nacimientos, esperanza de vida por sexo, mortalidad infantil, PIB per cápita PPP, Gini, desempleo, escolarización, fecundidad, urbanización, moneda, ciudades y listas de nombres. Cada indicador registra fuente, año, unidades y licencia (UN WPP 2024, Banco Mundial WDI, UN IGME, OMS, UNESCO UIS, PNUD).
 
 Los parámetros de coste de vida, acceso sanitario, calidad educativa, riesgo ambiental y protección social son **derivados provisionales**, no indicadores oficiales. Los modelos económico y de mortalidad también están marcados `provisional` en `data/`.
 `data/realism-model.json` añade parámetros provisionales de hogar, ocupaciones, contexto cultural y apoyo familiar, con fuentes declaradas (WDI, ILOSTAT, WPP, Women Business and the Law, Pew, OCDE). El modelo incluye una advertencia explícita: no son tablas oficiales ni una distribución validada de familias, ingresos o religión. La poliginia modelada se limita a países donde el contexto la contempla y a la religión simulada; no se infiere de los jugadores.
-`data/country-context.json` (14 países) añade otra capa declarada como provisional: porcentajes mensuales de vivienda, comida, suministros, transporte, salud, educación y otros; tipo hipotecario; meses de depósito; dificultad de visado; coste relativo de migración; presión social sobre educación, matrimonio e hijos; y norma de herencia. Sus fuentes declaradas son WDI, WPP, Women Business and the Law, OCDE y UN DESA, pero **no son ofertas ni requisitos legales vigentes**.
+`data/country-context.json` (16 países) añade otra capa declarada como provisional: porcentajes mensuales de vivienda, comida, suministros, transporte, salud, educación y otros; tipo hipotecario; meses de depósito; dificultad de visado; coste relativo de migración; presión social sobre educación, matrimonio e hijos; y norma de herencia. Sus fuentes declaradas son WDI, WPP, Women Business and the Law, OCDE y UN DESA, pero **no son ofertas ni requisitos legales vigentes**.
 
 Para ampliar países: añade una entrada validada por el esquema de `server/src/demographics/dataset.ts`, revisa fuentes/licencias y ejecuta las pruebas. No hay scraping en tiempo de ejecución ni APIs de pago.
 
@@ -389,7 +399,7 @@ npm run audit:pacing   # métricas de repetición y ritmo narrativo
 ```
 
 Cobertura actual:
-- **166 pruebas Vitest** distribuidas en 20 archivos, incluidas las de la nueva experiencia de vida (`tests/new-life-experience.test.ts`), ritmo narrativo v8 (`tests/pacing-v8.test.ts`), presentación del banco (`tests/bank-presentation.test.ts`), deudas, funerales y diario (`tests/debts-funerals-diary.test.ts`), determinismo, economía mensual, empresa, familia y recuperación. Todas pasan.
+- **174 pruebas Vitest** distribuidas en 21 archivos, incluidas coherencia de edad, arcos y presión patrimonial (`tests/coherence-v9.test.ts`), la experiencia de vida (`tests/new-life-experience.test.ts`), ritmo narrativo v8 (`tests/pacing-v8.test.ts`), presentación del banco (`tests/bank-presentation.test.ts`), deudas, funerales y diario (`tests/debts-funerals-diary.test.ts`), determinismo, economía mensual, empresa, familia y recuperación. Todas pasan.
 - Determinismo por semilla, igualdad de nacimiento, igualdad de sucesos compartidos, independencia de decisiones.
 - Límites 0–100, libro mayor, economía, probabilidades, muerte y continuación del superviviente.
 - Puntuación, empate, idempotencia, historial, vistas privadas.
@@ -411,10 +421,10 @@ Completo también: hogar familiar, psicología, empresas, préstamos, quiebra pe
 Limitaciones honestas:
 - PostgreSQL/Prisma está implementado y compila, pero no se probó contra una instancia real en este entorno.
 - DeepSeek está integrado y con fallback, pero no se ejecutó sin API key.
-- El dataset es una muestra de 14 países, suficiente para el núcleo y ampliable.
+- El dataset es una muestra de 16 países, suficiente para el núcleo y ampliable.
 - Los modelos económico y de mortalidad son paramétricos provisionales; no son tablas oficiales.
 - Docker está preparado, pero no se ejecutó aquí (Docker no está instalado).
-- El bundle del cliente genera un aviso de tamaño (~849 kB, 258 kB gzip); no bloquea el build.
+- El bundle del cliente genera un aviso de tamaño (~877 kB, 265 kB gzip); no bloquea el build.
 - El presupuesto del hogar y la herencia estimada se fijan al nacer; no simulan cada factura familiar ni la revalorización de activos. Está documentado como aproximación.
 - La salud y mortandad de hermanos, hijos y pareja se modelan con su edad, sexo y país; sus carreras y decisiones personales no tienen la misma profundidad que las del jugador.
 - La distribución de religiones, ocupaciones y familias es un modelo de simulación, no una estadística oficial.
@@ -426,7 +436,7 @@ Limitaciones honestas:
 - La interfaz está preparada para i18n, pero de momento solo existe español.
 - La crónica usa plantillas deterministas y datos estructurados, no generación de texto libre. Los bancos se ampliaron por etapa y se añadieron arcos serializados, pero en vidas muy largas todavía puede repetirse alguna escena. Está diseñada para seguir creciendo.
 - Los presupuestos de movilidad (vuelos, visados, seguros, depósitos, matrículas y manutención) son estimaciones de simulación derivadas del PIB/PPP y del contexto de país; no son tarifas reales ni asesoramiento migratorio. La probabilidad de éxito es orientativa y la resuelve el servidor.
-- El diario muestra los 9 momentos más recientes; el historial completo no tiene paginación y puede crecer mucho en vidas largas.
+- El diario muestra las 5 escenas relevantes más recientes y resume las largas con «Leer completo»; el historial completo no tiene paginación y puede crecer mucho en vidas largas.
 - La vista de deudas concilia las filas con el saldo autoritativo; una partida antigua sin préstamo asociado puede mostrar una fila de «otros cargos pendientes». El pago se limita a la parte visible para no prometer una amortización que el agregado no pueda desglosar.
 - Los funerales pendientes no bloquean el reloj ni la simulación. Si se aplazan, siguen visibles en la ficha y en el aviso central hasta que se resuelven. El modo automático no inventa una ceremonia por el jugador.
 - Las cinco opciones incluyen repliegues cuando no existen cinco alternativas específicas elegibles. El historial identifica la opción real, pero no todas las vidas ofrecen cinco caminos exclusivos.

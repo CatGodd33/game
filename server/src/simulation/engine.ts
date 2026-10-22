@@ -1,5 +1,6 @@
 import { offerMonthlyOpportunity } from "./monthly-opportunities.js";
 import { openExportRoute } from "./trade.js";
+import { computeWealthUpkeep } from "./wealth-pressure.js";
 import { planParenthood } from "./parenthood.js";
 import { monthlyInstallment, mortgageRate } from "./mortgage.js";
 import { UNIVERSITY_PROGRAMS, enrollUniversity } from "./education.js";
@@ -455,7 +456,11 @@ function applyOutcome(
     if (effect.studyProgram) { const program = UNIVERSITY_PROGRAMS.find(p => p.id === effect.studyProgram); if (program) enrollUniversity(character, program, year); }
     if (effect.temperament && character.story) character.story.temperament = effect.temperament;
     if (effect.setPartner && !character.partnerName) {
-        const origin = effect.partnerCountry ?? character.currentCountry;
+        const origin =
+            effect.partnerCountry === "RANDOM"
+                ? createRng(deriveSeed(game.seed, "partner-country", character.id, year))
+                    .pick(loadDemographics().countries.filter((country) => country.code !== character.currentCountry)).code
+                : effect.partnerCountry ?? character.currentCountry;
         const country = getCountry(origin);
         const rng = createRng(deriveSeed(game.seed, "relationship", character.id, year));
         character.partnerName = rng.pick(character.sex === "female" ? country.names.male : country.names.female);
@@ -501,8 +506,17 @@ function applyOutcome(
     }
     if (effect.milestone) addMilestone(character, effect.milestone, decision.category, year);
     if (effect.migrateTo) {
-        migrate(character, effect.migrateTo.countryCode, effect.migrateTo.location, year);
-        addMilestone(character, `Nueva vida en ${effect.migrateTo.location}`, "migracion", year);
+        const destination =
+            effect.migrateTo.countryCode === "RANDOM"
+                ? createRng(deriveSeed(game.seed, "migration-country", character.id, year))
+                    .pick(loadDemographics().countries.filter((country) => country.code !== character.currentCountry))
+                : getCountry(effect.migrateTo.countryCode);
+        const location =
+            effect.migrateTo.location === "RANDOM"
+                ? destination.cities[0] ?? destination.name
+                : effect.migrateTo.location;
+        migrate(character, destination.code, location, year);
+        addMilestone(character, `Nueva vida en ${location}`, "migracion", year);
     }
     if (effect.returnToBirthCountry) {
         migrate(character, game.birth.countryCode, game.birth.location, year);
@@ -681,6 +695,22 @@ function applyAnnualLifecycle(
         economyRng,
         year,
     );
+    const wealthUpkeep = computeWealthUpkeep(character);
+    if (wealthUpkeep > 0) {
+        applySafeSpend(character, wealthUpkeep, "Mantenimiento patrimonial", year);
+        result.expenses += wealthUpkeep;
+        result.net -= wealthUpkeep;
+        result.insolvent ||= character.finance.money <= 0.01;
+        character.finance.annualExpenses += wealthUpkeep;
+        const last = game.config.monthlyMode ? character.liveEconomy?.statements.at(-1) : undefined;
+        if (last) {
+            last.other += wealthUpkeep;
+            last.items ??= [];
+            last.items.push({ label: "Mantenimiento patrimonial", amount: wealthUpkeep });
+            last.balance = character.finance.money;
+            last.debt = character.finance.debt;
+        }
+    }
     if (game.config.monthlyMode) { character.finance.annualIncome = result.grossIncome; character.finance.annualExpenses = result.expenses; }
     const beforeBusiness = character.finance.money;
     const businessResult = advanceBusiness(character, game.economy, year, economyRng);

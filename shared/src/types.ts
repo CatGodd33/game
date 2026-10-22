@@ -738,6 +738,22 @@ export interface WorldView {
     currentEvents: SharedEventRecord[];
 }
 
+export type WealthTier = "en-riesgo" | "baja" | "media" | "alta" | "muy-alta";
+
+/** Lectura transparente del patrimonio y de la presión que genera. */
+export interface WealthPressure {
+    netWorth: number;
+    liquid: number;
+    assets: number;
+    obligations: number;
+    tier: WealthTier;
+    /** 0–100: complejidad y fragilidad, no una probabilidad de quiebra. */
+    pressure: number;
+    annualUpkeep: number;
+    monthsOfRunway: number;
+    notes: string[];
+}
+
 export interface PlayerView {
     slot: PlayerSlot;
     alias: string;
@@ -751,6 +767,7 @@ export interface PlayerView {
     ownChoice: DecisionChoice | null;
     lastTurn: TurnPlayerRecord | null;
     aiNarrative: string | null;
+    wealthPressure: WealthPressure;
 }
 
 export interface ScorePoint {

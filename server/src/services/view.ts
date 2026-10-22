@@ -21,6 +21,7 @@ import type { StoredGame, StoredPlayer } from "../types/records.js";
 import { getCountry } from "../demographics/dataset.js";
 import { Errors } from "../errors.js";
 import { buildLifeMoments } from "../narrative/story-stream.js";
+import { computeWealthPressure } from "../simulation/wealth-pressure.js";
 
 type ConnectedSlots = ReadonlySet<PlayerSlot>;
 
@@ -83,6 +84,7 @@ function playerView(
         ownChoice: isMe ? game.pending?.submitted[player.slot] ?? null : null,
         lastTurn: player.lastTurn,
         aiNarrative: isMe ? player.aiNarrative : null,
+        wealthPressure: computeWealthPressure(player.character),
     };
 }
 

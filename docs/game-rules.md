@@ -55,7 +55,7 @@ Si un personaje murió, no bloquea al superviviente. En duelo, el primero en mor
 
 ## 5. Decisiones
 
-Hay **166 decisiones** en el catálogo actual, agrupadas por etapa. Cada pregunta muestra varios caminos visibles y las nuevas incorporan consecuencias presentes y futuras. Las opciones específicas se filtran por edad, dinero, educación, empleo, país, familia, religión, sexo, vivienda, migración y banderas de decisiones previas. Las decisiones de evento tienen cooldown propio y un intervalo global de tres años.
+Hay **171 decisiones** en el catálogo actual, agrupadas por etapa. Cada pregunta muestra varios caminos visibles y las nuevas incorporan consecuencias presentes y futuras. Las opciones específicas se filtran por edad, dinero, educación, empleo, país, familia, religión, sexo, vivienda, migración y banderas de decisiones previas. Las decisiones de evento tienen cooldown propio y un intervalo global de tres años.
 
 - **Infancia:** hábitos, juego, apoyo escolar, salud, recursos familiares, vivienda y primera oportunidad de aprendizaje.
 - **Adolescencia:** continuar estudios, formación profesional, primer trabajo, habilidades, amistades y responsabilidades.
@@ -65,6 +65,12 @@ Hay **166 decisiones** en el catálogo actual, agrupadas por etapa. Cada pregunt
 Cada definición incluye id, título, descripción, categoría, edades, requisitos, coste, efectos de éxito/fracaso, probabilidad, efectos secundarios, hitos, narrativa y referencias.
 
 Una opción solo aparece si es elegible. El servidor vuelve a comprobar la elegibilidad al recibirla; no confía en el cliente.
+
+### 5.0 Coherencia por edad
+
+El suceso compartido no cambia, pero la pregunta sí. `respuesta_epidemia` conserva las opciones de adultez con `requirements.minAge: 18` y añade opciones de infancia (6–12: quedarse en casa, ver amigos a escondidas, llevar recados) y adolescencia (13–17: clases a distancia, cuidar a un familiar, salir con amigos). Un personaje de 8 años nunca ve «mantener el trabajo» ni una nómina.
+
+La decisión `primer_billete` aparece a los 17–19 años con cuatro caminos: estudiar fuera, trabajar fuera, preparar la salida o quedarse. El destino se sortea con la semilla y no se fija en el texto. Las escenas de relación también usan opciones propias; `encuentro_intercambio` sortea el país de la pareja y no promete Italia ni otro destino concreto.
 
 ### 5.1 Garantía de cinco caminos
 
@@ -112,6 +118,18 @@ Los efectos compartidos modifican el mundo (coste de vida, desempleo, fase econ�
 - **Nivel de vida (0–100):** ingresos, vivienda, meses de ahorro y penalización de deuda.
 
 Toda mutación monetaria pasa por `spend`, `grant`, `borrow` o `repayDebt`, que registran una transacción con saldo y deuda posteriores. No existe una vía para cambiar el saldo sin ledger.
+
+### 7.1 Patrimonio, liquidez y presión patrimonial
+
+El servidor calcula cada año un **patrimonio neto** contable en dólares PPP: saldo + valor de activos − deuda agregada − saldo de préstamos. El patrimonio no es una puntuación ni cambia el resultado por sí solo; sirve para describir obligaciones reales de una estructura económica grande.
+
+- **Escala de referencia:** máximo entre 1, los ingresos anuales, los gastos anuales y la mitad del PIB per cápita PPP del país de residencia.
+- **Mantenimiento:** si el personaje es adulto y el patrimonio supera cuatro veces esa escala, paga un **1,2 % del exceso**, limitado por un techo ligado a ingresos y PIB. Es el coste de conservar viviendas, inversiones y obligaciones, no un impuesto oficial ni una multa por riqueza. Cada cobro pasa por el libro mayor como «Mantenimiento patrimonial».
+- **Liquidez:** meses de gastos cubiertos por el saldo disponible, entre 0 y 36. Un patrimonio alto pero ilíquido puede seguir generando una factura impagable.
+- **Presión (0–100):** combina apalancamiento, meses de liquidez, concentración en activos y tamaño del patrimonio. Es un indicador de riesgo, no una probabilidad de bancarrota.
+- **Niveles:** `en-riesgo` (patrimonio negativo), `baja` (<1× escala), `media` (<4×), `alta` (<10×) y `muy-alta` (≥10×).
+
+Las decisiones `presion_fiscal`, `socio_capital`, `seguridad_patrimonial` y `familia_pide_dinero` solo aparecen en contextos compatibles. Pueden aumentar gastos, reducir liquidez o crear deuda si la opción falla; no regalan dinero ni ejecutan una quiebra automática. La interfaz muestra patrimonio, liquidez, mantenimiento y una nota explicativa, y el rival nunca ve las decisiones privadas antes de tiempo.
 
 ## 8. Salud y mortalidad
 
@@ -241,7 +259,7 @@ Las nuevas decisiones incluyen camino profesional (medicina, derecho, tecnologí
 
 ### 14.6 Contexto de país y decisiones v3
 
-`data/country-context.json` añade un perfil para cada uno de los 14 países con:
+`data/country-context.json` añade un perfil para cada uno de los 16 países con:
 
 - reparto de gasto mensual (vivienda, comida, suministros, transporte, salud, educación, otros);
 - tipo hipotecario, meses de depósito de alquiler y coste relativo de migración;

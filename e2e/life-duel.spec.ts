@@ -88,9 +88,9 @@ test.describe("flujos principales", () => {
         expect(initialState.game.turn.prompt).toBeNull();
         await advanceUntilDecision(page, 2);
         await expect(page.getByRole("heading", { name: /Edad 2/ })).toBeVisible();
-        await expect(page.getByText(/Diste tus primeros pasos/).first()).toBeVisible();
         await expect(page.locator("#decision-title")).toBeVisible();
         await page.locator('section[aria-labelledby="decision-title"] button').first().click();
+        await expect(page.getByText(/Diste tus primeros pasos/).first()).toBeVisible();
         await expect(page.getByRole("heading", { name: /Edad 2/ })).toBeVisible({ timeout: 20_000 });
 
         const afterFirstTurn = await readGame(page);
@@ -130,48 +130,47 @@ test.describe("flujos principales", () => {
         await expect(page.getByText("Sucesos del mundo").first()).toBeVisible();
         await expect(page.getByRole("button", { name: /Exportar JSON/ })).toBeVisible();
 
-        const finalState = await page.evaluate(async () => {
+        const token = await page.evaluate(() => {
             const raw = localStorage.getItem("life-duel.session.v1");
             if (!raw) throw new Error("Sin sesión");
-            const { token } = JSON.parse(raw) as { token: string };
-            const match = window.location.pathname.match(/\/partida\/([0-9a-f-]+)/);
-            const gameId = match?.[1];
-            if (!gameId) throw new Error("Sin partida");
-            let game: any = null;
-            for (let index = 0; index < 500; index += 1) {
-                const response = await fetch(`/api/games/${gameId}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
-                if (!response.ok) throw new Error(`No se pudo leer la partida (${response.status})`);
-                game = (await response.json()).game;
-                if (game.status === "finished") break;
-                const prompt = game.turn?.prompt;
-                if (!prompt) {
-                    const advance = await fetch(`/api/games/${gameId}/advance`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
-                    if (!advance.ok) throw new Error(`Avance rechazado (${advance.status})`);
-                    continue;
-                }
-                const option = prompt.options[0];
-                const decision = await fetch(`/api/games/${gameId}/decision`, {
-                    method: "POST",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        turn: game.turn.number,
-                        decisionId: prompt.id,
-                        optionId: option.id,
-                        idempotencyKey: `e2e-${game.turn.number}-${crypto.randomUUID()}`,
-                    }),
-                });
-                if (!decision.ok) throw new Error(`Decisión rechazada (${decision.status})`);
-            }
-            if (game?.status !== "finished") throw new Error("La vida no terminó");
-            return game as { id: string; final: unknown };
+            return (JSON.parse(raw) as { token: string }).token;
         });
+        const gameId = initialState.game.id;
+        const headers = { Authorization: `Bearer ${token}` };
+        let game: {
+            status: string;
+            turn: { number: number; prompt: { id: string; options: Array<{ id: string }> } | null } | null;
+        } | null = null;
 
-        await page.goto(`/partida/${finalState.id}/final`);
+        // El avance final se hace desde el contexto de peticiones de Playwright;
+        // no dentro de un evaluate largo: así una vida de 60+ años no bloquea el
+        // hilo del navegador ni depende de que la pestaña siga ejecutando JS.
+        for (let index = 0; index < 500; index += 1) {
+            const response = await page.request.get(`/api/games/${gameId}`, { headers });
+            if (!response.ok()) throw new Error(`No se pudo leer la partida (${response.status()})`);
+            game = (await response.json()).game;
+            if (game?.status === "finished") break;
+            const prompt = game?.turn?.prompt;
+            if (!prompt) {
+                const advance = await page.request.post(`/api/games/${gameId}/advance`, { headers });
+                if (!advance.ok()) throw new Error(`Avance rechazado (${advance.status()})`);
+                continue;
+            }
+            const option = prompt.options[0];
+            const decision = await page.request.post(`/api/games/${gameId}/decision`, {
+                headers,
+                data: {
+                    turn: game.turn.number,
+                    decisionId: prompt.id,
+                    optionId: option.id,
+                    idempotencyKey: `e2e-${game.turn.number}-${Date.now()}-${index}`,
+                },
+            });
+            if (!decision.ok()) throw new Error(`Decisión rechazada (${decision.status()})`);
+        }
+        if (game?.status !== "finished") throw new Error("La vida no terminó");
+
+        await page.goto(`/partida/${gameId}/final`);
         await expect(page.getByRole("heading", { name: "El balance de una vida" })).toBeVisible();
         await expect(page.getByRole("region", { name: "Recuerdo y balance de esta vida" })).toBeVisible();
         await expect(page.getByRole("button", { name: /Compartir tarjeta/ })).toBeVisible();

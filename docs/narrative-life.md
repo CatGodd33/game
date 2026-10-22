@@ -28,7 +28,7 @@ Los retratos y las escenas son SVG originales, dibujados con código. Apariencia
 
 ## Datos y límites
 
-Siguen disponibles 14 países de demostración. La proporción de nacimientos se normaliza entre ellos; no es una probabilidad mundial. Para nuevas vidas narrativas el quintil se distribuye uniformemente dentro de cada país. La religión se genera como contexto ficticio desde un catálogo, sin afirmar que las frecuencias sean oficiales. No se infiere religión del usuario ni se generan categorías de casta sin datos.
+Siguen disponibles 16 países de demostración. La proporción de nacimientos se normaliza entre ellos; no es una probabilidad mundial. Para nuevas vidas narrativas el quintil se distribuye uniformemente dentro de cada país. La religión se genera como contexto ficticio desde un catálogo, sin afirmar que las frecuencias sean oficiales. No se infiere religión del usuario ni se generan categorías de casta sin datos.
 
 El proyecto dispone de mortalidad infantil del primer año y escolarización media. El certificado nombra esos indicadores correctamente: no se sustituyen por mortalidad antes de los cinco años ni por escolarización esperada. La pantalla de nacimiento ya no compara automáticamente con el país del usuario ni guarda su ubicación.
 

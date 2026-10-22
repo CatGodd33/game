@@ -12,24 +12,32 @@ interface LifeArc {
     title: string;
     minAge: number;
     maxAge: number;
+    /** Peso relativo; las historias no aparecen con la misma frecuencia. */
+    weight?: number;
+    minFamilyTier?: number;
+    maxFamilyTier?: number;
     requiresPartner?: boolean;
     requiresChild?: boolean;
     requiresEmployment?: boolean;
     requiresMigration?: boolean;
+    requiresParentsAlive?: boolean;
+    requiresBusiness?: boolean;
     chapters: ArcChapter[];
 }
 
 /**
  * Arcos serializados: no son sucesos aislados, sino capítulos que vuelven.
- * Los nombres concretos salen de la familia y la pareja del personaje, de modo
- * que dos vidas nunca lean exactamente la misma novela.
+ * El mazo de una vida es limitado. Una misma partida no debe convertir una
+ * única historia familiar en el centro de ochenta años.
  */
 const ARCS: LifeArc[] = [
     {
         id: "secreto_deuda",
         title: "El sobre bajo la cama",
-        minAge: 8,
-        maxAge: 25,
+        minAge: 10,
+        maxAge: 24,
+        maxFamilyTier: 3,
+        weight: 1.1,
         chapters: [
             {
                 title: "Una puerta que se cierra",
@@ -50,6 +58,7 @@ const ARCS: LifeArc[] = [
         title: "Lo que queda de la abuela",
         minAge: 24,
         maxAge: 70,
+        weight: 0.9,
         chapters: [
             {
                 title: "La casa huele a medicina",
@@ -71,6 +80,7 @@ const ARCS: LifeArc[] = [
         minAge: 20,
         maxAge: 75,
         requiresPartner: true,
+        weight: 1.2,
         chapters: [
             {
                 title: "Un mensaje a la hora equivocada",
@@ -92,6 +102,7 @@ const ARCS: LifeArc[] = [
         minAge: 22,
         maxAge: 63,
         requiresEmployment: true,
+        weight: 1,
         chapters: [
             {
                 title: "El nombre en la lista",
@@ -103,67 +114,7 @@ const ARCS: LifeArc[] = [
             },
             {
                 title: "Lo que aprendiste del poder",
-                text: "La verdad salió, pero no como esperabas. No hubo aplausos: hubo una reunión tensa, un límite nuevo y la certeza de que tu trabajo ya no necesitaba el permiso de esa persona. El precio fue una amistad y una versión de ti que se quedó en el pasillo.",
-            },
-        ],
-    },
-    {
-        id: "amistad_dinero",
-        title: "El préstamo de toda la vida",
-        minAge: 18,
-        maxAge: 70,
-        chapters: [
-            {
-                title: "Una llamada que empieza con disculpa",
-                text: "Tu amistad de siempre llamó con una voz que no reconocías. Necesitaba dinero y prometió devolverlo en tres meses. No preguntaste para qué; preguntaste cuánto. Esa fue la primera equivocación.",
-            },
-            {
-                title: "La deuda invisible",
-                text: "Pasaron los meses. Viste una foto suya en un viaje que no cuadraba con la historia. No dijiste nada delante de los demás. La amistad seguía ahí, pero ya no era gratis para ti.",
-            },
-            {
-                title: "Una mesa, dos verdades",
-                text: "Os sentasteis a hablar sin testigos. La deuda era real, también el miedo. Podías reclamar el dinero, condonarlo o cambiar el vínculo por una forma más honesta de estar. Ninguna opción te devolvía la conversación de aquel primer teléfono.",
-            },
-        ],
-    },
-    {
-        id: "rumor_barrio",
-        title: "Lo que se dice en la escalera",
-        minAge: 10,
-        maxAge: 80,
-        chapters: [
-            {
-                title: "Una frase en el rellano",
-                text: "En {city}, una vecina bajó la voz al verte. Al día siguiente, alguien te preguntó si era verdad lo de tu familia. No lo era, pero la pregunta ya estaba haciendo su trabajo.",
-            },
-            {
-                title: "El origen del rumor",
-                text: "Descubriste que la historia salió de una persona que apreciabas. No había maldad, solo miedo y una necesidad de pertenecer. Enfrentarla te costaría una amistad; ignorarlo, parte de tu reputación.",
-            },
-            {
-                title: "La versión que eliges contar",
-                text: "El barrio siguió hablando durante semanas. Tú decidiste qué parte de tu vida era pública y qué parte no. No todos entendieron el límite. Algunos sí, y esos fueron los que se quedaron.",
-            },
-        ],
-    },
-    {
-        id: "cuidado_familiar",
-        title: "El año en que todo se detuvo",
-        minAge: 30,
-        maxAge: 85,
-        chapters: [
-            {
-                title: "Una habitación de hospital",
-                text: "Una llamada cambió el ritmo de la semana. Tu {parent} estaba ingresado. En la sala de espera coincidiste con un familiar con el que apenas hablabas; ninguno de los dos sabía cómo empezar.",
-            },
-            {
-                title: "Repartir lo que no se puede repartir",
-                text: "El alta llegó con instrucciones, facturas y una pregunta incómoda: quién iba a cuidar a quién. Tu trabajo, tu pareja y tu salud cabían en la misma agenda solo si alguien cedía. No había una respuesta limpia.",
-            },
-            {
-                title: "La forma de despedirse",
-                text: "El desenlace fue lento y sin epílogo. Después de los trámites quedó el silencio de la casa y una conversación pendiente con tu familia. Aprendiste que el cuidado también se hereda, para bien y para mal.",
+                text: "La reunión terminó sin aplausos. Conservaste el trabajo, perdiste una versión ingenua de la empresa y supiste que el siguiente ascenso no se pediría con un favor.",
             },
         ],
     },
@@ -173,6 +124,7 @@ const ARCS: LifeArc[] = [
         minAge: 18,
         maxAge: 90,
         requiresMigration: true,
+        weight: 0.8,
         chapters: [
             {
                 title: "Una llamada desde el origen",
@@ -188,13 +140,143 @@ const ARCS: LifeArc[] = [
             },
         ],
     },
+    {
+        id: "primer_turno",
+        title: "El turno que nadie quería",
+        minAge: 18,
+        maxAge: 30,
+        requiresEmployment: true,
+        weight: 0.9,
+        chapters: [
+            {
+                title: "La primera nómina",
+                text: "Tu primer sueldo llegó con más descuentos de los que esperabas. En {city}, compraste algo pequeño y miraste el recibo como si fuera una prueba de que ya eras adulto.",
+            },
+            {
+                title: "El favor que te costó horas",
+                text: "Un compañero te pidió cubrir su turno. Dijiste que sí para caer bien. La fatiga llegó antes que el favor, y nadie te lo devolvió.",
+            },
+            {
+                title: "Poner un límite",
+                text: "Aprendiste a decir que no sin pedir perdón. No fue un ascenso, pero fue la primera vez que tu tiempo tuvo un precio distinto.",
+            },
+        ],
+    },
+    {
+        id: "silla_ventana",
+        title: "La silla junto a la ventana",
+        minAge: 35,
+        maxAge: 68,
+        requiresParentsAlive: true,
+        weight: 0.8,
+        chapters: [
+            {
+                title: "La salud de tu {parent}",
+                text: "Tu {parent} empezó a repetir la misma pregunta y a olvidar el nombre de una calle. La consulta tenía una lista de espera larga; la conversación familiar, todavía más.",
+            },
+            {
+                title: "Repartir los cuidados",
+                text: "Una reunión familiar terminó con una tabla de turnos y dos silencios. Todos querían ayudar; nadie quería cambiar su vida del todo. Tú tampoco.",
+            },
+            {
+                title: "La silla vacía",
+                text: "La casa quedó en silencio. Encontraste una libreta con recetas y una foto que no recordabas. El duelo no se resolvió en un día; se quedó en los objetos que nadie sabía dónde poner.",
+            },
+        ],
+    },
+    {
+        id: "llave_nueva",
+        title: "La llave que no era de casa",
+        minAge: 18,
+        maxAge: 45,
+        weight: 0.7,
+        chapters: [
+            {
+                title: "Un piso demasiado caro",
+                text: "Viste un piso en {city} con una ventana que daba a un árbol. El alquiler se comía media nómina. La decisión no era solo dónde dormir, sino cuánto margen querías conservar.",
+            },
+            {
+                title: "La convivencia cambia las reglas",
+                text: "Compartir piso trajo facturas, tareas y una discusión por una taza. Descubriste que la independencia también se negocia con otras personas.",
+            },
+            {
+                title: "Un hogar, no una inversión",
+                text: "La llave nueva no resolvió la vida. Solo te dio una puerta que podías cerrar. A veces eso fue suficiente.",
+            },
+        ],
+    },
+    {
+        id: "mensaje_sin_responder",
+        title: "El mensaje que no contestaste",
+        minAge: 12,
+        maxAge: 35,
+        weight: 0.7,
+        chapters: [
+            {
+                title: "Una notificación incómoda",
+                text: "Un amigo te escribió después de una discusión. Viste el mensaje y lo dejaste para luego. Luego se convirtió en semanas.",
+            },
+            {
+                title: "La distancia creció sola",
+                text: "Os visteis en una calle y hablasteis de cosas pequeñas. Ninguno mencionó el mensaje. La amistad siguió, pero con una habitación cerrada dentro.",
+            },
+            {
+                title: "Una conversación pendiente",
+                text: "Finalmente preguntaste por qué había dolido. La respuesta no arregló el pasado, pero os permitió dejar de fingir que no había ocurrido.",
+            },
+        ],
+    },
+    {
+        id: "vocacion_tardia",
+        title: "Lo que dejaste de hacer",
+        minAge: 38,
+        maxAge: 72,
+        weight: 0.7,
+        chapters: [
+            {
+                title: "Una clase en el centro",
+                text: "Pasaste frente a un cartel de clases nocturnas. Pensaste en lo que te gustaba antes de que la vida se llenara de horarios. La inscripción cerraba el viernes.",
+            },
+            {
+                title: "El coste de empezar tarde",
+                text: "No eras el más joven del grupo. Tampoco el que menos preguntaba. El cansancio competía con una curiosidad que llevabas años guardando.",
+            },
+            {
+                title: "Una versión más tuya",
+                text: "No cambiaste de vida de un día para otro. Pero empezaste a reservar un hueco semanal para algo que no daba dinero ni estatus. Ese hueco se volvió necesario.",
+            },
+        ],
+    },
+    {
+        id: "negocio_presion",
+        title: "La nómina que no llega",
+        minAge: 25,
+        maxAge: 66,
+        requiresBusiness: true,
+        weight: 0.8,
+        chapters: [
+            {
+                title: "Una factura sin pagar",
+                text: "Un cliente importante retrasó el pago. En {city}, la nómina de tu equipo llegaba antes que el dinero. La mesa de la oficina se llenó de cálculos.",
+            },
+            {
+                title: "Elegir a quién proteger",
+                text: "Podías pagar a una persona, negociar con los proveedores o pedir un préstamo. Cada opción salvaba una parte del negocio y sacrificaba otra.",
+            },
+            {
+                title: "El precio de sostener algo",
+                text: "El negocio sobrevivió, pero no salió indemne. Aprendiste que dirigir también era decidir quién recibía una mala noticia y en qué orden.",
+            },
+        ],
+    },
 ];
 
 const PLACEHOLDER_PARTNER = "{partner}";
 const PLACEHOLDER_PARENT = "{parent}";
+const MAX_ARCS_PER_LIFE = 3;
 
 function fill(text: string, game: StoredGame, character: CharacterState): string {
-    const partner = character.partnerName ?? (character.sex === "female" ? "tu pareja" : "tu pareja");
+    const partner = character.partnerName ?? "tu pareja";
     const aliveParent = character.story?.relatives.find(
         (relative) => (relative.role === "mother" || relative.role === "father") && relative.alive,
     );
@@ -205,12 +287,19 @@ function fill(text: string, game: StoredGame, character: CharacterState): string
         .replaceAll("{year}", String(game.currentYear));
 }
 
-function eligible(arc: LifeArc, character: CharacterState): boolean {
+function eligible(arc: LifeArc, character: CharacterState, game: StoredGame): boolean {
     if (character.age < arc.minAge || character.age > arc.maxAge) return false;
+    const familyTier = game.birth.family?.tier ?? 3;
+    if (arc.minFamilyTier !== undefined && familyTier < arc.minFamilyTier) return false;
+    if (arc.maxFamilyTier !== undefined && familyTier > arc.maxFamilyTier) return false;
     if (arc.requiresPartner && !character.partnerName) return false;
     if (arc.requiresChild && character.children < 1) return false;
     if (arc.requiresEmployment && character.employment.status !== "employed") return false;
     if (arc.requiresMigration && character.currentCountry === character.birthCountry) return false;
+    if (arc.requiresParentsAlive && !character.story?.relatives.some((relative) => (relative.role === "mother" || relative.role === "father") && relative.alive)) {
+        return false;
+    }
+    if (arc.requiresBusiness && !character.business?.active) return false;
     return true;
 }
 
@@ -222,10 +311,11 @@ function startedYear(character: CharacterState, arcId: string): number | null {
 }
 
 function currentChapter(character: CharacterState, arcId: string): number {
-    const flag = (character.flags ?? []).find((entry) => entry.startsWith(`arco_${arcId}_cap_`));
-    if (!flag) return 0;
-    const chapter = Number(flag.split("_").at(-1));
-    return Number.isFinite(chapter) ? chapter : 0;
+    const chapters = (character.flags ?? [])
+        .filter((flag) => flag.startsWith(`arco_${arcId}_cap_`))
+        .map((flag) => Number(flag.split("_").at(-1)))
+        .filter((chapter) => Number.isFinite(chapter));
+    return chapters.length ? Math.max(...chapters) : 0;
 }
 
 function ensureFlags(character: CharacterState): string[] {
@@ -235,8 +325,9 @@ function ensureFlags(character: CharacterState): string[] {
 
 /**
  * Devuelve la escena de arco que toca este mes, si alguna. Es determinista:
- * la semilla del mes decide cuándo arranca un arco, y luego los capítulos
- * avanzan como máximo una vez por año.
+ * la semilla del mes decide cuándo arranca un arco, y cada capítulo avanza
+ * como máximo una vez por año. El mazo se limita a tres arcos por vida para
+ * que una única historia no monopolice la biografía.
  */
 export function advanceArcChapter(
     game: StoredGame,
@@ -252,30 +343,33 @@ export function advanceArcChapter(
     if (active.length > 0) {
         const { arc, start } = active[0]!;
         if (game.currentYear <= start) return null;
-        const chapter = currentChapter(character, arc.id);
-        const next = chapter;
+        if (flags.includes(`arco_${arc.id}_ultimo_${game.currentYear}`)) return null;
+        const next = currentChapter(character, arc.id);
         const content = arc.chapters[next];
         if (!content) {
             flags.push(`arco_${arc.id}_fin`);
             return null;
         }
-        flags.push(`arco_${arc.id}_cap_${next + 1}`);
+        flags.push(`arco_${arc.id}_cap_${next + 1}`, `arco_${arc.id}_ultimo_${game.currentYear}`);
         if (next + 1 >= arc.chapters.length) flags.push(`arco_${arc.id}_fin`);
         return `«${arc.title} · ${content.title}». ${fill(content.text, game, character)}`;
     }
 
-    // Un nuevo arco no aparece todos los meses: solo cuando la semilla lo pide.
-    if (!rng.chance(2.4)) return null;
+    const started = ARCS.filter((arc) => startedYear(character, arc.id) !== null).length;
+    if (started >= MAX_ARCS_PER_LIFE) return null;
+
+    // Un arco nuevo no aparece todos los meses: solo cuando la semilla lo pide.
+    if (!rng.chance(1.1)) return null;
     const candidates = ARCS.filter(
         (arc) =>
-            eligible(arc, character) &&
+            eligible(arc, character, game) &&
             !flags.includes(`arco_${arc.id}_fin`) &&
             startedYear(character, arc.id) === null,
     );
     if (candidates.length === 0) return null;
-    const arc = rng.pick(candidates);
+    const arc = rng.weighted(candidates, (candidate) => candidate.weight ?? 1);
     const content = arc.chapters[0]!;
-    flags.push(`arco_${arc.id}_inicio_${game.currentYear}`, `arco_${arc.id}_cap_1`);
+    flags.push(`arco_${arc.id}_inicio_${game.currentYear}`, `arco_${arc.id}_cap_1`, `arco_${arc.id}_ultimo_${game.currentYear}`);
     if (arc.chapters.length === 1) flags.push(`arco_${arc.id}_fin`);
     return `«${arc.title} · ${content.title}». ${fill(content.text, game, character)}`;
 }

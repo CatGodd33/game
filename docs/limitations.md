@@ -12,7 +12,7 @@ No se afirma que estén verificadas las integraciones que requieren infraestruct
 | --- | --- | --- |
 | Motor determinista | Completo | Vitest, demo. |
 | Nacimiento compartido | Completo | Vitest, sockets, e2e. |
-| Decisiones y elegibilidad | Completo (166 decisiones, variantes narrativas y cooldowns) | Vitest, servicio, e2e. |
+| Decisiones y elegibilidad | Completo (171 decisiones, opciones por edad, variantes narrativas y cooldowns) | Vitest, servicio, e2e. |
 | Salidas ante crisis | Completo | 10 pruebas de recuperación, infancia y selector; 3 decisiones `recovery`. |
 | Eventos compartidos | Completo (30) | Vitest, e2e. |
 | Economía y ledger | Completo | Vitest, auditoría manual. |
@@ -25,6 +25,10 @@ No se afirma que estén verificadas las integraciones que requieren infraestruct
 | Vista de deudas y pago dirigido | Completo | Vitest y e2e (`debts.spec.ts`). |
 | Funerales interactivos y condonación familiar | Completo provisional | 8 pruebas Vitest, UI y revisión visual. |
 | Diario narrativo sin resumen financiero | Completo provisional | Test de 12 meses y revisión de textos. |
+| Coherencia de decisiones por edad | Completo | `tests/coherence-v9.test.ts`: epidemia a los 8, 15 y 25 años. |
+| Variedad de arcos | Completo provisional | 5 semillas, máximo 3 arcos y capítulos sin repetición. |
+| Presión patrimonial | Completo provisional | Patrimonio, mantenimiento, decisiones y vista para ambos jugadores. |
+| Relaciones y país aleatorio | Completo | Escenas reescritas; `intercambio` sin Italia fija. |
 | Salud y mortalidad | Completo provisional | Vitest, demo. |
 | Puntuación configurable | Completo | Vitest, UI. |
 | Vida individual | Completo | e2e. |
@@ -42,7 +46,7 @@ No se afirma que estén verificadas las integraciones que requieren infraestruct
 
 ## 3. Limitaciones de datos
 
-- El dataset contiene 14 países y valores redondeados. No es exhaustivo.
+- El dataset contiene 16 países y valores redondeados. No es exhaustivo.
 - Los índices derivados (coste de vida, acceso sanitario, calidad educativa, riesgo ambiental, protección social) son parámetros de simulación.
 - La conversión PPP es aproximada y no es un tipo de cambio de mercado.
 - Las listas de nombres son ejemplos culturales.
@@ -74,6 +78,11 @@ No se afirma que estén verificadas las integraciones que requieren infraestruct
 - No hay eventos aleatorios basados en texto generativo; el texto es estructurado y reproducible.
 - La crónica usa bancos de plantillas deterministas y arcos de tres capítulos. Da variedad y contexto, pero no es un modelo generativo ni una novela infinita: vidas muy largas pueden reconocer estructuras repetidas.
 - Los presupuestos de movilidad (vuelos, visados, seguros, depósitos, matrículas y manutención) son estimaciones de simulación derivadas del PIB/PPP y del contexto de país; no son tarifas reales ni asesoramiento migratorio. La probabilidad de éxito es orientativa y la decide el servidor.
+- Las opciones de una decisión pueden tener requisitos de edad. La epidemia comparte el mismo suceso de mundo, pero un personaje de 8 años no recibe opciones de empleo o nómina.
+- El país de una pareja internacional y el destino de `primer_billete` se sortean con la semilla. La escena no promete que la relación funcione ni que migrar mejore la vida.
+- El mantenimiento patrimonial es un parámetro de simulación (1,2 % del exceso sobre cuatro veces la capacidad económica anual, con techo). No es un impuesto real ni una comisión bancaria.
+- La presión patrimonial mide complejidad y fragilidad (deuda, liquidez, concentración en activos), no una probabilidad exacta de quiebra.
+- Los cuatro arcos nuevos y el mazo de tres por vida reducen la repetición, pero no hacen que cada biografía sea única. Las estructuras narrativas siguen siendo reconocibles.
 - Las cinco opciones incluyen repliegues cuando no hay cinco alternativas específicas elegibles. El jugador ve cinco caminos reales, pero no todos son exclusivos de esa decisión.
 - El eco anual es informativo y aparece inline después de resolver el año; no es una pausa interactiva dentro del año. La vida sigue siendo una decisión principal por año, acompañada de crónica.
 - El presupuesto familiar es un contexto de nacimiento; no se simulan cada factura, la revalorización de activos ni la economía interna de todos los parientes.
@@ -89,12 +98,12 @@ No se afirma que estén verificadas las integraciones que requieren infraestruct
 - **DeepSeek:** no hay clave configurada. El flujo de error/fallback está probado; la llamada real no. La IA solo redacta el epílogo y nunca altera estado.
 - **Docker:** `Dockerfile` y `docker-compose.yml` están preparados, pero Docker no está disponible en el entorno de desarrollo. No se ejecutó el compose.
 - **Escala:** JSON es un único archivo y está pensado para desarrollo/pruebas. Para carga real, usar PostgreSQL y un despliegue con múltiples instancias compartiendo la misma base.
-- **Render + Neon:** `render.yaml` y `docs/deployment.md` están preparados, pero el despliegue público no se ejecutó desde este entorno porque requiere crear cuentas y autorizar el repositorio. El build de producción y un duelo completo con dos navegadores sí se verificaron en local. El plan gratuito de Render duerme el servicio y Neon puede suspender la base; el primer acceso tras inactividad tarda.
+- **Render + Neon:** desplegado en `https://life-duel.onrender.com` con servicio free de Render y PostgreSQL de Neon. `/api/health` responde con `persistence: postgres`. El plan gratuito de Render duerme el servicio tras inactividad y Neon puede suspenderse; el primer acceso puede tardar 30–60 s. El despliegue se actualiza automáticamente al hacer push a `main`.
 - **Sesiones:** no hay recuperación de cuenta; si se borra `localStorage` o cambia el secreto, se pierde el acceso a las partidas asociadas.
-- **Bundle:** el cliente genera un aviso de ~849 kB (258 kB gzip). Se puede dividir con lazy routes y manual chunks.
+- **Bundle:** el cliente genera un aviso de ~877 kB (265 kB gzip). Se puede dividir con lazy routes y manual chunks.
 - **i18n:** todos los textos están en español; no hay selector de idioma ni extracción a catálogos.
 - **Accesibilidad:** hay base (skip link, focus trap, roles, teclado, contraste y movimiento reducido), pero falta una auditoría con lector de pantalla y axe.
-- **Móvil:** diseño responsive, pero no se probó en dispositivos físicos.
+- **Móvil:** diseño responsive verificado a 390×844 con Playwright; el diario ya no usa scroll interno y las decisiones muestran un acceso fijo. No se probó en dispositivos físicos.
 - **Tiempo real:** una sola instancia de servidor. Para varias instancias haría falta un adaptador Redis de Socket.IO y coordinación del reloj.
 - **Rate limiting:** en memoria; para varias instancias, usar almacén compartido.
 - **Arranque con muchas partidas:** al iniciar se cargan solo las partidas activas que necesitan reloj o temporizador, no las terminadas. Aun así, un almacén JSON grande (el usado en pruebas llegó a 78 MB) tarda decenas de segundos en arrancar. Para producción, usar PostgreSQL y no acumular partidas de prueba.

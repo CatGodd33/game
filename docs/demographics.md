@@ -4,7 +4,7 @@
 
 Los datos públicos se separan del código en `data/demographics.json` y se validan con Zod al arrancar. El núcleo del juego nunca depende de una API externa, de scraping en tiempo de ejecución ni de un servicio de pago.
 
-El conjunto incluido es una **muestra de demostración** de 14 países. Está pensado para que el juego sea ejecutable y verificable, y para que ampliarlo sea una tarea de datos, no de motor.
+El conjunto incluido es una **muestra de demostración** de 16 países. Está pensado para que el juego sea ejecutable y verificable, y para que ampliarlo sea una tarea de datos, no de motor.
 
 ## 2. Fuentes
 
@@ -85,7 +85,7 @@ El archivo tiene `status: provisional`. Sus cifras **no** son una tabla oficial 
 
 ## 6.2 Contexto de país
 
-`data/country-context.json` (`2026.1-contexto-pais`) añade un perfil para los mismos 14 países y un perfil `defaults` para países futuros. Cada entrada contiene:
+`data/country-context.json` (`2026.1-contexto-pais`) añade un perfil para los mismos 16 países y un perfil `defaults` para países futuros. Cada entrada contiene:
 
 - `monthlyShares`: proporción de vivienda, comida, suministros, transporte, salud, educación y otros dentro del gasto esencial;
 - `mortgageRatePct`, `rentDepositMonths` y `migrationCostGdp`;
