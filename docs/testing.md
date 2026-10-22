@@ -33,6 +33,7 @@ El `webServer` de Playwright reutiliza un `npm run dev` ya activo. Si no existe,
 - `npm run build`: correcto; cliente de 908,13 kB (273,26 kB gzip), CSS de 158,60 kB (34,20 kB gzip) y aviso no bloqueante de chunk.
 - Reinicio real del servidor compilado: sesión y partida recuperadas con la misma huella de semilla, nacimiento y turno.
 - Arranque de producción (`node server/dist/index.js`) en el puerto 4105: `GET /api/health` devuelve `status: ok`, persistencia JSON y modo IA local.
+- Producción: `https://life-duel.onrender.com/api/health` devuelve `version: 2.2.0` con `persistence: postgres`; la portada sirve el bundle nuevo y muestra «versión 2.2».
 - Inicio y panel de vida sin overflow horizontal en 390, 768 y 1440 px.
 - Banco compacto: máximo de cinco filas y sin overflow interno en 390 px; la animación del saldo termina en el importe autoritativo.
 

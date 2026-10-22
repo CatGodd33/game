@@ -177,6 +177,16 @@ Si el health responde pero la portada conserva el bundle antiguo, el webhook de 
 
 El push a `main` no sustituye un despliegue que Render no ha recibido. No hace falta volver a crear el servicio ni cambiar `DATABASE_URL`.
 
+### El build falla con 404 de `@life-duel/shared`
+
+Si `npm ci` termina con `'@life-duel/shared@1.0.0' is not in this registry`, el lockfile y la versión del workspace están desalineados. Pasó al publicar la 2.2: `server` y `client` pedían `^1.0.0` mientras `shared/package.json` ya era `2.2.0`, así que npm intentó descargar el paquete interno del registro público.
+
+1. Iguala la dependencia en `server/package.json` y `client/package.json` a la versión de `shared/package.json` (`^2.2.0`).
+2. Ejecuta `npm install` en la raíz y comprueba que la raíz y `packages.shared` de `package-lock.json` tienen la misma versión.
+3. Valida con `npm ci --dry-run` antes de hacer push.
+
+Corregido en el commit `3b76eba`.
+
 
 ### Error de CORS
 
