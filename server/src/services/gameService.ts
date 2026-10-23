@@ -93,6 +93,7 @@ export class GameService {
     private storeHealthy = true;
     private lastStoreError: string | null = null;
     private lastStoreLogAt = 0;
+    private storeCooldownUntil = 0;
     private sweepTimer: ReturnType<typeof setInterval> | null = null;
 
     constructor(
@@ -140,11 +141,15 @@ export class GameService {
     private async persist(game: StoredGame): Promise<void> {
         this.memory.set(game.id, game);
         if (game.mode !== "duel") return;
+        // Cortacircuitos: si la base acaba de fallar, no se reintenta en cada
+        // turno (cada intento puede tardar segundos). Se reintenta al minuto.
+        if (Date.now() < this.storeCooldownUntil) return;
         try {
             await this.store.save(game);
             this.storeHealthy = true;
             this.lastStoreError = null;
         } catch (error) {
+            this.storeCooldownUntil = Date.now() + 60_000;
             this.markStoreFailure(error);
         }
     }
@@ -154,7 +159,7 @@ export class GameService {
         this.lastStoreError = error instanceof Error ? error.message : "Error desconocido de persistencia.";
         if (Date.now() - this.lastStoreLogAt > 60_000) {
             this.lastStoreLogAt = Date.now();
-            logger.warn("No se pudo guardar la sala; se conserva en memoria.", {
+            logger.warn("Persistencia no disponible; se continúa en memoria.", {
                 error: this.lastStoreError,
             });
         }

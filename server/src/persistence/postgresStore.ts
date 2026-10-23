@@ -12,6 +12,7 @@ type PrismaLike = {
         deleteMany(args: unknown): Promise<{ count: number }>;
     };
     $connect(): Promise<void>;
+    $queryRawUnsafe(query: string): Promise<unknown>;
     $disconnect(): Promise<void>;
 };
 
@@ -49,6 +50,10 @@ export class PostgresGameStore implements GameStore {
         const adapter = new adapterModule.PrismaPg({ connectionString: this.connectionString });
         this.prisma = new clientModule.PrismaClient({ adapter });
         await this.prisma.$connect();
+        // El driver `pg` conecta de forma perezosa: $connect() puede resolver
+        // aunque la base esté caída. Una consulta mínima confirma que responde
+        // antes de activar PostgreSQL y permite caer a memoria con claridad.
+        await this.prisma.$queryRawUnsafe("SELECT 1");
         this.initialized = true;
         logger.info("Persistencia PostgreSQL conectada mediante Prisma.");
     }
