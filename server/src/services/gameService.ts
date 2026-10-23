@@ -73,31 +73,149 @@ export interface GameServiceEvents {
 
 type Timer = ReturnType<typeof setTimeout>;
 
+export interface PersistenceInfo {
+    mode: "json" | "postgres" | "memory";
+    requested: "json" | "postgres";
+    degraded: boolean;
+    error: string | null;
+}
+
 export class GameService {
     private readonly emitter = new EventEmitter();
     private readonly timers = new Map<string, Timer>();
     private readonly locks = new Map<string, Promise<void>>();
     private readonly presence = new Map<string, Map<PlayerSlot, Set<string>>>();
+    /**
+     * Estado autoritativo de la sesión. El modo individual vive solo aquí;
+     * las salas de duelo se rehidratan desde el almacén al arrancar.
+     */
+    private readonly memory = new Map<string, StoredGame>();
+    private storeHealthy = true;
+    private lastStoreError: string | null = null;
+    private lastStoreLogAt = 0;
+    private sweepTimer: ReturnType<typeof setInterval> | null = null;
 
-    constructor(private readonly store: GameStore) { }
+    constructor(
+        private readonly store: GameStore,
+        private readonly storeInfo: PersistenceInfo = {
+            mode: "json",
+            requested: "json",
+            degraded: false,
+            error: null,
+        },
+    ) { }
 
     get events(): EventEmitter {
         return this.emitter;
     }
 
     async init(): Promise<void> {
-        const games = this.store.loadActive ? await this.store.loadActive() : await this.store.loadAll();
+        await this.pruneStore();
+        let games: StoredGame[] = [];
+        try {
+            games = this.store.loadActive ? await this.store.loadActive() : await this.store.loadAll();
+        } catch (error) {
+            this.markStoreFailure(error);
+        }
         for (const game of games) {
-            if(game.independentRuns){this.schedule(game);continue;}
+            // El adaptador PostgreSQL solo devuelve salas de duelo; el almacén
+            // en memoria de pruebas puede rehidratar una vida individual.
+            if (game.status === "finished") continue;
+            this.memory.set(game.id, game);
+            if (game.independentRuns) { this.schedule(game); continue; }
             if (game.status === "playing" && (game.clock.autoDecisions || game.config.storyMode) && game.pending) {
                 if (!game.pending.deadlineAt) {
                     refreshDeadline(game);
-                    await this.store.save(game);
+                    await this.persist(game);
                 }
                 this.schedule(game);
             }
         }
-        logger.info("Servicio de partidas inicializado.", { games: games.length });
+        this.sweepTimer = setInterval(() => void this.sweep(), 10 * 60_000);
+        this.sweepTimer.unref?.();
+        logger.info("Servicio de partidas inicializado.", { games: games.length, inMemory: this.memory.size });
+    }
+
+    /** Guarda una sala de duelo; el modo individual nunca toca el almacén. */
+    private async persist(game: StoredGame): Promise<void> {
+        this.memory.set(game.id, game);
+        if (game.mode !== "duel") return;
+        try {
+            await this.store.save(game);
+            this.storeHealthy = true;
+            this.lastStoreError = null;
+        } catch (error) {
+            this.markStoreFailure(error);
+        }
+    }
+
+    private markStoreFailure(error: unknown): void {
+        this.storeHealthy = false;
+        this.lastStoreError = error instanceof Error ? error.message : "Error desconocido de persistencia.";
+        if (Date.now() - this.lastStoreLogAt > 60_000) {
+            this.lastStoreLogAt = Date.now();
+            logger.warn("No se pudo guardar la sala; se conserva en memoria.", {
+                error: this.lastStoreError,
+            });
+        }
+    }
+
+    private async findGameByCode(code: string): Promise<StoredGame | null> {
+        const normalized = code.toUpperCase();
+        for (const game of this.memory.values()) {
+            if (game.code === normalized) return game;
+        }
+        try {
+            const stored = await this.store.findByCode(normalized);
+            if (stored) this.memory.set(stored.id, stored);
+            return stored;
+        } catch (error) {
+            this.markStoreFailure(error);
+            return null;
+        }
+    }
+
+    getPersistenceInfo(): PersistenceInfo & { healthy: boolean; gamesInMemory: number } {
+        return {
+            ...this.storeInfo,
+            degraded: this.storeInfo.degraded || !this.storeHealthy,
+            error: this.lastStoreError ?? this.storeInfo.error,
+            healthy: this.storeHealthy,
+            gamesInMemory: this.memory.size,
+        };
+    }
+
+    /** Limpia filas antiguas y partidas de memoria sin tocar las activas. */
+    private async pruneStore(): Promise<void> {
+        try {
+            await this.store.prune?.({
+                solo: true,
+                finishedBefore: new Date(Date.now() - 24 * 3600_000),
+                waitingBefore: new Date(Date.now() - 48 * 3600_000),
+            });
+        } catch (error) {
+            this.markStoreFailure(error);
+        }
+    }
+
+    private async sweep(): Promise<void> {
+        const now = Date.now();
+        for (const [id, game] of this.memory) {
+            if (this.presence.has(id)) continue;
+            const age = now - Date.parse(game.updatedAt);
+            const expired =
+                game.mode === "solo"
+                    ? age > 6 * 3600_000
+                    : game.status === "finished" && age > 2 * 3600_000;
+            if (expired) this.memory.delete(id);
+        }
+        if (this.memory.size > 400) {
+            const removable = [...this.memory.entries()]
+                .filter(([id]) => !this.presence.has(id))
+                .sort((first, second) => first[1].updatedAt.localeCompare(second[1].updatedAt));
+            for (const [id] of removable.slice(0, this.memory.size - 400)) this.memory.delete(id);
+        }
+        await this.pruneStore();
     }
 
     getConnectedSlots(gameId: string): Set<PlayerSlot> {
@@ -141,11 +259,11 @@ export class GameService {
             clearTimeout(existing);
             this.timers.delete(game.id);
         }
-        if(game.independentRuns){
-            const deadlines=Object.values(game.independentRuns).filter(run=>run?.status==="playing"&&run.pending&&(run.clock.autoDecisions||waitingFor(run).length===0)).map(run=>Date.parse(run!.pending!.deadlineAt??new Date(Date.now()+500).toISOString()));
-            if(!deadlines.length||game.status==="finished")return;
-            const timer=setTimeout(()=>{void this.runAutoTurn(game.id);},Math.max(0,Math.min(...deadlines)-Date.now()));
-            timer.unref?.();this.timers.set(game.id,timer);return;
+        if (game.independentRuns) {
+            const deadlines = Object.values(game.independentRuns).filter(run => run?.status === "playing" && run.pending && (run.clock.autoDecisions || waitingFor(run).length === 0)).map(run => Date.parse(run!.pending!.deadlineAt ?? new Date(Date.now() + 500).toISOString()));
+            if (!deadlines.length || game.status === "finished") return;
+            const timer = setTimeout(() => { void this.runAutoTurn(game.id); }, Math.max(0, Math.min(...deadlines) - Date.now()));
+            timer.unref?.(); this.timers.set(game.id, timer); return;
         }
         if (
             game.status !== "playing" ||
@@ -168,16 +286,16 @@ export class GameService {
     private async runAutoTurn(gameId: string): Promise<void> {
         this.timers.delete(gameId);
         await this.withLock(gameId, async () => {
-            const game = await this.store.get(gameId);
-            if(game?.independentRuns){
-                for(const run of Object.values(game.independentRuns)){
-                    if(!run||run.status!=="playing"||!run.pending)continue;
-                    if(!run.clock.autoDecisions&&waitingFor(run).length)continue;
-                    if(run.pending.deadlineAt&&Date.parse(run.pending.deadlineAt)>Date.now()+2)continue;
-                    if(run.clock.autoDecisions){if(!waitingFor(run).length)automaticHousehold(run);for(const slot of waitingFor(run))autoSubmit(run,slot);}
-                    if(!waitingFor(run).length)advanceMonth(run);
+            const game = await this.getRecord(gameId);
+            if (game?.independentRuns) {
+                for (const run of Object.values(game.independentRuns)) {
+                    if (!run || run.status !== "playing" || !run.pending) continue;
+                    if (!run.clock.autoDecisions && waitingFor(run).length) continue;
+                    if (run.pending.deadlineAt && Date.parse(run.pending.deadlineAt) > Date.now() + 2) continue;
+                    if (run.clock.autoDecisions) { if (!waitingFor(run).length) automaticHousehold(run); for (const slot of waitingFor(run)) autoSubmit(run, slot); }
+                    if (!waitingFor(run).length) advanceMonth(run);
                 }
-                syncDuelRuns(game);await this.store.save(game);this.emitChange(game);this.schedule(game);return;
+                syncDuelRuns(game); await this.persist(game); this.emitChange(game); this.schedule(game); return;
             }
             if (!game || game.status !== "playing" || !game.pending) return;
             if (!game.clock.autoDecisions && !(game.mode === "solo" && game.config.storyMode && waitingFor(game).length === 0)) return;
@@ -195,7 +313,7 @@ export class GameService {
             if (waitingFor(game).length === 0 && game.pending?.turn === initialTurn) {
                 if (game.config.monthlyMode) advanceMonth(game); else resolveTurn(game);
             }
-            await this.store.save(game);
+            await this.persist(game);
             this.emitChange(game);
             this.schedule(game);
         }).catch((error: unknown) => {
@@ -239,7 +357,7 @@ export class GameService {
             for (let index = 0; index < ROOM_CODE_LENGTH; index += 1) {
                 code += ROOM_CODE_ALPHABET[randomInt(0, ROOM_CODE_ALPHABET.length)];
             }
-            const existing = await this.store.findByCode(code);
+            const existing = await this.findGameByCode(code);
             if (!existing) return code;
         }
         throw Errors.internal("No se pudo generar un código de sala único.");
@@ -250,7 +368,7 @@ export class GameService {
         this.validateConfig(config);
         const game = createSoloGame(newGameId(), playerId, alias, config);
         if (config.storyMode) setPaused(game, true);
-        await this.store.save(game);
+        await this.persist(game);
         this.emitChange(game);
         this.schedule(game);
         return getGameView(game, playerId, this.connectedSlots(game.id));
@@ -265,13 +383,13 @@ export class GameService {
         this.validateConfig(config);
         const code = await this.generateRoomCode();
         const game = createDuelRoom(newGameId(), code, playerId, alias, config);
-        await this.store.save(game);
+        await this.persist(game);
         this.emitChange(game);
         return getLobbyView(game, playerId, this.connectedSlots(game.id));
     }
 
     async previewRoom(code: string): Promise<RoomJoinPreview> {
-        const game = await this.store.findByCode(code.toUpperCase());
+        const game = await this.findGameByCode(code.toUpperCase());
         if (!game || game.mode !== "duel") throw Errors.notFound("No existe ninguna sala con ese código.");
         return getRoomPreview(game);
     }
@@ -279,11 +397,11 @@ export class GameService {
     async joinRoom(code: string, playerId: string, alias: string): Promise<LobbyView> {
         const normalized = code.toUpperCase();
         return this.withLock(`code:${normalized}`, async () => {
-            const game = await this.store.findByCode(normalized);
+            const game = await this.findGameByCode(normalized);
             if (!game) throw Errors.notFound("No existe ninguna sala con ese código.");
             return this.withLock(game.id, async () => {
                 joinDuelRoom(game, playerId, alias);
-                await this.store.save(game);
+                await this.persist(game);
                 this.emitChange(game);
                 return getLobbyView(game, playerId, this.connectedSlots(game.id));
             });
@@ -291,7 +409,7 @@ export class GameService {
     }
 
     async getLobbyByCode(code: string, playerId: string): Promise<LobbyView> {
-        const game = await this.store.findByCode(code.toUpperCase());
+        const game = await this.findGameByCode(code.toUpperCase());
         if (!game) throw Errors.notFound("Sala no encontrada.");
         return getLobbyView(game, playerId, this.connectedSlots(game.id));
     }
@@ -308,7 +426,7 @@ export class GameService {
     ): Promise<LobbyView> {
         config = this.normalizeNewConfig(config);
         this.validateConfig(config);
-        const existing = await this.store.findByCode(code.toUpperCase());
+        const existing = await this.findGameByCode(code.toUpperCase());
         if (!existing) throw Errors.notFound("Sala no encontrada.");
         return this.withLock(existing.id, async () => {
             const game = await this.loadGame(existing.id);
@@ -336,34 +454,34 @@ export class GameService {
                 if (config.autoDecisions && !roomPlayer.left) game.autoVotes[roomPlayer.slot] = true;
             }
             game.updatedAt = new Date().toISOString();
-            await this.store.save(game);
+            await this.persist(game);
             this.emitChange(game);
             return getLobbyView(game, playerId, this.connectedSlots(game.id));
         });
     }
 
     async setReady(code: string, playerId: string, ready: boolean): Promise<LobbyView> {
-        const existing = await this.store.findByCode(code.toUpperCase());
+        const existing = await this.findGameByCode(code.toUpperCase());
         if (!existing) throw Errors.notFound("Sala no encontrada.");
         return this.withLock(existing.id, async () => {
             const game = await this.loadGame(existing.id);
             const player = this.requireMember(game, playerId);
             setPlayerReady(game, player.slot, ready);
-            await this.store.save(game);
+            await this.persist(game);
             this.emitChange(game);
             return getLobbyView(game, playerId, this.connectedSlots(game.id));
         });
     }
 
     async startRoom(code: string, playerId: string): Promise<GameView> {
-        const existing = await this.store.findByCode(code.toUpperCase());
+        const existing = await this.findGameByCode(code.toUpperCase());
         if (!existing) throw Errors.notFound("Sala no encontrada.");
         return this.withLock(existing.id, async () => {
             const game = await this.loadGame(existing.id);
             const player = this.requireMember(game, playerId);
             if (player.slot !== game.hostSlot) throw Errors.forbidden("Solo el anfitrión puede comenzar el duelo.");
             startDuel(game);
-            await this.store.save(game);
+            await this.persist(game);
             this.emitChange(game);
             this.schedule(game);
             return getGameView(game, playerId, this.connectedSlots(game.id));
@@ -389,11 +507,11 @@ export class GameService {
     ): Promise<DecisionSubmittedResponse> {
         return this.withLock(gameId, async () => {
             const root = await this.loadGame(gameId);
-            const game = personalLife(root,playerId);
+            const game = personalLife(root, playerId);
             const player = this.requireMember(game, playerId);
             const result = submitDecision(game, player.slot, input);
             syncDuelRuns(root);
-            await this.store.save(root);
+            await this.persist(root);
             this.emitChange(root);
             this.schedule(root);
             return {
@@ -409,7 +527,7 @@ export class GameService {
     async advanceStory(gameId: string, playerId: string): Promise<GameView> {
         return this.withLock(gameId, async () => {
             const root = await this.loadGame(gameId);
-            const game = personalLife(root,playerId);
+            const game = personalLife(root, playerId);
             this.requireMember(game, playerId);
             if (!game.config.storyMode) throw Errors.conflict("Esta vida no usa el modo historia.");
             if (game.mode === "duel" && Object.keys(game.pending?.prompts ?? {}).length > 0) {
@@ -421,7 +539,7 @@ export class GameService {
                 for (let i = 0; i < 1272 && game.status === "playing" && waitingFor(game).length === 0; i++) advanceMonth(game);
             } else resolveTurn(game);
             syncDuelRuns(root);
-            await this.store.save(root);
+            await this.persist(root);
             this.emitChange(root); this.schedule(root);
             return getGameView(root, playerId, this.connectedSlots(root.id));
         });
@@ -430,7 +548,7 @@ export class GameService {
     async enableMonthly(gameId: string, playerId: string): Promise<GameView> {
         return this.withLock(gameId, async () => {
             const root = await this.loadGame(gameId);
-            const game = personalLife(root,playerId); const player = this.requireMember(game, playerId);
+            const game = personalLife(root, playerId); const player = this.requireMember(game, playerId);
             if (game.mode !== "solo" || !player.character || game.status === "finished") throw Errors.conflict("Esta vida no puede cambiar de reloj.");
             if (!game.config.monthlyMode) {
                 game.config.monthlyMode = true; game.config.storyMode = true;
@@ -439,7 +557,7 @@ export class GameService {
                 refreshDeadline(game);
                 game.updatedAt = new Date(Math.max(Date.now(), new Date(game.updatedAt).getTime() + 1)).toISOString();
                 syncDuelRuns(root);
-            await this.store.save(root); this.emitChange(root); this.schedule(root);
+                await this.persist(root); this.emitChange(root); this.schedule(root);
             }
             return getGameView(root, playerId, this.connectedSlots(root.id));
         });
@@ -447,14 +565,14 @@ export class GameService {
 
     async spending(gameId: string, playerId: string) {
         const root = await this.loadGame(gameId);
-            const game = personalLife(root,playerId); const player = this.requireMember(game, playerId);
+        const game = personalLife(root, playerId); const player = this.requireMember(game, playerId);
         if (!player.character) throw Errors.conflict("La vida no ha comenzado.");
         return { options: spendingOptions(game, player.character) };
     }
     async purchase(gameId: string, playerId: string, input: ManualPurchase) {
         return this.withLock(gameId, async () => {
             const root = await this.loadGame(gameId);
-            const game = personalLife(root,playerId); const player = this.requireMember(game, playerId);
+            const game = personalLife(root, playerId); const player = this.requireMember(game, playerId);
             if (!player.character) throw Errors.conflict("La vida no ha comenzado.");
             if (game.status === "finished") throw Errors.conflict("La vida ya ha terminado; sus resultados están cerrados.");
             if (!player.character.alive) throw Errors.conflict("Este personaje ya ha muerto; su estado no puede cambiar.");
@@ -463,14 +581,14 @@ export class GameService {
             refreshAvailableDecisions(game);
             game.updatedAt = new Date(Math.max(Date.now(), new Date(game.updatedAt).getTime() + 1)).toISOString();
             syncDuelRuns(root);
-            await this.store.save(root); this.emitChange(root);
+            await this.persist(root); this.emitChange(root);
             return { game: getGameView(root, playerId, this.connectedSlots(root.id)), message };
         });
     }
 
     async mobility(gameId: string, playerId: string) {
         const root = await this.loadGame(gameId);
-            const game = personalLife(root,playerId);
+        const game = personalLife(root, playerId);
         const player = this.requireMember(game, playerId);
         if (!player.character) throw Errors.conflict("La vida no ha comenzado.");
         if (!player.character.alive) throw Errors.conflict("Este personaje ya ha muerto.");
@@ -480,7 +598,7 @@ export class GameService {
     async move(gameId: string, playerId: string, input: MobilityRequest) {
         return this.withLock(gameId, async () => {
             const root = await this.loadGame(gameId);
-            const game = personalLife(root,playerId);
+            const game = personalLife(root, playerId);
             const player = this.requireMember(game, playerId);
             if (!player.character) throw Errors.conflict("La vida no ha comenzado.");
             if (game.status === "finished") throw Errors.conflict("La vida ya ha terminado.");
@@ -490,7 +608,7 @@ export class GameService {
                 refreshAvailableDecisions(game);
                 game.updatedAt = new Date(Math.max(Date.now(), new Date(game.updatedAt).getTime() + 1)).toISOString();
                 syncDuelRuns(root);
-            await this.store.save(root);
+                await this.persist(root);
                 this.emitChange(root);
                 this.schedule(root);
                 return {
@@ -512,7 +630,7 @@ export class GameService {
     ) {
         return this.withLock(gameId, async () => {
             const root = await this.loadGame(gameId);
-            const game = personalLife(root,playerId);
+            const game = personalLife(root, playerId);
             const player = this.requireMember(game, playerId);
             if (!player.character) throw Errors.conflict("La vida no ha comenzado.");
             if (game.status === "finished") throw Errors.conflict("La vida ya ha terminado; sus resultados están cerrados.");
@@ -521,7 +639,7 @@ export class GameService {
             if (!result.duplicate) {
                 game.updatedAt = new Date(Math.max(Date.now(), new Date(game.updatedAt).getTime() + 1)).toISOString();
                 syncDuelRuns(root);
-            await this.store.save(root);
+                await this.persist(root);
                 this.emitChange(root);
             }
             return {
@@ -535,13 +653,13 @@ export class GameService {
     async setFocus(gameId: string, playerId: string, focus: LifeFocus): Promise<GameView> {
         return this.withLock(gameId, async () => {
             const root = await this.loadGame(gameId);
-            const game = personalLife(root,playerId);
+            const game = personalLife(root, playerId);
             const player = this.requireMember(game, playerId);
             if (game.mode !== "solo" || !game.config.storyMode || !player.character?.story || player.character.age < 6 || game.status === "finished") throw Errors.conflict("El enfoque no está disponible en esta vida.");
             player.character.story.focus = focus;
             game.updatedAt = new Date(Math.max(Date.now(), new Date(game.updatedAt).getTime() + 1)).toISOString();
             syncDuelRuns(root);
-            await this.store.save(root); this.emitChange(root);
+            await this.persist(root); this.emitChange(root);
             return getGameView(root, playerId, this.connectedSlots(root.id));
         });
     }
@@ -549,11 +667,11 @@ export class GameService {
     async setPaused(gameId: string, playerId: string, paused: boolean): Promise<GameView> {
         return this.withLock(gameId, async () => {
             const root = await this.loadGame(gameId);
-            const game = personalLife(root,playerId);
+            const game = personalLife(root, playerId);
             this.requireMember(game, playerId);
             setPaused(game, paused);
             syncDuelRuns(root);
-            await this.store.save(root);
+            await this.persist(root);
             this.emitChange(root);
             this.schedule(root);
             return getGameView(root, playerId, this.connectedSlots(root.id));
@@ -567,12 +685,12 @@ export class GameService {
     ): Promise<GameView> {
         return this.withLock(gameId, async () => {
             const root = await this.loadGame(gameId);
-            const game = personalLife(root,playerId);
+            const game = personalLife(root, playerId);
             this.requireMember(game, playerId);
             if (game.status === "finished") throw Errors.conflict("La partida ya ha terminado.");
             setGameSpeed(game, speed);
             syncDuelRuns(root);
-            await this.store.save(root);
+            await this.persist(root);
             this.emitChange(root);
             this.schedule(root);
             return getGameView(root, playerId, this.connectedSlots(root.id));
@@ -587,7 +705,7 @@ export class GameService {
     ): Promise<GameView> {
         return this.withLock(gameId, async () => {
             const root = await this.loadGame(gameId);
-            const game = personalLife(root,playerId);
+            const game = personalLife(root, playerId);
             const player = this.requireMember(game, playerId);
             if (game.status === "finished") throw Errors.conflict("La partida ya ha terminado.");
             if (game.mode === "duel" && player.slot !== game.hostSlot) {
@@ -601,7 +719,7 @@ export class GameService {
                 setDecisionTimer(game, decisionTimerSeconds);
             }
             syncDuelRuns(root);
-            await this.store.save(root);
+            await this.persist(root);
             this.emitChange(root);
             this.schedule(root);
             return getGameView(root, playerId, this.connectedSlots(root.id));
@@ -618,7 +736,7 @@ export class GameService {
                     if (run.status !== "finished") setPaused(run, true);
                     syncDuelRuns(game);
                 } else markPlayerLeft(game, player.slot);
-                await this.store.save(game);
+                await this.persist(game);
                 this.emitChange(game);
                 this.schedule(game);
             }
@@ -648,14 +766,18 @@ export class GameService {
         );
         joinDuelRoom(game, guest.playerId, guest.alias);
         game.rematchOf = source.id;
-        await this.store.save(game);
+        await this.persist(game);
         this.emitChange(game);
         this.emitter.emit("rematch:created", { oldGameId: source.id, gameId: game.id, code });
         return getLobbyView(game, playerId, this.connectedSlots(game.id));
     }
 
+    /**
+     * Solo se listan salas de duelo de esta sesión. Las vidas individuales no
+     * se guardan, así que no aparecen aquí por diseño.
+     */
     async listMine(playerId: string): Promise<GameSummary[]> {
-        const games = await this.store.loadAll();
+        const games = [...this.memory.values()].filter((game) => game.mode === "duel");
         return games
             .map((game) => {
                 const player = findPlayerByPlayerId(game, playerId);
@@ -667,11 +789,20 @@ export class GameService {
     }
 
     async getRoomRecord(code: string): Promise<StoredGame | null> {
-        return this.store.findByCode(code.toUpperCase());
+        return this.findGameByCode(code.toUpperCase());
     }
 
     async getRecord(gameId: string): Promise<StoredGame | null> {
-        return this.store.get(gameId);
+        const cached = this.memory.get(gameId);
+        if (cached) return cached;
+        try {
+            const stored = await this.store.get(gameId);
+            if (stored) this.memory.set(stored.id, stored);
+            return stored;
+        } catch (error) {
+            this.markStoreFailure(error);
+            return null;
+        }
     }
 
 
@@ -701,7 +832,7 @@ export class GameService {
             if (!player) return;
             player.aiNarrative = text;
             player.aiNarrativeSource = source;
-            await this.store.save(game);
+            await this.persist(game);
             this.emitChange(game);
         });
     }
@@ -731,16 +862,29 @@ export class GameService {
     }
 
     async touchSeen(gameId: string, playerId: string): Promise<void> {
-        const game = await this.store.get(gameId);
+        const game = await this.getRecord(gameId);
         const player = game ? findPlayerByPlayerId(game, playerId) : undefined;
         if (!game || !player) return;
+        // La presencia en vivo ya se sigue por socket; este campo solo sirve
+        // para saber si alguien estuvo aquí. Se escribe como mucho cada 5 min
+        // para no generar un guardado por cada recarga o reconexión.
+        const previous = Date.parse(player.lastSeenAt);
+        if (Number.isFinite(previous) && Date.now() - previous < 5 * 60_000) return;
         player.lastSeenAt = new Date().toISOString();
-        await this.store.save(game);
+        await this.persist(game);
     }
 
     private async loadGame(gameId: string): Promise<StoredGame> {
-        const game = await this.store.get(gameId);
-        if (!game) throw Errors.notFound("Partida no encontrada.");
+        let game = this.memory.get(gameId);
+        if (!game) {
+            try {
+                game = (await this.store.get(gameId)) ?? undefined;
+            } catch (error) {
+                this.markStoreFailure(error);
+            }
+            if (!game) throw Errors.notFound("Partida no encontrada.");
+            this.memory.set(game.id, game);
+        }
         // Rebuild unanswered saved prompts with the current authored choices.
         // Already answered decisions and their historical results stay intact.
         refreshAvailableDecisions(game);
@@ -754,6 +898,8 @@ export class GameService {
     }
 
     async shutdown(): Promise<void> {
+        if (this.sweepTimer) clearInterval(this.sweepTimer);
+        this.sweepTimer = null;
         for (const timer of this.timers.values()) clearTimeout(timer);
         this.timers.clear();
         await this.store.flush?.();

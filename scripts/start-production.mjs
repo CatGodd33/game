@@ -60,10 +60,19 @@ if (persistence === "postgres" && !skipMigrations) {
             });
         }
     } catch {
+        const requireDatabase = process.env.REQUIRE_DATABASE === "1";
         console.error(
-            "[start] No se pudieron aplicar las migraciones. Revisa DATABASE_URL, que Neon esté activo y que la URL sea la conexión directa (no la pooled).",
+            "[start] No se pudieron aplicar las migraciones o conectar con PostgreSQL.",
         );
-        process.exit(1);
+        if (requireDatabase) {
+            console.error(
+                "[start] REQUIRE_DATABASE=1: se detiene el arranque. Revisa DATABASE_URL y que la base esté activa.",
+            );
+            process.exit(1);
+        }
+        console.error(
+            "[start] Se continúa en modo memoria: el modo individual funciona igual y las salas de duelo no sobrevivirán a un reinicio. Define REQUIRE_DATABASE=1 si prefieres fallar en este caso.",
+        );
     }
 }
 

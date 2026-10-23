@@ -154,3 +154,12 @@ Estas ausencias son decisiones de alcance, no fallos ocultos. La arquitectura mo
 - El catálogo chino se incluye en el bundle compartido (unos 600 kB de texto, mucho menos comprimido). Se puede separar por idioma en una próxima iteración.
 - Las respuestas de Socket.IO no se localizan en el servidor; el cliente traduce los nodos visibles y la narrativa HTTP usa plantillas.
 - La calidad del texto chino no sustituye una revisión editorial profesional; la arquitectura permite corregir cadenas sin tocar el motor.
+
+## 10. Persistencia mínima (2.5)
+
+- **Las vidas individuales no se guardan.** Es una decisión de producto para no consumir base de datos: si el servidor se reinicia a mitad de una vida, se pierde. Recargar la página no la borra mientras el proceso siga vivo.
+- **Los duelos se guardan comprimidos y recortados.** Tras un reinicio se conserva la sala, las puntuaciones y los últimos 24 turnos; la narrativa de turnos antiguos y los extractos bancarios ya no están. No afecta a la puntuación (se conservan todas las instantáneas), pero el historial recuperado es más corto.
+- **Sin base de datos disponible**, los duelos funcionan en memoria pero no sobreviven a un reinicio. `/api/health` lo indica con `persistenceDegraded: true`.
+- **Las salas terminadas se borran a las 24 h** y las abandonadas a las 48 h. No hay archivo histórico permanente; la exportación JSON solo está disponible mientras la partida está viva.
+- **La conexión real con PostgreSQL sigue sin verificarse en este entorno** (no hay servidor instalado). El adaptador compila y las pruebas cubren el formato comprimido, la compatibilidad con filas antiguas y la degradación a memoria; la prueba contra Neon/Aruba queda pendiente.
+- **El reloj y el rate limit siguen en memoria.** Una instancia gratuita de Render es suficiente; escalar a varias réplicas requeriría un almacén compartido.

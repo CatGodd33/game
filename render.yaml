@@ -25,8 +25,12 @@ services:
         value: production
       - key: NODE_VERSION
         value: "22"
+      # Solo las salas de duelo usan el almacén. Con `json`, el servicio
+      # funciona sin base de datos (disco efímero: las salas no sobreviven
+      # a un reinicio). Cambia a `postgres` y define DATABASE_URL si quieres
+      # recuperar duelos tras reiniciar.
       - key: PERSISTENCE
-        value: postgres
+        value: json
       - key: TRUST_PROXY
         value: "1"
       - key: LOG_LEVEL
@@ -34,6 +38,7 @@ services:
       - key: SESSION_SECRET
         generateValue: true
       # Cadena de conexión DIRECTA de Neon, con sslmode=require.
-      # Se introduce en el dashboard durante la creación del Blueprint.
+      # Opcional: cadena de conexión DIRECTA de PostgreSQL (Neon, Supabase,
+      # Aruba…) con sslmode=require. Si PERSISTENCE=postgres, es obligatoria.
       - key: DATABASE_URL
         sync: false

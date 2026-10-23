@@ -8,7 +8,7 @@ import { buttonClasses } from "../ui/Button";
 import { LanguageToggle } from "../ui/LanguageToggle";
 
 const NAV_ITEMS = [
-    { to: "/partidas", label: "Mis vidas", icon: BookHeart },
+    { to: "/partidas", label: "Duelos", icon: BookHeart },
     { to: "/historial", label: "Historial", icon: History },
     { to: "/ajustes", label: "Ajustes", icon: Settings },
 ];

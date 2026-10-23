@@ -371,16 +371,20 @@ Fórmula y ejemplos: [`docs/scoring.md`](docs/scoring.md).
 
 ## 9. Persistencia y recuperación
 
-### JSON (por defecto)
-- Archivo `server/.data/games.json`.
-- Escritura atómica mediante archivo temporal + `rename`.
-- Serializa la cola de escritura para evitar corrupciones.
-- Si el archivo está corrupto, conserva una copia `.corrupt-*` y arranca vacío.
-- Una recarga del navegador no borra la sesión ni la partida.
-- Reiniciar el servidor conserva partidas y sesiones (el secreto local se guarda). Verificado con un arranque real en el puerto 4101: misma huella de semilla, nacimiento y turno antes y después del reinicio.
+### Qué se guarda desde la versión 2.5
+- **Vida individual: nada.** El estado vive en memoria del servidor mientras dura la partida. Al terminar ves la puntuación y el resumen; no se escribe en disco ni en PostgreSQL. Si recargas la página, la vida sigue disponible mientras el servidor no se reinicie; si se reinicia, empiezas otra.
+- **Duelo: solo la sala.** Se guarda una instantánea compacta y comprimida con gzip (historial reciente, sin narrativa antigua) para poder reanudar la partida tras una recarga o un reinicio. No se almacenan vidas individuales ni historiales a largo plazo.
+- **Al terminar un duelo** se conserva el resultado durante 24 horas para poder verlo y compartirlo; después se elimina.
+- **Purga automática:** al arrancar se borran las vidas individuales antiguas (formato anterior), las salas terminadas hace más de 24 h y las salas abandonadas hace más de 48 h.
+- La base de datos es **opcional**: si no responde, el servidor arranca en modo memoria y se puede jugar; solo se pierde la recuperación de salas tras un reinicio. `/api/health` indica `persistence: "memory"` y `persistenceDegraded: true`.
 
-### PostgreSQL + Prisma (opcional)
-El adaptador usa Prisma 7, el driver `@prisma/adapter-pg` y una tabla `GameRecord` con el snapshot JSON autoritativo. Para activarlo:
+### JSON (por defecto en local)
+- Archivo `server/.data/games.json`, con escritura atómica (temporal + `rename`) y cola de escritura.
+- Si el archivo está corrupto, conserva una copia `.corrupt-*` y arranca vacío.
+- Reiniciar el servidor conserva las sesiones y las salas de duelo (el secreto local se guarda).
+
+### PostgreSQL + Prisma (opcional, solo duelos)
+El adaptador usa Prisma 7, el driver `@prisma/adapter-pg` y la tabla `GameRecord` existente. El snapshot se guarda comprimido dentro de la columna `data` con un envoltorio `{ "__lifeDuelZip": 1, "zip": "…" }`; **no hace falta migrar el esquema** y las filas antiguas se siguen leyendo. Una partida completa de 1 MB ocupa ~78 KB.
 
 ```bash
 # Opción A: PostgreSQL local
@@ -388,18 +392,16 @@ export DATABASE_URL="postgresql://usuario:clave@localhost:5432/life_duel?schema=
 export SESSION_SECRET="$(openssl rand -hex 48)"
 
 npm run prisma:generate
-npm run prisma:deploy      # aplica las migraciones existentes
+npm run prisma:deploy
 PERSISTENCE=postgres npm run dev:server
 
 # Opción B: Docker Compose (incluye PostgreSQL y app)
 SESSION_SECRET="$(openssl rand -hex 48)" docker compose up --build
 ```
 
-La migración inicial está en `prisma/migrations/0001_init`. El esquema se valida y el cliente se genera correctamente; **la conexión contra un PostgreSQL real no se pudo verificar en este entorno porque no hay servidor de base de datos instalado**. Está documentado en [`docs/limitations.md`](docs/limitations.md).
+En producción, `npm start` intenta aplicar `prisma migrate deploy` si `PERSISTENCE=postgres`. Si la base no está disponible, **el servidor continúa en modo memoria** en lugar de caerse; define `REQUIRE_DATABASE=1` si prefieres que falle y reintente el despliegue.
 
-En producción, `npm start` aplica `prisma migrate deploy` automáticamente si `PERSISTENCE=postgres`; también se puede ejecutar a mano con `npm run prisma:deploy`.
-
-La exportación completa de una vida está disponible en JSON desde el historial y el resultado final.
+La exportación completa de una vida sigue disponible en JSON desde el historial y el resultado final, aunque el servidor no la conserve.
 
 ---
 
@@ -415,6 +417,7 @@ Copia `.env.example` a `.env`. Nunca se incluyen secretos en el cliente.
 | `SESSION_SECRET` | generado en desarrollo | Firma HMAC de sesiones. **Obligatorio en producción.** |
 | `PERSISTENCE` | `json` | `json` o `postgres`. |
 | `DATABASE_URL` | — | Obligatoria si `PERSISTENCE=postgres`. |
+| `REQUIRE_DATABASE` | — | `1` hace que el arranque falle si PostgreSQL no responde; por defecto continúa en memoria. |
 | `DATA_DIR` | `./data` | Dataset demográfico y modelos. |
 | `PERSIST_DIR` | `./server/.data` | Almacén JSON y secreto local. |
 | `DEEPSEEK_API_KEY` | — | Opcional, solo backend. |
@@ -527,15 +530,17 @@ Lista completa: [`docs/limitations.md`](docs/limitations.md).
 
 ### Guía completa de publicación gratuita
 
-La guía paso a paso está en **[`docs/deployment.md`](docs/deployment.md)**: Render Free + Neon PostgreSQL + GitHub, con variables, migraciones, dominio opcional, límites y solución de problemas.
+La guía paso a paso está en **[`docs/deployment.md`](docs/deployment.md)**: Render Free con o sin PostgreSQL, variables, migraciones, dominio opcional, límites y solución de problemas.
 
-**[Publicar en Render](https://render.com/deploy?repo=https://github.com/CatGodd33/game)** (necesitas cuenta gratuita de Render y una `DATABASE_URL` de Neon).
+Desde la 2.5 **PostgreSQL es opcional**. El modo individual no necesita base de datos y los duelos se guardan comprimidos (unos 78 KB por partida) solo si hay una `DATABASE_URL`.
+
+**[Publicar en Render](https://render.com/deploy?repo=https://github.com/CatGodd33/game)** (solo necesitas una cuenta gratuita de Render; la base de datos es opcional).
 
 Resumen:
 
 1. Sube el proyecto a GitHub.
-2. Crea un PostgreSQL gratuito en Neon y copia la conexión **directa**.
-3. En Render, **New + → Blueprint**, selecciona el repo y pega `DATABASE_URL`.
+2. En Render, **New + → Blueprint**, selecciona el repo.
+3. Si quieres recuperar duelos tras un reinicio, añade `DATABASE_URL` de cualquier PostgreSQL; si no, deja `PERSISTENCE=json` y borra `DATABASE_URL`.
 4. Render lee `render.yaml`, compila y publica en `https://<servicio>.onrender.com`.
 
 ### Servidor único local (producción)

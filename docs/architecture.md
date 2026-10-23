@@ -164,8 +164,15 @@ Al resolver el turno se publican las opciones y consecuencias de ambos en `lastR
 
 `StoredGame` contiene configuración, semilla, nacimiento, estado del mundo, ambos personajes, prompts, decisiones, snapshots, puntuaciones, historial, libro mayor, final e idempotencia.
 
-- `JsonGameStore`: archivo único, escritura temporal + `rename`, cola de escritura, copia de archivo corrupto.
-- `PostgresGameStore`: Prisma 7 + `@prisma/adapter-pg`; tabla `GameRecord` con snapshot JSON y columnas indexables (`mode`, `code`, `status`).
+Desde la 2.5 la política es explícita:
+
+- **Vida individual:** `GameService` la mantiene en un `Map` en memoria y **no llama al almacén**. Al terminar o caducar (6 h sin actividad) se descarta.
+- **Duelo:** se guarda en memoria y en el almacén configurado. Antes de escribir, `persistence/compact.ts` recorta el historial (24 turnos) y comprime el snapshot con gzip conservando todas las instantáneas de puntuación; el resultado se envuelve en `{ __lifeDuelZip, zip }` dentro de la columna `data` existente.
+- **Arranque:** se purgan vidas individuales antiguas, salas terminadas (>24 h) y abandonadas (>48 h); después se rehidratan solo salas abiertas.
+- **Degradación:** si el almacén falla al inicializar o al guardar, el servicio sigue en memoria (`persistenceDegraded`), sin romper la partida.
+- `JsonGameStore`: archivo único, escritura temporal + `rename`, cola de escritura, copia de archivo corrupto y purga.
+- `PostgresGameStore`: Prisma 7 + `@prisma/adapter-pg`; tabla `GameRecord` con snapshot comprimido y columnas indexables (`mode`, `code`, `status`). Sin migraciones nuevas.
+- `MemoryGameStore`: último recurso cuando la base no responde.
 - La semilla completa solo reside en el servidor y en el almacén.
 
 ## 7. Sesiones y seguridad

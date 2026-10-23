@@ -88,11 +88,16 @@ export function createApp(dependencies: AppDependencies): Express {
     app.use("/api", limiter);
 
     app.get("/api/health", (_req, res) => {
+        const persistence = dependencies.gameService.getPersistenceInfo();
         res.json({
             status: "ok",
             name: "LIFE DUEL",
             version: config.version,
-            persistence: config.persistence,
+            persistence: persistence.mode,
+            persistenceRequested: persistence.requested,
+            persistenceDegraded: persistence.degraded,
+            soloPersistence: "memory",
+            gamesInMemory: persistence.gamesInMemory,
             ai: config.deepseek.enabled ? "deepseek-configurado" : "local",
             time: new Date().toISOString(),
         });

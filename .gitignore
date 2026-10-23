@@ -20,3 +20,6 @@ artifacts/
 
 # Archivos locales temporales
 .tmp-*
+
+# Caché de herramientas locales
+.dirac-cache/

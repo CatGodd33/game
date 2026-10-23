@@ -234,20 +234,21 @@ Esto **no toca los archivos ni la web del cliente**: solo añade un subdominio y
 
 ## 8. Persistencia y copias de seguridad
 
-- Las partidas se guardan en PostgreSQL (`GameRecord.data`).
-- Render free tiene disco efímero: **no uses `PERSISTENCE=json`** si quieres conservar partidas entre reinicios.
+- Desde la 2.5 **solo se persisten salas de duelo**, y de forma compacta y comprimida (unos 78 KB por partida terminada). Las vidas individuales viven en memoria y no consumen base de datos.
+- Render free tiene disco efímero: con `PERSISTENCE=json` las salas no sobreviven a un reinicio, pero el juego sigue funcionando.
+- Si PostgreSQL no responde, el servidor arranca en modo memoria y lo indica en `/api/health` (`persistenceDegraded: true`). Define `REQUIRE_DATABASE=1` para que el despliegue falle en su lugar.
 - Neon permite copias y restauración desde su panel.
-- El juego permite exportar una vida completa en JSON desde el historial y la pantalla final.
+- El juego permite exportar en JSON el estado de una partida mientras está en memoria.
 
-### Alternativa sin Neon (solo demo)
+### Publicar sin base de datos (modo gratuito sin Neon)
 
-Si no quieres crear la base de datos:
+1. En Render → **Environment**: `PERSISTENCE=json` y borra `DATABASE_URL`.
+2. **Manual Deploy → Deploy latest commit**.
+3. Verifica `GET /api/health`: `persistence: "json"`, `soloPersistence: "memory"`, `gamesInMemory`.
 
-1. En Render, cambia `PERSISTENCE` a `json`.
-2. Borra `DATABASE_URL`.
-3. Despliega.
+El modo individual funciona completo y no escribe nada. Los duelos se pueden jugar; si Render reinicia o se duerme entre turnos, esa sala se pierde y hay que crear otra.
 
-Las partidas se pierden cuando Render reinicia o duerme el servicio. Sirve para enseñar el juego, no para duelos que deban durar.
+Si quieres que los duelos sobrevivan a reinicios, configura una `DATABASE_URL` de cualquier PostgreSQL (Neon, Supabase, Aruba…) y vuelve a `PERSISTENCE=postgres`. No hace falta ninguna migración nueva.
 
 ---
 
@@ -257,7 +258,7 @@ Las partidas se pierden cuando Render reinicia o duerme el servicio. Sirve para 
 | --- | --- |
 | Render Free | El servicio se duerme tras ~15 min sin tráfico; primer acceso lento. CPU y RAM modestas. |
 | Disco de Render | Efímero. Sin PostgreSQL, las partidas no sobreviven a un reinicio. |
-| Neon Free | Límites de almacenamiento y cómputo; la base puede suspenderse por inactividad y despertar al primer acceso. |
+| Neon Free | 5 GB de transferencia mensual. Con la persistencia 2.5 (solo duelos, comprimidos) miles de partidas caben en esa cuota. |
 | DeepSeek | Desactivado. El juego usa narrativa local; no hay coste por token. |
 | Dominio | `*.onrender.com` gratis. Un dominio propio cuesta aparte. |
 

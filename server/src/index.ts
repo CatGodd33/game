@@ -3,15 +3,20 @@ import { Server } from "socket.io";
 import { createApp } from "./app.js";
 import { config } from "./config.js";
 import { logger } from "./logger.js";
-import { createGameStore } from "./persistence/index.js";
+import { createGameStoreSafe } from "./persistence/index.js";
 import { GameService } from "./services/gameService.js";
 import { NarrativeService } from "./services/narrativeService.js";
 import { SessionService } from "./services/sessionService.js";
 import { attachSocketServer } from "./sockets/index.js";
 
 async function main(): Promise<void> {
-    const store = await createGameStore();
-    const gameService = new GameService(store);
+    const persistence = await createGameStoreSafe();
+    const gameService = new GameService(persistence.store, {
+        mode: persistence.mode,
+        requested: persistence.requested,
+        degraded: persistence.degraded,
+        error: persistence.error,
+    });
     await gameService.init();
     const sessionService = new SessionService();
     const narrativeService = new NarrativeService(gameService);
@@ -35,7 +40,7 @@ async function main(): Promise<void> {
             port: config.port,
             url: `http://localhost:${config.port}`,
             client: config.clientOrigin,
-            persistence: config.persistence,
+            persistence: persistence.mode,
             ai: config.deepseek.enabled ? "deepseek" : "local",
         });
         if (config.sessionSecretSource === "file") {

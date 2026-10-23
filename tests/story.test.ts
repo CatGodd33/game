@@ -65,9 +65,9 @@ describe("vida narrativa", () => {
     it("avanza sin automatizar elecciones y se detiene ante una decisión", async () => {
         vi.useFakeTimers();
         const store = new MemoryGameStore(); const game = life(); await store.save(game);
-        const service = new GameService(store); await service.init();
+        const service = new GameService(store); await service.getRecord(game.id); await service.init();
         await vi.advanceTimersByTimeAsync(180_000);
-        expect((await store.get(game.id))?.age).toBe(2);
+        expect((await service.getRecord(game.id))?.age).toBe(2);
         await service.shutdown();
         vi.useRealTimers();
     });

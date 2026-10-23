@@ -7,7 +7,7 @@ import { APP_VERSION } from "@life-duel/shared";
 
 const secondary = [
     { to: "/duelo?modo=unirse", label: "Tengo un código", icon: LogIn },
-    { to: "/partidas", label: "Continuar una vida", icon: BookOpen },
+    { to: "/partidas", label: "Continuar un duelo", icon: BookOpen },
 ];
 
 export function HomePage() {
@@ -24,6 +24,7 @@ export function HomePage() {
                     <p className="home-lead">
                         Naces con un país, una familia y una época que no eliges. En duelo, dos personas
                         reciben exactamente el mismo mundo. Lo que cambie será lo que cada una haga con él.
+                        La vida individual se juega de una vez: al terminar ves tu puntuación y no se guarda.
                     </p>
                     <div className="home-actions">
                         <Link className="home-cta primary" to="/nueva-vida">

@@ -3,7 +3,7 @@ import { dirname, join } from "node:path";
 import { config } from "../config.js";
 import { logger } from "../logger.js";
 import type { StoredGame } from "../types/records.js";
-import type { GameStore } from "./types.js";
+import type { GameStore, PruneOptions } from "./types.js";
 
 interface StoreFile {
     version: 1;
@@ -84,12 +84,7 @@ export class JsonGameStore implements GameStore {
     async loadActive(): Promise<StoredGame[]> {
         this.ensureLoaded();
         return [...this.games.values()]
-            .filter(
-                (game) =>
-                    game.status === "playing" &&
-                    Boolean(game.pending) &&
-                    (game.clock.autoDecisions || game.config.storyMode),
-            )
+            .filter((game) => game.mode === "duel" && game.status !== "finished")
             .map((game) => structuredClone(game));
     }
 
@@ -105,6 +100,26 @@ export class JsonGameStore implements GameStore {
         this.games.delete(id);
         this.writeChain = this.writeChain.then(() => this.writeNow());
         await this.writeChain;
+    }
+
+    async prune(options: PruneOptions = {}): Promise<number> {
+        this.ensureLoaded();
+        let removed = 0;
+        for (const [id, game] of this.games) {
+            const updated = new Date(game.updatedAt).getTime();
+            const finished = Boolean(options.finishedBefore) && game.status === "finished" && updated < options.finishedBefore!.getTime();
+            const waiting = Boolean(options.waitingBefore) && (game.status === "waiting" || game.status === "ready") && updated < options.waitingBefore!.getTime();
+            if ((options.solo && game.mode === "solo") || finished || waiting) {
+                this.games.delete(id);
+                removed += 1;
+            }
+        }
+        if (removed > 0) {
+            this.writeChain = this.writeChain.then(() => this.writeNow());
+            await this.writeChain;
+            logger.info("Persistencia JSON: partidas antiguas eliminadas.", { removed });
+        }
+        return removed;
     }
 
     async flush(): Promise<void> {

@@ -28,8 +28,12 @@ Sin auth.
 {
   "status": "ok",
   "name": "LIFE DUEL",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "persistence": "json",
+  "persistenceRequested": "json",
+  "persistenceDegraded": false,
+  "soloPersistence": "memory",
+  "gamesInMemory": 3,
   "ai": "local",
   "time": "2026-01-01T00:00:00.000Z"
 }
