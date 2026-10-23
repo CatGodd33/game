@@ -30,7 +30,7 @@ El `webServer` de Playwright reutiliza un `npm run dev` ya activo. Si no existe,
 - Vitest: **28 archivos, 221 pruebas, 221 correctas** (incluye `tests/i18n.test.ts`, `tests/persistence-policy.test.ts` y las suites anteriores de coherencia, relación, país, atlas y móvil).
 - Playwright: **10 pruebas, 10 correctas** (vida individual completa, duelo en dos contextos, acciones económicas manuales, deudas con pago dirigido, atlas espacial, estabilidad de escritorio, dashboard móvil y tres flujos de chino: portada/partida, decisión/historial y pantallas secundarias con final).
 - `npm run typecheck`: correcto.
-- `npm run build`: correcto; cliente de 1.582,99 kB (554,75 kB gzip), CSS de 163,93 kB (35,20 kB gzip) y aviso no bloqueante de chunk por el catálogo chino.
+- `npm run build`: correcto; cliente de 1.583,40 kB (554,84 kB gzip), CSS de 163,93 kB (35,20 kB gzip) y aviso no bloqueante de chunk por el catálogo chino.
 - Reinicio real del servidor compilado: la sala de duelo se recupera desde el snapshot comprimido con la misma semilla, nacimiento y puntuaciones; el modo individual no se persiste por diseño.
 - Arranque de producción (`node server/dist/index.js`) en el puerto 4105: `GET /api/health` devuelve `status: ok`, persistencia JSON y modo IA local.
 - Producción: el health local devuelve `version: 2.5.0` con `soloPersistence: "memory"` y el estado real de la persistencia. Render requiere **Manual Deploy** del commit de la 2.5.

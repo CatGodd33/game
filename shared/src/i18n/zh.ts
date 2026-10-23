@@ -1575,7 +1575,6 @@ export const ZH_CATALOG: Record<string, string> = {
     "En la escuela encuentras piezas, mapas y aparatos rotos. Tu curiosidad de pequeño se ha convertido en preguntas que ya puedes investigar.": "在学校里，你会发现碎片、地图和设备。你小时候的好奇心已经变成了你现在可以调查的问题。",
     "En la música, ceder derechos es una decisión de largo plazo que sobrevive a la moda del momento.": "在音乐领域，放弃权利是一个长期的决定，不能随波逐流。",
     "En línea": "在线的",
-    "En local, las partidas se guardan en un archivo JSON con escritura atómica. PostgreSQL con Prisma puede activarse con variables de entorno, sin cambiar el motor.": "在本地，游戏以原子写入的方式保存在 JSON 文件中。 PostgreSQL with Prisma 可以通过环境变量激活，无需更改引擎。",
     "en marcha": "正在进行中",
     "En pareja": "作为情侣",
     "en pausa": "暂停时",
@@ -2392,7 +2391,6 @@ export const ZH_CATALOG: Record<string, string> = {
     "La inspección quedó cerrada con un plan de mejoras. Pagaste la obra, pero el negocio siguió abierto y la próxima visita partió de otro expediente.": "检查以改进计划结束。您支付了工作费用，但业务仍然开放，下次访问从另一个文件开始。",
     "La inteligencia artificial cambia la división del trabajo, no solo la velocidad de una tarea.": "人工智能改变了劳动分工，而不仅仅是任务的速度。",
     "La inteligencia artificial llega a la oficina": "人工智能走进办公室",
-    "La interfaz encontró un problema inesperado. Tu partida está guardada en el servidor.": "接口遇到意外问题。您的游戏保存在服务器上。",
     "La intervención no salió como esperabas. Nadie te acusó, pero el comité revisó cada paso y tú no dormiste igual durante semanas.": "干预并没有按预期进行。没有人指责你，但委员会审查了每一步，你好几个星期都没有睡过同样的觉。",
     "La invitación ha caducado.": "邀请已过期。",
     "La jornada terminó con la sensación de haber hecho mucho y, a la vez, nada visible.": "这一天结束时，我感觉自己做了很多事情，但同时却什么也没看到。",
@@ -5282,6 +5280,7 @@ export const ZH_OVERRIDES: Record<string, string> = {
     "Kenia": "肯尼亚",
     "La conexión de persistencia": "持久化连接",
     "La Coruña": "拉科鲁尼亚",
+    "La interfaz encontró un problema inesperado. Si estabas en un duelo, la sala sigue en el servidor: recarga para continuar. Las vidas individuales no se guardan.": "界面遇到了意外问题。如果你正在对决，房间仍保存在服务器上：重新加载即可继续。单人人生不会被保存。",
     "La misma semilla. Decisiones distintas.": "同样的种子，不同的决定。",
     "La misma vida.": "同样的人生。",
     "La misma vida. Dos formas de vivirla.": "同样的人生，两种活法。",
@@ -5294,6 +5293,7 @@ export const ZH_OVERRIDES: Record<string, string> = {
     "Las elecciones personales se mantienen privadas.": "个人选择始终保密。",
     "Las vidas individuales no se guardan: empiezas y terminas en la misma sesión, y al final ves tu puntuación. Aquí aparecen las salas de duelo que siguen abiertas.": "单人人生不会保存：开始和结束都在同一次会话中，最后直接看到分数。这里显示仍然开放的对决房间。",
     "Las vidas individuales no se guardan. En los duelos, el resultado se conserva mientras el servidor mantiene la sala; puedes volver a abrir su resumen desde «Duelos».": "单人人生不会保存。对决的结果会在服务器保留房间期间存在；你可以从「对决」重新打开它的总结。",
+    "Las vidas individuales viven en memoria y no se guardan. Solo las salas de duelo se persisten, compactas y comprimidas, en JSON o PostgreSQL con Prisma. Si la base no responde, el servidor sigue funcionando en memoria.": "单人人生只保存在内存中，不会被存储。只有对决房间会以压缩的紧凑格式保存在 JSON 或 PostgreSQL（Prisma）中。如果数据库没有响应，服务器会继续在内存中运行。",
     "Leer completo": "阅读全文",
     "Leer menos": "收起",
     "Licencia": "许可证",
@@ -5971,8 +5971,8 @@ export const ZH_TEMPLATES: Record<string, string> = {
 };
 
 export const ZH_COVERAGE = {
-    "machine": 4887,
-    "overrides": 740,
+    "machine": 4885,
+    "overrides": 742,
     "tokens": 148,
     "templates": 181,
     "missing": 0

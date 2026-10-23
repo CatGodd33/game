@@ -288,8 +288,9 @@ export function SettingsPage() {
                             </dl>
                         )}
                         <p className="mt-3 text-[0.62rem] leading-relaxed text-parchment-faint">
-                            En local, las partidas se guardan en un archivo JSON con escritura atómica. PostgreSQL con
-                            Prisma puede activarse con variables de entorno, sin cambiar el motor.
+                            Las vidas individuales viven en memoria y no se guardan. Solo las salas de duelo se
+                            persisten, compactas y comprimidas, en JSON o PostgreSQL con Prisma. Si la base no
+                            responde, el servidor sigue funcionando en memoria.
                         </p>
                     </SoftCard>
 
